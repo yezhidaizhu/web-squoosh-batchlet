@@ -193,6 +193,13 @@
   transition: opacity 180ms ease, transform 180ms ease;
 }
 
+.thumbnail-placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #17213f;
+}
+
 .select-button:hover .thumbnail,
 .select-button:focus-visible .thumbnail {
   opacity: 0.78;

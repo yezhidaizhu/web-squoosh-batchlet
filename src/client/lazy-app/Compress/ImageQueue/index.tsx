@@ -7,7 +7,6 @@ import 'add-css:./style.css';
 export interface QueueFile {
   id: string;
   file: File;
-  previewUrl: string;
 }
 
 interface Props {
@@ -22,8 +21,92 @@ interface Props {
   onRemoveFile: (id: string) => void;
 }
 
-export default class ImageQueue extends Component<Props> {
+interface State {
+  thumbnailUrls: { [id: string]: string };
+}
+
+const maxThumbnailDimension = 270;
+const thumbnailQuality = 0.7;
+
+async function loadImage(file: File): Promise<HTMLImageElement> {
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+
+  return new Promise((resolve, reject) => {
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(Error('Image decoding failed'));
+    };
+    image.src = url;
+  });
+}
+
+async function createThumbnail(file: File): Promise<Blob> {
+  const source =
+    'createImageBitmap' in window
+      ? await createImageBitmap(file)
+      : await loadImage(file);
+
+  try {
+    const sourceWidth =
+      source instanceof HTMLImageElement ? source.naturalWidth : source.width;
+    const sourceHeight =
+      source instanceof HTMLImageElement ? source.naturalHeight : source.height;
+    const scale = Math.min(
+      1,
+      maxThumbnailDimension / Math.max(sourceWidth, sourceHeight),
+    );
+    const width = Math.max(1, Math.round(sourceWidth * scale));
+    const height = Math.max(1, Math.round(sourceHeight * scale));
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) throw Error('Canvas not initialized');
+
+    canvas.width = width;
+    canvas.height = height;
+    context.drawImage(source, 0, 0, width, height);
+
+    return new Promise((resolve, reject) =>
+      canvas.toBlob(
+        (blob) => (blob ? resolve(blob) : reject(Error('Thumbnail failed'))),
+        'image/webp',
+        thumbnailQuality,
+      ),
+    );
+  } finally {
+    if ('ImageBitmap' in window && source instanceof ImageBitmap) {
+      source.close();
+    }
+  }
+}
+
+export default class ImageQueue extends Component<Props, State> {
+  state: State = {
+    thumbnailUrls: {},
+  };
+
   private fileInput?: HTMLInputElement;
+  private generatingThumbnails = new Set<string>();
+  private unmounted = false;
+
+  componentDidMount() {
+    this.syncThumbnails();
+  }
+
+  componentDidUpdate() {
+    this.syncThumbnails();
+  }
+
+  componentWillUnmount() {
+    this.unmounted = true;
+    Object.values(this.state.thumbnailUrls).forEach((url) =>
+      URL.revokeObjectURL(url),
+    );
+  }
 
   private onAddClick = () => this.fileInput!.click();
 
@@ -57,7 +140,53 @@ export default class ImageQueue extends Component<Props> {
 
   private formatCount = (count: number) => (count > 99 ? '99+' : count);
 
-  render({ files, selectedFileId, collapsed, launcher }: Props) {
+  private syncThumbnails = () => {
+    const currentIds = new Set(this.props.files.map(({ id }) => id));
+    const staleThumbnailUrls = Object.keys(this.state.thumbnailUrls).filter(
+      (id) => !currentIds.has(id),
+    );
+
+    if (staleThumbnailUrls.length > 0) {
+      staleThumbnailUrls.forEach((id) =>
+        URL.revokeObjectURL(this.state.thumbnailUrls[id]),
+      );
+      this.setState((state) => {
+        const thumbnailUrls = { ...state.thumbnailUrls };
+        staleThumbnailUrls.forEach((id) => delete thumbnailUrls[id]);
+        return { thumbnailUrls };
+      });
+    }
+
+    this.props.files.forEach((queueFile) => {
+      const { id, file } = queueFile;
+      if (this.state.thumbnailUrls[id] || this.generatingThumbnails.has(id)) {
+        return;
+      }
+
+      this.generatingThumbnails.add(id);
+      createThumbnail(file)
+        .catch(() => file)
+        .then((thumbnail) => URL.createObjectURL(thumbnail))
+        .then((url) => {
+          this.generatingThumbnails.delete(id);
+          if (
+            this.unmounted ||
+            !this.props.files.some((queueFile) => queueFile.id === id)
+          ) {
+            URL.revokeObjectURL(url);
+            return;
+          }
+          this.setState((state) => ({
+            thumbnailUrls: { ...state.thumbnailUrls, [id]: url },
+          }));
+        });
+    });
+  };
+
+  render(
+    { files, selectedFileId, collapsed, launcher }: Props,
+    { thumbnailUrls }: State,
+  ) {
     const isCollapsed = collapsed || launcher;
     const count = this.formatCount(files.length);
     const expandQueue = () => {
@@ -127,6 +256,7 @@ export default class ImageQueue extends Component<Props> {
         >
           {files.map((file, index) => {
             const selected = file.id === selectedFileId;
+            const thumbnailUrl = thumbnailUrls[file.id];
             return (
               <div
                 key={file.id}
@@ -141,7 +271,19 @@ export default class ImageQueue extends Component<Props> {
                   onClick={() => this.props.onSelectFile(file.id)}
                   tabIndex={isCollapsed ? -1 : 0}
                 >
-                  <img class={style.thumbnail} src={file.previewUrl} alt="" />
+                  {thumbnailUrl ? (
+                    <img
+                      class={style.thumbnail}
+                      src={thumbnailUrl}
+                      alt=""
+                      decoding="async"
+                    />
+                  ) : (
+                    <span
+                      class={style.thumbnailPlaceholder}
+                      aria-hidden="true"
+                    />
+                  )}
                 </button>
                 <button
                   class={style.removeButton}

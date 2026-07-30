@@ -81,7 +81,6 @@ export default class App extends Component<Props, State> {
   }
 
   componentWillUnmount() {
-    this.revokePreviews(this.state.files);
     window.removeEventListener('popstate', this.onPopState);
   }
 
@@ -89,12 +88,7 @@ export default class App extends Component<Props, State> {
     files.map((file) => ({
       id: `image-${this.nextQueueId++}`,
       file,
-      previewUrl: URL.createObjectURL(file),
     }));
-
-  private revokePreviews = (files: QueueFile[]) => {
-    files.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
-  };
 
   private appendFiles = (newFiles: File[]) => {
     if (newFiles.length === 0) return;
@@ -109,7 +103,6 @@ export default class App extends Component<Props, State> {
   private replaceFiles = (newFiles: File[]) => {
     if (newFiles.length === 0) return;
     const files = this.createQueueFiles(newFiles);
-    this.revokePreviews(this.state.files);
     this.openEditor();
     this.setState({ files, selectedFileId: files[0].id });
   };
@@ -131,9 +124,7 @@ export default class App extends Component<Props, State> {
     const index = this.state.files.findIndex((file) => file.id === id);
     if (index === -1) return;
 
-    const removed = this.state.files[index];
     const files = this.state.files.filter((file) => file.id !== id);
-    this.revokePreviews([removed]);
 
     if (files.length === 0) {
       this.setState({ files, selectedFileId: undefined }, back);
