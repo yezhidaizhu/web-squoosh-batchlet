@@ -11,6 +11,7 @@ import 'file-drop-element';
 import 'shared/custom-els/snack-bar';
 import Intro from 'shared/prerendered-app/Intro';
 import 'shared/custom-els/loading-spinner';
+import ImageQueue, { QueueFile } from 'client/lazy-app/Compress/ImageQueue';
 
 const ROUTE_EDITOR = '/editor';
 
@@ -25,8 +26,10 @@ interface Props {}
 
 interface State {
   awaitingShareTarget: boolean;
-  file?: File;
-  isEditorOpen: Boolean;
+  files: QueueFile[];
+  selectedFileId?: string;
+  queueCollapsed: boolean;
+  isEditorOpen: boolean;
   Compress?: typeof import('client/lazy-app/Compress').default;
 }
 
@@ -36,11 +39,14 @@ export default class App extends Component<Props, State> {
       'share-target',
     ),
     isEditorOpen: false,
-    file: undefined,
+    files: [],
+    selectedFileId: undefined,
+    queueCollapsed: false,
     Compress: undefined,
   };
 
   snackbar?: SnackBarElement;
+  private nextQueueId = 0;
 
   constructor() {
     super();
@@ -59,8 +65,8 @@ export default class App extends Component<Props, State> {
       const file = await getSharedImage();
       // Remove the ?share-target from the URL
       history.replaceState('', '', '/');
-      this.openEditor();
-      this.setState({ file, awaitingShareTarget: false });
+      this.replaceFiles([file]);
+      this.setState({ awaitingShareTarget: false });
     });
 
     // Since iOS 10, Apple tries to prevent disabling pinch-zoom. This is great in theory, but
@@ -74,16 +80,82 @@ export default class App extends Component<Props, State> {
     window.addEventListener('popstate', this.onPopState);
   }
 
-  private onFileDrop = ({ files }: FileDropEvent) => {
-    if (!files || files.length === 0) return;
-    const file = files[0];
-    this.openEditor();
-    this.setState({ file });
+  componentWillUnmount() {
+    this.revokePreviews(this.state.files);
+    window.removeEventListener('popstate', this.onPopState);
+  }
+
+  private createQueueFiles = (files: File[]): QueueFile[] =>
+    files.map((file) => ({
+      id: `image-${this.nextQueueId++}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+
+  private revokePreviews = (files: QueueFile[]) => {
+    files.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
   };
 
-  private onIntroPickFile = (file: File) => {
+  private appendFiles = (newFiles: File[]) => {
+    if (newFiles.length === 0) return;
+    const files = this.createQueueFiles(newFiles);
     this.openEditor();
-    this.setState({ file });
+    this.setState((state) => ({
+      files: [...state.files, ...files],
+      selectedFileId: state.selectedFileId || files[0].id,
+    }));
+  };
+
+  private replaceFiles = (newFiles: File[]) => {
+    if (newFiles.length === 0) return;
+    const files = this.createQueueFiles(newFiles);
+    this.revokePreviews(this.state.files);
+    this.openEditor();
+    this.setState({ files, selectedFileId: files[0].id });
+  };
+
+  private onFileDrop = ({ files }: FileDropEvent) => {
+    if (!files || files.length === 0) return;
+    if (this.state.isEditorOpen) {
+      this.appendFiles(files);
+    } else {
+      this.replaceFiles(files);
+    }
+  };
+
+  private onIntroPickFiles = (files: File[]) => this.replaceFiles(files);
+
+  private onSelectFile = (id: string) => this.setState({ selectedFileId: id });
+
+  private onRemoveFile = (id: string) => {
+    const index = this.state.files.findIndex((file) => file.id === id);
+    if (index === -1) return;
+
+    const removed = this.state.files[index];
+    const files = this.state.files.filter((file) => file.id !== id);
+    this.revokePreviews([removed]);
+
+    if (files.length === 0) {
+      this.setState({ files, selectedFileId: undefined }, back);
+      return;
+    }
+
+    const selectedFileId =
+      id === this.state.selectedFileId
+        ? (files[index] || files[index - 1]).id
+        : this.state.selectedFileId;
+    this.setState({ files, selectedFileId });
+  };
+
+  private onQueueCollapsedChange = (queueCollapsed: boolean) =>
+    this.setState({ queueCollapsed });
+
+  private onOpenSavedQueue = () => {
+    if (this.state.files.length === 0) return;
+    const editorURL = new URL(location.href);
+    editorURL.pathname = ROUTE_EDITOR;
+    history.pushState(null, '', editorURL.href);
+    this.setState({ isEditorOpen: true, queueCollapsed: false });
   };
 
   private showSnack = (
@@ -109,21 +181,63 @@ export default class App extends Component<Props, State> {
 
   render(
     {}: Props,
-    { file, isEditorOpen, Compress, awaitingShareTarget }: State,
+    {
+      files,
+      selectedFileId,
+      queueCollapsed,
+      isEditorOpen,
+      Compress,
+      awaitingShareTarget,
+    }: State,
   ) {
-    const showSpinner = awaitingShareTarget || (isEditorOpen && !Compress);
+    const selectedFile = files.find((file) => file.id === selectedFileId);
+    const showSpinner =
+      awaitingShareTarget || (isEditorOpen && (!Compress || !selectedFile));
 
     return (
       <div class={style.app}>
-        <file-drop onfiledrop={this.onFileDrop} class={style.drop}>
+        <file-drop multiple onfiledrop={this.onFileDrop} class={style.drop}>
           {showSpinner ? (
             <loading-spinner class={style.appLoader} />
           ) : isEditorOpen ? (
             Compress && (
-              <Compress file={file!} showSnack={this.showSnack} onBack={back} />
+              <div class={style.editor}>
+                <Compress
+                  file={selectedFile!.file}
+                  showSnack={this.showSnack}
+                  onBack={back}
+                />
+                <ImageQueue
+                  files={files}
+                  selectedFileId={selectedFileId!}
+                  collapsed={queueCollapsed}
+                  onCollapsedChange={this.onQueueCollapsedChange}
+                  onAddFiles={this.appendFiles}
+                  onSelectFile={this.onSelectFile}
+                  onRemoveFile={this.onRemoveFile}
+                />
+              </div>
             )
           ) : (
-            <Intro onFile={this.onIntroPickFile} showSnack={this.showSnack} />
+            <div class={style.home}>
+              <Intro
+                onFiles={this.onIntroPickFiles}
+                showSnack={this.showSnack}
+              />
+              {files.length > 0 && (
+                <ImageQueue
+                  files={files}
+                  selectedFileId={selectedFileId!}
+                  collapsed
+                  launcher
+                  onOpen={this.onOpenSavedQueue}
+                  onCollapsedChange={this.onQueueCollapsedChange}
+                  onAddFiles={this.appendFiles}
+                  onSelectFile={this.onSelectFile}
+                  onRemoveFile={this.onRemoveFile}
+                />
+              )}
+            </div>
           )}
           <snack-bar ref={linkRef(this, 'snackbar')} />
         </file-drop>

@@ -1,0 +1,236 @@
+.queue {
+  position: absolute;
+  z-index: 200;
+  top: 66px;
+  left: 0;
+  width: 96px;
+  max-height: calc(100dvh - 280px);
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: 32px minmax(0, 1fr);
+  overflow: visible;
+  color: #fff;
+  background: #101832;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0 8px 8px 0;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+
+  @media (min-width: 600px) {
+    top: 82px;
+    left: 0;
+    width: 108px;
+    max-height: calc(100dvh - 280px);
+  }
+}
+
+.collapsed {
+  transform: translateX(-100%);
+
+  .toolbar {
+    border-bottom-color: transparent;
+  }
+
+  .toolbar .icon-button:first-child {
+    position: absolute;
+    top: -1px;
+    left: 100%;
+    background: #101832;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 0;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .title,
+  .add-button,
+  .list {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-8px);
+  }
+}
+
+.launcher {
+  top: 12px;
+
+  @media (min-width: 600px) {
+    top: 16px;
+  }
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 32px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.title {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.icon-button,
+.remove-button,
+.select-button {
+  border: 0;
+  cursor: pointer;
+}
+
+.icon-button {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  padding: 8px;
+  color: #fff;
+  background: transparent;
+}
+
+.add-button {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 2px;
+  box-sizing: border-box;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+  background: var(--pink);
+  border: 1px solid #101832;
+  border-radius: 7px;
+}
+
+.icon-button:hover,
+.icon-button:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.icon-button:focus-visible,
+.select-button:focus-visible,
+.remove-button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
+}
+
+.icon-button svg,
+.remove-button svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.file-input {
+  display: none;
+}
+
+.list {
+  min-height: 0;
+  padding: 4px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.item {
+  position: relative;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background: #17213f;
+  border: 2px solid transparent;
+  border-radius: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.active-item {
+  border-color: var(--pink);
+}
+
+.select-button {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+}
+
+.thumbnail {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.select-button:hover .thumbnail,
+.select-button:focus-visible .thumbnail {
+  opacity: 0.78;
+  transform: scale(1.03);
+}
+
+.remove-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  color: #fff;
+  background: rgba(16, 24, 50, 0.84);
+  border-radius: 0 0 0 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: background 150ms ease, opacity 150ms ease;
+}
+
+.item:hover .remove-button {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.remove-button:hover,
+.remove-button:focus-visible {
+  background: #c2187a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queue,
+  .title,
+  .add-button,
+  .list,
+  .thumbnail,
+  .remove-button {
+    transition: none;
+  }
+}
