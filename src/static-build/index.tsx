@@ -12,7 +12,7 @@
  */
 import { h } from 'preact';
 
-import { renderPage, writeFiles } from './utils';
+import { renderPage, siteOrigin, writeFiles } from './utils';
 import IndexPage from './pages/index';
 import * as iconLargeMaskable from 'img-url:static-build/assets/icon-large-maskable.png';
 import * as iconLarge from 'img-url:static-build/assets/icon-large.png';
@@ -54,9 +54,47 @@ interface Output {
 
 const toOutput: Output = {
   'index.html': renderPage(<IndexPage />),
+  'llms.txt': `# Batchlet
+
+> A free, browser-based batch image compression, conversion, and codec comparison tool built on Squoosh.
+
+Batchlet processes images locally in the browser. Images stay on the user's device and are not uploaded to a server.
+
+## Main resource
+
+- [Batchlet](${siteOrigin}/): Batch compress, optimize, compare, and convert multiple images.
+
+## Capabilities
+
+- Add multiple images to a local batch queue.
+- Compare original and optimized images before export.
+- Adjust codec, quality, and dimensions for each image.
+- Export optimized JPEG, PNG, WebP, AVIF, and SVG images.
+
+## Privacy
+
+- Image processing happens locally in the browser.
+- Batchlet does not upload image files for processing.
+
+## Technical details
+
+- Requires a modern browser with JavaScript enabled.
+- Built on the Squoosh image compression workflow.
+`,
+  'robots.txt': `User-agent: *
+Allow: /
+Sitemap: ${siteOrigin}/sitemap.xml
+`,
+  'sitemap.xml': `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${siteOrigin}/</loc>
+  </url>
+</urlset>
+`,
   'manifest.json': JSON.stringify({
-    name: 'Squoosh',
-    short_name: 'Squoosh',
+    name: 'Batchlet',
+    short_name: 'Batchlet',
     start_url: '/?utm_medium=PWA&utm_source=launcher',
     display: 'standalone',
     orientation: 'any',
@@ -76,7 +114,7 @@ const toOutput: Output = {
       },
     ],
     description:
-      'Compress and compare images with different codecs, right in your browser.',
+      'Batch compress, compare and convert images locally in your browser.',
     lang: 'en',
     categories: ['photo', 'productivity', 'utilities'],
     screenshots,

@@ -181,8 +181,10 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   </svg>
                 </span>
                 <h1 id="page-title">
-                  <span>Squoosh Batch Image</span>
-                  <span class={style.compressorWord}>Compressor</span>
+                  <span>Batchlet</span>{' '}
+                  <span class={style.compressorWord}>
+                    Squoosh Batch Image Compressor
+                  </span>
                 </h1>
                 <span class={style.uploadCopy}>
                   Drop images here, or click to choose
@@ -497,11 +499,19 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
             Squoosh.
           </span>
           <nav>
-            <a href="https://github.com/GoogleChromeLabs/squoosh/blob/dev/README.md#privacy">
+            <a
+              href="https://github.com/yezhidaizhu/web-squoosh-batchlet"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Privacy
             </a>
-            <a href="https://github.com/GoogleChromeLabs/squoosh">
-              Upstream source
+            <a
+              href="https://github.com/yezhidaizhu/web-squoosh-batchlet"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Project source
             </a>
           </nav>
         </footer>

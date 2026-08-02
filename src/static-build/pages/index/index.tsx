@@ -16,28 +16,89 @@ import baseCss from 'css:./base.css';
 import batchletCss from 'css:../../../shared/BatchletHome/style.css';
 import initialCss from 'initial-css:';
 import { allSrc } from 'client-bundle:client/initial-app';
-import favicon from 'url:static-build/assets/favicon.ico';
+import batchletLogo from 'url:static-build/assets/batchlet-logo.svg';
+import appleTouchIcon from 'url:static-build/assets/icon-large.png';
 import ogImage from 'url:static-build/assets/batchlet-editor-preview.webp';
 import { escapeStyleScriptContent, siteOrigin } from 'static-build/utils';
 import BatchletHome from 'shared/BatchletHome';
 
 interface Props {}
 
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebApplication',
+      name: 'Batchlet',
+      url: siteOrigin,
+      image: `${siteOrigin}${ogImage}`,
+      description:
+        'A Squoosh batch image compressor for compressing, comparing and converting multiple images locally in your browser.',
+      applicationCategory: 'MultimediaApplication',
+      operatingSystem: 'Any',
+      browserRequirements:
+        'Requires a modern web browser with JavaScript enabled.',
+      isAccessibleForFree: true,
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is Batchlet?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Batchlet adds a Squoosh batch queue for optimizing, comparing and converting multiple images in one session.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I batch compress and optimize JPEG and PNG images?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. Add multiple JPEG and PNG images to a Squoosh batch queue for image compression, quality comparison and export.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I batch convert images to WebP or AVIF?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. Choose WebP or AVIF output to convert queued images into modern formats and tune quality before export.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Does Squoosh batch processing run locally?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. Squoosh batch processing happens locally in your browser, so images stay on your device.',
+          },
+        },
+      ],
+    },
+  ],
+});
+
 const Index: FunctionalComponent<Props> = () => (
   <html lang="en">
     <head>
-      <title>
-        Squoosh Batch Image Compressor - Compress Images &amp; Codec Comparison
-        | Batchlet
-      </title>
+      <title>Batchlet for Squoosh Batch Processing - Image Compressor</title>
       <meta
         name="description"
-        content="Batchlet adds a Squoosh batch workflow for image compression, codec comparison, conversion and optimization of multiple images locally in your browser."
+        content="Batchlet is a Squoosh batch image compressor for local compression, codec comparison and conversion of multiple JPEG, PNG, WebP and AVIF images."
       />
-      <meta name="twitter:card" content="summary" />
+      <meta name="robots" content="index, follow, max-image-preview:large" />
+      <meta property="og:site_name" content="Batchlet" />
+      <meta property="og:url" content={siteOrigin} />
       <meta
         property="og:title"
-        content="Squoosh Batch Image Compressor | Batchlet"
+        content="Batchlet for Squoosh Batch Processing"
       />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={`${siteOrigin}${ogImage}`} />
@@ -54,7 +115,21 @@ const Index: FunctionalComponent<Props> = () => (
       />
       <meta
         property="og:description"
-        content="A Squoosh batch workflow for image compression, comparison, conversion and optimization of multiple images locally in your browser."
+        content="A Squoosh batch image compressor for local compression, codec comparison and conversion of multiple JPEG, PNG, WebP and AVIF images."
+      />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta
+        name="twitter:title"
+        content="Batchlet for Squoosh Batch Processing"
+      />
+      <meta
+        name="twitter:description"
+        content="A Squoosh batch image compressor for local compression, codec comparison and conversion of multiple JPEG, PNG, WebP and AVIF images."
+      />
+      <meta name="twitter:image" content={`${siteOrigin}${ogImage}`} />
+      <meta
+        name="twitter:image:alt"
+        content="Squoosh batch workspace showing a before-and-after image comparison."
       />
       <meta
         name="viewport"
@@ -62,11 +137,17 @@ const Index: FunctionalComponent<Props> = () => (
       />
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
-      <link rel="shortcut icon" href={favicon} />
-      <link rel="apple-touch-icon" href={ogImage} />
+      <link rel="icon" href={batchletLogo} type="image/svg+xml" />
+      <link rel="apple-touch-icon" href={appleTouchIcon} />
       <meta name="theme-color" content="#ff3385" />
       <link rel="manifest" href="/manifest.json" />
       <link rel="canonical" href={siteOrigin} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: escapeStyleScriptContent(structuredData),
+        }}
+      />
       <style
         dangerouslySetInnerHTML={{ __html: escapeStyleScriptContent(baseCss) }}
       />
