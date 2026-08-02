@@ -477,6 +477,9 @@ export default class App extends Component<Props, State> {
     const showSpinner =
       awaitingShareTarget || (isEditorOpen && (!Compress || !selectedFile));
     const { batchProgress, batchStopping } = this.state;
+    const batchProgressPercent = batchProgress
+      ? (batchProgress.current / batchProgress.total) * 100
+      : 0;
 
     return (
       <div class={`${style.app} ${!isEditorOpen ? style.appHome : ''}`}>
@@ -592,6 +595,16 @@ export default class App extends Component<Props, State> {
                       >
                         {batchStopping ? 'Stopping...' : 'Stop'}
                       </button>
+                    </div>
+                    <div
+                      class={style.batchProgressBar}
+                      role="progressbar"
+                      aria-label="Batch processing progress"
+                      aria-valuemin={0}
+                      aria-valuemax={batchProgress.total}
+                      aria-valuenow={batchProgress.current}
+                    >
+                      <span style={{ width: `${batchProgressPercent}%` }} />
                     </div>
                   </div>
                 )}
