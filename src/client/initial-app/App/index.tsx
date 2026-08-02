@@ -67,7 +67,7 @@ export default class App extends Component<Props, State> {
     selectedFileId: undefined,
     queueCollapsed: false,
     batchDialogOpen: false,
-    batchFilename: 'batchlet-images',
+    batchFilename: 'vicoco-images',
     Compress: undefined,
   };
 
@@ -326,7 +326,7 @@ export default class App extends Component<Props, State> {
     const download = document.createElement('a');
     download.href = url;
     download.download = `${
-      filename.replace(/\.zip$/i, '') || 'batchlet-images'
+      filename.replace(/\.zip$/i, '') || 'vicoco-images'
     }.zip`;
     download.click();
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
@@ -359,7 +359,7 @@ export default class App extends Component<Props, State> {
       return;
 
     const queueFiles = this.state.files;
-    const filename = this.state.batchFilename.trim() || 'batchlet-images';
+    const filename = this.state.batchFilename.trim() || 'vicoco-images';
     const controller = new AbortController();
     this.batchAbortController = controller;
     this.setState({

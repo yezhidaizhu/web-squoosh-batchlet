@@ -29,7 +29,7 @@ const structuredData = JSON.stringify({
   '@graph': [
     {
       '@type': 'WebApplication',
-      name: 'Batchlet',
+      name: 'Vicoco',
       url: siteOrigin,
       image: `${siteOrigin}${ogImage}`,
       description:
@@ -50,10 +50,10 @@ const structuredData = JSON.stringify({
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'What is Batchlet?',
+          name: 'What is Vicoco?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Batchlet adds a Squoosh batch queue for optimizing, comparing and converting multiple images in one session.',
+            text: 'Vicoco adds a Squoosh batch queue for optimizing, comparing and converting multiple images in one session.',
           },
         },
         {
@@ -88,18 +88,15 @@ const structuredData = JSON.stringify({
 const Index: FunctionalComponent<Props> = () => (
   <html lang="en">
     <head>
-      <title>Batchlet for Squoosh Batch Processing - Image Compressor</title>
+      <title>Vicoco for Squoosh Batch Processing - Image Compressor</title>
       <meta
         name="description"
-        content="Batchlet is a Squoosh batch image compressor for local compression, codec comparison and conversion of multiple JPEG, PNG, WebP and AVIF images."
+        content="Vicoco is a Squoosh batch image compressor for local compression, codec comparison and conversion of multiple JPEG, PNG, WebP and AVIF images."
       />
       <meta name="robots" content="index, follow, max-image-preview:large" />
-      <meta property="og:site_name" content="Batchlet" />
+      <meta property="og:site_name" content="Vicoco" />
       <meta property="og:url" content={siteOrigin} />
-      <meta
-        property="og:title"
-        content="Batchlet for Squoosh Batch Processing"
-      />
+      <meta property="og:title" content="Vicoco for Squoosh Batch Processing" />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={`${siteOrigin}${ogImage}`} />
       <meta
@@ -120,7 +117,7 @@ const Index: FunctionalComponent<Props> = () => (
       <meta name="twitter:card" content="summary_large_image" />
       <meta
         name="twitter:title"
-        content="Batchlet for Squoosh Batch Processing"
+        content="Vicoco for Squoosh Batch Processing"
       />
       <meta
         name="twitter:description"

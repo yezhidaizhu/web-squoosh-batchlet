@@ -143,7 +143,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
         <header class={style.header}>
           <a class={style.brand} href="#top">
             <img src={logo} width="34" height="34" alt="" />
-            Batchlet
+            Vicoco
           </a>
           <nav class={style.nav} aria-label="Primary navigation">
             <div class={style.navLinks}>
@@ -181,7 +181,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   </svg>
                 </span>
                 <h1 id="page-title">
-                  <span>Batchlet</span>{' '}
+                  <span>Vicoco</span>{' '}
                   <span class={style.compressorWord}>
                     Squoosh Batch Image Compressor
                   </span>
@@ -196,7 +196,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
               </span>
             </a>
             <p class={style.heroDescription}>
-              Batchlet adds a multi-image queue to Squoosh for batch image
+              Vicoco adds a multi-image queue to Squoosh for batch image
               compression, codec comparison and conversion in your browser.
             </p>
           </section>
@@ -395,7 +395,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
               <details>
                 <summary>
                   <span class={style.faqIndex}>01</span>
-                  <span>What is Batchlet?</span>
+                  <span>What is Vicoco?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
                       width="17"
@@ -412,7 +412,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   </span>
                 </summary>
                 <p>
-                  Batchlet adds a Squoosh batch queue for optimizing, comparing
+                  Vicoco adds a Squoosh batch queue for optimizing, comparing
                   and converting multiple images in one session.
                 </p>
               </details>
@@ -495,7 +495,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
         </main>
         <footer class={style.footer}>
           <span>
-            Batchlet adds batch processing to the Squoosh workflow. Built on
+            Vicoco adds batch processing to the Squoosh workflow. Built on
             Squoosh.
           </span>
           <nav>

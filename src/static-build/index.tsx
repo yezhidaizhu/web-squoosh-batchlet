@@ -54,15 +54,15 @@ interface Output {
 
 const toOutput: Output = {
   'index.html': renderPage(<IndexPage />),
-  'llms.txt': `# Batchlet
+  'llms.txt': `# Vicoco
 
 > A free, browser-based batch image compression, conversion, and codec comparison tool built on Squoosh.
 
-Batchlet processes images locally in the browser. Images stay on the user's device and are not uploaded to a server.
+Vicoco processes images locally in the browser. Images stay on the user's device and are not uploaded to a server.
 
 ## Main resource
 
-- [Batchlet](${siteOrigin}/): Batch compress, optimize, compare, and convert multiple images.
+- [Vicoco](${siteOrigin}/): Batch compress, optimize, compare, and convert multiple images.
 
 ## Capabilities
 
@@ -74,7 +74,7 @@ Batchlet processes images locally in the browser. Images stay on the user's devi
 ## Privacy
 
 - Image processing happens locally in the browser.
-- Batchlet does not upload image files for processing.
+- Vicoco does not upload image files for processing.
 
 ## Technical details
 
@@ -93,8 +93,8 @@ Sitemap: ${siteOrigin}/sitemap.xml
 </urlset>
 `,
   'manifest.json': JSON.stringify({
-    name: 'Batchlet',
-    short_name: 'Batchlet',
+    name: 'Vicoco',
+    short_name: 'Vicoco',
     start_url: '/?utm_medium=PWA&utm_source=launcher',
     display: 'standalone',
     orientation: 'any',
