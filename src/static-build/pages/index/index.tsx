@@ -88,6 +88,7 @@ const structuredData = JSON.stringify({
 const Index: FunctionalComponent<Props> = () => (
   <html lang="en">
     <head>
+      <meta charSet="utf-8" />
       <title>Batchlet for Squoosh Batch Processing - Image Compressor</title>
       <meta
         name="description"
