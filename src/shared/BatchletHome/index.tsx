@@ -6,49 +6,59 @@ import largeDemo from 'url:static-build/assets/batchlet-demo-large.webp';
 import artworkDemo from 'url:static-build/assets/batchlet-demo-artwork.webp';
 import deviceDemo from 'url:static-build/assets/batchlet-demo-device.webp';
 import iconDemo from 'url:shared/prerendered-app/Intro/imgs/demos/icon-demo-logo.png';
+import largeSource from 'url:shared/prerendered-app/Intro/imgs/demos/demo-large-photo.jpg';
+import artworkSource from 'url:shared/prerendered-app/Intro/imgs/demos/demo-artwork.jpg';
+import deviceSource from 'url:shared/prerendered-app/Intro/imgs/demos/demo-device-screen.png';
+import iconSource from 'url:shared/prerendered-app/Intro/imgs/logo.svg';
 import preview from 'url:static-build/assets/batchlet-editor-preview.webp';
 import * as style from './style.css';
 
 interface Props {
   onFiles?: (files: File[]) => void;
+  onDemoFiles?: (files: File[]) => void;
 }
 
 const demos = [
   {
     name: 'Large photo',
     size: '2.8MB',
-    url: largeDemo,
-    filename: 'large-photo.webp',
+    previewUrl: largeDemo,
+    sourceUrl: largeSource,
+    filename: 'large-photo.jpg',
     alt: 'Red panda sample image',
   },
   {
     name: 'Artwork',
     size: '2.9MB',
-    url: artworkDemo,
-    filename: 'artwork.webp',
+    previewUrl: artworkDemo,
+    sourceUrl: artworkSource,
+    filename: 'artwork.jpg',
     alt: 'Woman artwork sample image',
   },
   {
     name: 'Device screen',
     size: '1.6MB',
-    url: deviceDemo,
-    filename: 'device-screen.webp',
+    previewUrl: deviceDemo,
+    sourceUrl: deviceSource,
+    filename: 'device-screen.png',
     alt: 'Device screen sample image',
   },
   {
     name: 'SVG icon',
     size: '13KB',
-    url: iconDemo,
+    previewUrl: iconDemo,
+    sourceUrl: iconSource,
     filename: 'squoosh.svg',
     alt: 'Squoosh SVG icon sample image',
   },
 ];
 
-const BatchletHome: FunctionalComponent<Props> = ({ onFiles }) => {
+const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
   const input = useRef<HTMLInputElement | null>(null);
   const workspace = useRef<HTMLElement | null>(null);
   const [workspaceReady, setWorkspaceReady] = useState(false);
   const [workspaceVisible, setWorkspaceVisible] = useState(false);
+  const [loadingDemo, setLoadingDemo] = useState<string | null>(null);
   const [installPrompt, setInstallPrompt] = useState<
     BeforeInstallPromptEvent | undefined
   >(undefined);
@@ -95,13 +105,21 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles }) => {
   };
 
   const openDemo = async (demo: typeof demos[number], event: Event) => {
-    if (!onFiles) return;
+    if (!onDemoFiles) return;
     event.preventDefault();
-    const response = await fetch(demo.url);
-    const file = new File([await response.blob()], demo.filename, {
-      type: response.headers.get('content-type') || 'image/webp',
-    });
-    onFiles([file]);
+    if (loadingDemo) return;
+    setLoadingDemo(demo.filename);
+    try {
+      const response = await fetch(demo.sourceUrl);
+      if (!response.ok) throw new Error('Failed to load demo');
+      const file = new File([await response.blob()], demo.filename, {
+        type: response.headers.get('content-type') || 'image/webp',
+        lastModified: 0,
+      });
+      onDemoFiles([file]);
+    } finally {
+      setLoadingDemo(null);
+    }
   };
 
   const install = async () => {
@@ -192,6 +210,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles }) => {
                     href="/editor"
                     onClick={(event) => openDemo(demo, event)}
                     aria-label={`Open ${demo.name} sample, ${demo.size}`}
+                    aria-busy={loadingDemo === demo.filename}
                   >
                     <span
                       class={`${style.sampleMedia} ${
@@ -199,10 +218,13 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles }) => {
                       }`}
                     >
                       <img
-                        src={demo.url}
+                        src={demo.previewUrl}
                         loading={index ? 'lazy' : 'eager'}
                         alt={demo.alt}
                       />
+                      {loadingDemo === demo.filename && (
+                        <span class={style.sampleLoader} aria-hidden="true" />
+                      )}
                     </span>
                     <span
                       class={`${style.sampleSize} ${

@@ -7,7 +7,7 @@
   max-height: calc(100dvh - 280px);
   box-sizing: border-box;
   display: grid;
-  grid-template-rows: 38px minmax(0, 1fr);
+  grid-template-rows: 38px 38px minmax(0, 1fr);
   overflow: visible;
   color: #fff;
   background: #1f1f1f;
@@ -45,6 +45,7 @@
 
   .title,
   .add-button,
+  .action-bar,
   .list {
     display: none;
     pointer-events: none;
@@ -59,6 +60,7 @@
 }
 
 .launcher {
+  position: fixed;
 }
 
 .toolbar {
@@ -68,6 +70,68 @@
   color: #fff;
   background: #f83d7e;
   border-bottom: 2px solid #1f1f1f;
+}
+
+.action-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 38px;
+  min-height: 38px;
+  background: #1f1f1f;
+  border-bottom: 2px solid #1f1f1f;
+}
+
+.batch-button,
+.clear-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  color: #fff;
+  cursor: pointer;
+}
+
+.batch-button {
+  gap: 7px;
+  padding: 0 8px;
+  background: #1f1f1f;
+  border-right: 2px solid #383838;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.batch-button svg,
+.clear-button svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.batch-button:hover:not(:disabled),
+.batch-button:focus-visible,
+.clear-button:hover:not(:disabled),
+.clear-button:focus-visible {
+  color: #fff;
+  background: #d92d69;
+}
+
+.batch-button:disabled,
+.clear-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.clear-button {
+  width: 38px;
+  padding: 10px;
+  background: #1f1f1f;
 }
 
 .title {
@@ -250,6 +314,9 @@
   .queue,
   .title,
   .add-button,
+  .action-bar,
+  .batch-button,
+  .clear-button,
   .list,
   .thumbnail,
   .remove-button {

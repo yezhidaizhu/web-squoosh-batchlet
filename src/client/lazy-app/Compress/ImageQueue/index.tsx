@@ -15,11 +15,14 @@ interface Props {
   selectedFileId: string;
   collapsed: boolean;
   launcher?: boolean;
+  batchProgress?: { current: number; total: number };
   onOpen?: () => void;
   onCollapsedChange: (collapsed: boolean) => void;
   onAddFiles: (files: File[]) => void;
   onSelectFile: (id: string) => void;
   onRemoveFile: (id: string) => void;
+  onBatch?: () => void;
+  onClear?: () => void;
 }
 
 interface State {
@@ -118,7 +121,9 @@ export default class ImageQueue extends Component<Props, State> {
     this.props.onAddFiles(files);
   };
 
-  private renderIcon(type: 'add' | 'collapse' | 'expand' | 'delete') {
+  private renderIcon(
+    type: 'add' | 'collapse' | 'expand' | 'delete' | 'batch' | 'clear',
+  ) {
     if (type === 'add') {
       return <path d="M12 5v14M5 12h14" />;
     }
@@ -128,10 +133,26 @@ export default class ImageQueue extends Component<Props, State> {
     if (type === 'expand') {
       return <path d="m10 5 7 7-7 7" />;
     }
+    if (type === 'batch') {
+      return <path d="m8 5 11 7-11 7z" />;
+    }
+    if (type === 'clear') {
+      return (
+        <g>
+          <path d="M4 7h16" />
+          <path d="M10 11v6" />
+          <path d="M14 11v6" />
+          <path d="M6 7l1 13h10l1-13" />
+          <path d="M9 7V4h6v3" />
+        </g>
+      );
+    }
     return <path d="m5 5 14 14m0-14L5 19" />;
   }
 
-  private icon(type: 'add' | 'collapse' | 'expand' | 'delete') {
+  private icon(
+    type: 'add' | 'collapse' | 'expand' | 'delete' | 'batch' | 'clear',
+  ) {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         {this.renderIcon(type)}
@@ -185,7 +206,15 @@ export default class ImageQueue extends Component<Props, State> {
   };
 
   render(
-    { files, selectedFileId, collapsed, launcher }: Props,
+    {
+      files,
+      selectedFileId,
+      collapsed,
+      launcher,
+      batchProgress,
+      onBatch,
+      onClear,
+    }: Props,
     { thumbnailUrls }: State,
   ) {
     const isCollapsed = collapsed || launcher;
@@ -246,9 +275,34 @@ export default class ImageQueue extends Component<Props, State> {
             ref={linkRef(this, 'fileInput')}
             type="file"
             multiple
+            accept="image/*,.svg"
             onChange={this.onFileChange}
           />
         </div>
+        {(onBatch || onClear) && (
+          <div class={style.actionBar} aria-label="Queue actions">
+            <button
+              class={style.batchButton}
+              type="button"
+              disabled={!onBatch || !!batchProgress || files.length === 0}
+              onClick={onBatch}
+              title="Process every image with the current right-side settings and download a ZIP"
+            >
+              {this.icon('batch')}
+              <span>Batch</span>
+            </button>
+            <button
+              class={style.clearButton}
+              type="button"
+              disabled={!onClear || !!batchProgress}
+              onClick={onClear}
+              title="Clear queue"
+              aria-label="Clear queue"
+            >
+              {this.icon('clear')}
+            </button>
+          </div>
+        )}
         <div
           class={style.list}
           role="listbox"

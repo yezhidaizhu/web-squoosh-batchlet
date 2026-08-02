@@ -336,6 +336,53 @@ export default class Compress extends Component<Props, State> {
     import('../sw-bridge').then(({ mainAppLoaded }) => mainAppLoaded());
   }
 
+  public async processBatch(
+    files: File[],
+    onProgress: (index: number, total: number) => void,
+    signal: AbortSignal,
+  ): Promise<File[]> {
+    const encoderState = this.state.sides[1].latestSettings.encoderState;
+    if (!encoderState) throw Error('Choose an output codec before batching');
+
+    const preprocessorState = this.state.preprocessorState;
+    const processorState = this.state.sides[1].latestSettings.processorState;
+    const bridge = new WorkerBridge();
+    const outputFiles: File[] = [];
+
+    for (let index = 0; index < files.length; index += 1) {
+      const file = files[index];
+      onProgress(index, files.length);
+
+      let decoded: ImageData;
+      let vectorImage: HTMLImageElement | undefined;
+      if (file.type.startsWith('image/svg+xml')) {
+        vectorImage = await processSvg(signal, file);
+        decoded = drawableToImageData(vectorImage);
+      } else {
+        decoded = await decodeImage(signal, file, bridge);
+      }
+
+      const preprocessed = await preprocessImage(
+        signal,
+        decoded,
+        preprocessorState,
+        bridge,
+      );
+      const source: SourceImage = { file, decoded, preprocessed, vectorImage };
+      const processed = await processImage(
+        signal,
+        source,
+        processorState,
+        bridge,
+      );
+      outputFiles.push(
+        await compressImage(signal, processed, encoderState, file.name, bridge),
+      );
+    }
+
+    return outputFiles;
+  }
+
   private onMobileWidthChange = () => {
     this.setState({ mobileView: this.widthQuery.matches });
   };
