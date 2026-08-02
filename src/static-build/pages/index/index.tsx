@@ -27,17 +27,17 @@ const Index: FunctionalComponent<Props> = () => (
   <html lang="en">
     <head>
       <title>
-        Squoosh Batch Image Optimizer - Image Compression &amp; Codec Comparison
+        Squoosh Batch Image Compressor - Compress Images &amp; Codec Comparison
         | Batchlet
       </title>
       <meta
         name="description"
-        content="Batchlet adds a Squoosh batch workflow for image compression, optimization, codec comparison and conversion of multiple images locally in your browser."
+        content="Batchlet adds a Squoosh batch workflow for image compression, codec comparison, conversion and optimization of multiple images locally in your browser."
       />
       <meta name="twitter:card" content="summary" />
       <meta
         property="og:title"
-        content="Squoosh Batch Image Optimizer | Batchlet"
+        content="Squoosh Batch Image Compressor | Batchlet"
       />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={`${siteOrigin}${ogImage}`} />
@@ -54,7 +54,7 @@ const Index: FunctionalComponent<Props> = () => (
       />
       <meta
         property="og:description"
-        content="A Squoosh batch workflow for optimizing, comparing and converting multiple images locally in your browser."
+        content="A Squoosh batch workflow for image compression, comparison, conversion and optimization of multiple images locally in your browser."
       />
       <meta
         name="viewport"

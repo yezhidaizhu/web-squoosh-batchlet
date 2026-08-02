@@ -32,6 +32,8 @@ interface State {
   selectedFileId?: string;
   queueCollapsed: boolean;
   isEditorOpen: boolean;
+  batchDialogOpen: boolean;
+  batchFilename: string;
   batchProgress?: { current: number; total: number };
   batchStopping?: boolean;
   Compress?: typeof import('client/lazy-app/Compress').default;
@@ -64,6 +66,8 @@ export default class App extends Component<Props, State> {
     files: [],
     selectedFileId: undefined,
     queueCollapsed: false,
+    batchDialogOpen: false,
+    batchFilename: 'batchlet-images',
     Compress: undefined,
   };
 
@@ -300,7 +304,7 @@ export default class App extends Component<Props, State> {
   private onQueueCollapsedChange = (queueCollapsed: boolean) =>
     this.setState({ queueCollapsed });
 
-  private downloadZip = async (files: File[]) => {
+  private downloadZip = async (files: File[], filename: string) => {
     const entries: { [name: string]: Uint8Array } = {};
     const names = new Set<string>();
 
@@ -321,12 +325,32 @@ export default class App extends Component<Props, State> {
     const url = URL.createObjectURL(archive);
     const download = document.createElement('a');
     download.href = url;
-    download.download = 'batchlet-images.zip';
+    download.download = `${
+      filename.replace(/\.zip$/i, '') || 'batchlet-images'
+    }.zip`;
     download.click();
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
 
-  private onBatch = async () => {
+  private onBatch = () => {
+    if (
+      !this.compress ||
+      this.state.batchProgress ||
+      this.state.files.length === 0
+    )
+      return;
+    this.setState({ batchDialogOpen: true });
+  };
+
+  private onBatchFilenameInput = (event: Event) => {
+    this.setState({
+      batchFilename: (event.currentTarget as HTMLInputElement).value,
+    });
+  };
+
+  private onCloseBatchDialog = () => this.setState({ batchDialogOpen: false });
+
+  private onStartBatch = async () => {
     if (
       !this.compress ||
       this.state.batchProgress ||
@@ -335,9 +359,11 @@ export default class App extends Component<Props, State> {
       return;
 
     const queueFiles = this.state.files;
+    const filename = this.state.batchFilename.trim() || 'batchlet-images';
     const controller = new AbortController();
     this.batchAbortController = controller;
     this.setState({
+      batchDialogOpen: false,
       batchProgress: { current: 0, total: queueFiles.length },
       batchStopping: false,
     });
@@ -351,7 +377,7 @@ export default class App extends Component<Props, State> {
           }),
         controller.signal,
       );
-      await this.downloadZip(outputFiles);
+      await this.downloadZip(outputFiles, filename);
       this.showSnack(`Downloaded ${outputFiles.length} optimized images`);
     } catch (error) {
       if ((error as Error).name === 'AbortError')
@@ -416,7 +442,7 @@ export default class App extends Component<Props, State> {
     if (!this.snackbar) throw Error('Snackbar missing');
     const resolvedOptions =
       options.timeout === undefined && options.actions === undefined
-        ? { ...options, timeout: 3500, actions: [] }
+        ? { ...options, timeout: 3500, actions: ['dismiss'] }
         : options;
     return this.snackbar.showSnackbar(message, resolvedOptions);
   };
@@ -441,6 +467,8 @@ export default class App extends Component<Props, State> {
       selectedFileId,
       queueCollapsed,
       isEditorOpen,
+      batchDialogOpen,
+      batchFilename,
       Compress,
       awaitingShareTarget,
     }: State,
@@ -486,6 +514,62 @@ export default class App extends Component<Props, State> {
                   onClear={this.onClearQueue}
                   batchProgress={batchProgress}
                 />
+                {batchDialogOpen && (
+                  <div
+                    class={style.batchDialogOverlay}
+                    role="presentation"
+                    onClick={this.onCloseBatchDialog}
+                  >
+                    <form
+                      class={style.batchDialog}
+                      role="dialog"
+                      aria-modal="true"
+                      aria-labelledby="batch-dialog-title"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        this.onStartBatch();
+                      }}
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <div class={style.batchDialogHeader}>
+                        <span>Batch export</span>
+                        <span>{files.length} images</span>
+                      </div>
+                      <div class={style.batchDialogBody}>
+                        <h2 id="batch-dialog-title">Process this batch?</h2>
+                        <p>
+                          Every queued image will use the current right-side
+                          settings, then download together as a ZIP.
+                        </p>
+                        <label class={style.batchFilenameLabel}>
+                          <span>ZIP file name</span>
+                          <span class={style.batchFilenameInput}>
+                            <input
+                              type="text"
+                              value={batchFilename}
+                              onInput={this.onBatchFilenameInput}
+                              aria-label="ZIP file name"
+                              autocomplete="off"
+                            />
+                            <span>.zip</span>
+                          </span>
+                        </label>
+                      </div>
+                      <div class={style.batchDialogActions}>
+                        <button
+                          class={style.batchDialogCancel}
+                          type="button"
+                          onClick={this.onCloseBatchDialog}
+                        >
+                          Cancel
+                        </button>
+                        <button class={style.batchDialogSubmit} type="submit">
+                          Start batch
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
                 {batchProgress && (
                   <div
                     class={style.batchOverlay}

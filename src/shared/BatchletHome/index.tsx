@@ -180,7 +180,10 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                     <path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
                   </svg>
                 </span>
-                <h1 id="page-title">Squoosh Batch Image Optimizer</h1>
+                <h1 id="page-title">
+                  <span>Squoosh Batch Image</span>
+                  <span class={style.compressorWord}>Compressor</span>
+                </h1>
                 <span class={style.uploadCopy}>
                   Drop images here, or click to choose
                 </span>
@@ -213,9 +216,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                     aria-busy={loadingDemo === demo.filename}
                   >
                     <span
-                      class={`${style.sampleMedia} ${
-                        index ? style.sampleAnimated : ''
-                      }`}
+                      class={`${style.sampleMedia} ${style.sampleAnimated}`}
                     >
                       <img
                         src={demo.previewUrl}
@@ -226,18 +227,10 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                         <span class={style.sampleLoader} aria-hidden="true" />
                       )}
                     </span>
-                    <span
-                      class={`${style.sampleSize} ${
-                        index ? style.sampleAnimated : ''
-                      }`}
-                    >
+                    <span class={`${style.sampleSize} ${style.sampleAnimated}`}>
                       {demo.size}
                     </span>
-                    <span
-                      class={`${style.sampleName} ${
-                        index ? style.sampleAnimated : ''
-                      }`}
-                    >
+                    <span class={`${style.sampleName} ${style.sampleAnimated}`}>
                       {demo.name}
                     </span>
                   </a>
@@ -251,7 +244,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
             class={`${style.workspace} ${
               workspaceReady ? style.workspaceReady : ''
             } ${workspaceVisible ? style.workspaceVisible : ''}`}
-            aria-label="Squoosh batch image optimization workspace"
+            aria-label="Squoosh batch image compression workspace"
           >
             <div class={style.workspaceCopy}>
               <span>Before / after</span>
@@ -273,7 +266,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
             <img
               src={largeDemo}
               loading="lazy"
-              alt="Red panda photograph ready for batch image optimization"
+              alt="Red panda photograph ready for batch image compression"
             />
             <div>
               <h2 id="batch-heading">Batch your Squoosh workflow</h2>
@@ -296,8 +289,8 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                 <div>
                   <dt>Export</dt>
                   <dd>
-                    Download optimized JPEG, PNG, WebP, AVIF or SVG results
-                    together.
+                    Download compressed or converted JPEG, PNG, WebP, AVIF or
+                    SVG results together.
                   </dd>
                 </div>
               </dl>
@@ -425,7 +418,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                 <summary>
                   <span class={style.faqIndex}>02</span>
                   <span>
-                    Can I batch optimize and compress JPEG and PNG images?
+                    Can I batch compress and optimize JPEG and PNG images?
                   </span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg

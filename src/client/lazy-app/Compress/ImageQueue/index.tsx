@@ -162,6 +162,12 @@ export default class ImageQueue extends Component<Props, State> {
 
   private formatCount = (count: number) => (count > 99 ? '99+' : count);
 
+  private formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
   private syncThumbnails = () => {
     const currentIds = new Set(this.props.files.map(({ id }) => id));
     const staleThumbnailUrls = Object.keys(this.state.thumbnailUrls).filter(
@@ -339,6 +345,9 @@ export default class ImageQueue extends Component<Props, State> {
                       aria-hidden="true"
                     />
                   )}
+                  <span class={style.fileSize}>
+                    {this.formatFileSize(file.file.size)}
+                  </span>
                 </button>
                 <button
                   class={style.removeButton}
