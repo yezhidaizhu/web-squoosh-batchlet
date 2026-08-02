@@ -1,11 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <rect width="1024" height="1024" fill="#ff3385"/>
   <g transform="translate(112 112) scale(23.5294118)">
-    <rect x="3" y="3" width="30" height="30" fill="#ff3385"/>
-    <rect x=".75" y=".75" width="29.5" height="29.5" fill="#fff" stroke="#1f1f1f" stroke-width="1.5"/>
-    <rect x="5" y="5" width="8" height="8" fill="#1f1f1f"/>
-    <rect x="18" y="5" width="8" height="8" fill="#ff3385"/>
-    <rect x="5" y="18" width="8" height="8" fill="#ff3385"/>
-    <rect x="18" y="18" width="8" height="8" fill="#1f1f1f"/>
+    <rect x="2.25" y="2.25" width="29.5" height="29.5" fill="#fff" stroke="#1f1f1f" stroke-width="1.5"/>
+    <rect x="6.5" y="6.5" width="8" height="8" fill="#1f1f1f"/>
+    <rect x="19.5" y="6.5" width="8" height="8" fill="#ff3385"/>
+    <rect x="6.5" y="19.5" width="8" height="8" fill="#ff3385"/>
+    <rect x="19.5" y="19.5" width="8" height="8" fill="#1f1f1f"/>
   </g>
 </svg>
