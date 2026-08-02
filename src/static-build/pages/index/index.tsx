@@ -13,44 +13,48 @@
 import { h, FunctionalComponent } from 'preact';
 
 import baseCss from 'css:./base.css';
+import batchletCss from 'css:../../../shared/BatchletHome/style.css';
 import initialCss from 'initial-css:';
 import { allSrc } from 'client-bundle:client/initial-app';
 import favicon from 'url:static-build/assets/favicon.ico';
-import ogImage from 'url:static-build/assets/icon-large-maskable.png';
+import ogImage from 'url:static-build/assets/batchlet-editor-preview.webp';
 import { escapeStyleScriptContent, siteOrigin } from 'static-build/utils';
-import Intro from 'shared/prerendered-app/Intro';
-import snackbarCss from 'css:../../../shared/custom-els/snack-bar/styles.css';
-import * as snackbarStyle from '../../../shared/custom-els/snack-bar/styles.css';
+import BatchletHome from 'shared/BatchletHome';
 
 interface Props {}
 
 const Index: FunctionalComponent<Props> = () => (
   <html lang="en">
     <head>
-      <title>Squoosh</title>
+      <title>
+        Squoosh Batch Image Optimizer - Image Compression &amp; Codec Comparison
+        | Batchlet
+      </title>
       <meta
         name="description"
-        content="Squoosh is the ultimate image optimizer that allows you to compress and compare images with different codecs in your browser."
+        content="Batchlet adds a Squoosh batch workflow for image compression, optimization, codec comparison and conversion of multiple images locally in your browser."
       />
       <meta name="twitter:card" content="summary" />
-      <meta name="twitter:site" content="@SquooshApp" />
-      <meta property="og:title" content="Squoosh" />
+      <meta
+        property="og:title"
+        content="Squoosh Batch Image Optimizer | Batchlet"
+      />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={`${siteOrigin}${ogImage}`} />
       <meta
         property="og:image:secure_url"
         content={`${siteOrigin}${ogImage}`}
       />
-      <meta property="og:image:type" content="image/png" />
-      <meta property="og:image:width" content="500" />
-      <meta property="og:image:height" content="500" />
+      <meta property="og:image:type" content="image/webp" />
+      <meta property="og:image:width" content="3572" />
+      <meta property="og:image:height" content="2192" />
       <meta
         property="og:image:alt"
-        content="A cartoon of a hand squeezing an image file on a dark background."
+        content="Squoosh batch workspace showing a before-and-after image comparison."
       />
       <meta
-        name="og:description"
-        content="Squoosh is the ultimate image optimizer that allows you to compress and compare images with different codecs in your browser."
+        property="og:description"
+        content="A Squoosh batch workflow for optimizing, comparing and converting multiple images locally in your browser."
       />
       <meta
         name="viewport"
@@ -68,36 +72,18 @@ const Index: FunctionalComponent<Props> = () => (
       />
       <style
         dangerouslySetInnerHTML={{
+          __html: escapeStyleScriptContent(batchletCss),
+        }}
+      />
+      <style
+        dangerouslySetInnerHTML={{
           __html: escapeStyleScriptContent(initialCss),
         }}
       />
     </head>
     <body>
       <div id="app">
-        <Intro />
-        <noscript>
-          <style
-            dangerouslySetInnerHTML={{
-              __html: escapeStyleScriptContent(snackbarCss),
-            }}
-          />
-          <snack-bar>
-            <div
-              class={snackbarStyle.snackbar}
-              aria-live="assertive"
-              aria-atomic="true"
-              aria-hidden="false"
-            >
-              <div class={snackbarStyle.text}>
-                Initialization error: This site requires JavaScript, which is
-                disabled in your browser.
-              </div>
-              <a class={snackbarStyle.button} href="/">
-                reload
-              </a>
-            </div>
-          </snack-bar>
-        </noscript>
+        <BatchletHome />
       </div>
       <script
         dangerouslySetInnerHTML={{

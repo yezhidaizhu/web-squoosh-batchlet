@@ -3,16 +3,17 @@
   z-index: 200;
   top: 66px;
   left: 0;
-  width: 96px;
+  width: 116px;
   max-height: calc(100dvh - 280px);
   box-sizing: border-box;
   display: grid;
-  grid-template-rows: 32px minmax(0, 1fr);
+  grid-template-rows: 38px minmax(0, 1fr);
   overflow: visible;
   color: #fff;
-  background: #101832;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 0 8px 8px 0;
+  background: #1f1f1f;
+  border: 2px solid #1f1f1f;
+  border-left: 0;
+  border-radius: 0;
   opacity: 1;
   transform: translateX(0);
   transition: opacity 180ms ease-out, transform 180ms ease-out;
@@ -20,7 +21,7 @@
   @media (min-width: 600px) {
     top: 82px;
     left: 0;
-    width: 108px;
+    width: 128px;
     max-height: calc(100dvh - 280px);
   }
 }
@@ -29,47 +30,50 @@
   transform: translateX(-100%);
 
   .toolbar {
-    border-bottom-color: transparent;
+    border-bottom-color: #1f1f1f;
   }
 
   .toolbar .icon-button:first-child {
     position: absolute;
-    top: -1px;
+    top: -2px;
     left: 100%;
-    background: #101832;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: #f83d7e;
+    border: 2px solid #1f1f1f;
     border-left: 0;
-    border-radius: 0 8px 8px 0;
+    border-radius: 0;
   }
 
   .title,
   .add-button,
   .list {
-    opacity: 0;
+    display: none;
     pointer-events: none;
-    transform: translateX(-8px);
+  }
+
+  .toolbar .badge {
+    top: -8px;
+    right: -8px;
+    bottom: auto;
+    left: auto;
   }
 }
 
 .launcher {
-  top: 12px;
-
-  @media (min-width: 600px) {
-    top: 16px;
-  }
 }
 
 .toolbar {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) 32px;
+  grid-template-columns: 38px minmax(0, 1fr) 38px;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  background: #f83d7e;
+  border-bottom: 2px solid #1f1f1f;
 }
 
 .title {
   overflow: hidden;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 850;
   line-height: 1;
   text-align: center;
   white-space: nowrap;
@@ -85,9 +89,9 @@
 
 .icon-button {
   position: relative;
-  width: 32px;
-  height: 32px;
-  padding: 8px;
+  width: 38px;
+  height: 38px;
+  padding: 10px;
   color: #fff;
   background: transparent;
 }
@@ -98,32 +102,33 @@
 
 .badge {
   position: absolute;
-  top: -3px;
-  right: -3px;
-  min-width: 14px;
-  height: 14px;
-  padding: 0 2px;
+  top: -8px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
   box-sizing: border-box;
   color: #fff;
   font-size: 9px;
   font-weight: 700;
   line-height: 14px;
   text-align: center;
-  background: var(--pink);
-  border: 1px solid #101832;
-  border-radius: 7px;
+  background: #f83d7e;
+  border: 1px solid #1f1f1f;
+  border-radius: 0;
 }
 
 .icon-button:hover,
 .icon-button:focus-visible {
-  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  background: #d92d69;
 }
 
 .icon-button:focus-visible,
 .select-button:focus-visible,
 .remove-button:focus-visible {
-  outline: 2px solid #fff;
-  outline-offset: -2px;
+  outline: 2px solid #1f1f1f;
+  outline-offset: 2px;
 }
 
 .icon-button svg,
@@ -144,7 +149,8 @@
 
 .list {
   min-height: 0;
-  padding: 4px;
+  padding: 8px;
+  background: #1f1f1f;
   overflow-x: hidden;
   overflow-y: auto;
   -ms-overflow-style: none;
@@ -161,12 +167,12 @@
   display: block;
   width: 100%;
   box-sizing: border-box;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  background: #17213f;
-  border: 2px solid transparent;
-  border-radius: 4px;
+  background: #111;
+  border: 2px solid #383838;
+  border-radius: 0;
 
   &:last-child {
     margin-bottom: 0;
@@ -174,7 +180,12 @@
 }
 
 .active-item {
-  border-color: var(--pink);
+  border-color: #f83d7e;
+}
+
+.item:hover,
+.item:focus-within {
+  border-color: #f83d7e;
 }
 
 .select-button {
@@ -197,25 +208,28 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: #17213f;
+  background: #111;
 }
 
 .select-button:hover .thumbnail,
 .select-button:focus-visible .thumbnail {
-  opacity: 0.78;
-  transform: scale(1.03);
+  opacity: 0.88;
+  transform: scale(1.02);
 }
 
 .remove-button {
   position: absolute;
   top: 0;
   right: 0;
-  width: 16px;
-  height: 16px;
-  padding: 0;
+  width: 24px;
+  height: 24px;
+  padding: 5px;
   color: #fff;
-  background: rgba(16, 24, 50, 0.84);
-  border-radius: 0 0 0 4px;
+  background: #1f1f1f;
+  border: 2px solid #f83d7e;
+  border-top: 0;
+  border-right: 0;
+  border-radius: 0;
   opacity: 0;
   pointer-events: none;
   transition: background 150ms ease, opacity 150ms ease;
@@ -228,7 +242,8 @@
 
 .remove-button:hover,
 .remove-button:focus-visible {
-  background: #c2187a;
+  color: #fff;
+  background: #f83d7e;
 }
 
 @media (prefers-reduced-motion: reduce) {

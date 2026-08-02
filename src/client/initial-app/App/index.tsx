@@ -9,7 +9,7 @@ import * as style from './style.css';
 import 'add-css:./style.css';
 import 'file-drop-element';
 import 'shared/custom-els/snack-bar';
-import Intro from 'shared/prerendered-app/Intro';
+import BatchletHome from 'shared/BatchletHome';
 import 'shared/custom-els/loading-spinner';
 import ImageQueue, { QueueFile } from 'client/lazy-app/Compress/ImageQueue';
 
@@ -84,25 +84,55 @@ export default class App extends Component<Props, State> {
     window.removeEventListener('popstate', this.onPopState);
   }
 
+  private fingerprintFile = (file: File) =>
+    `${file.name}:${file.size}:${file.lastModified}:${file.type}`;
+
   private createQueueFiles = (files: File[]): QueueFile[] =>
     files.map((file) => ({
       id: `image-${this.nextQueueId++}`,
       file,
+      fingerprint: this.fingerprintFile(file),
     }));
+
+  private uniqueQueueFiles = (
+    newFiles: File[],
+    existingFiles: QueueFile[] = [],
+  ) => {
+    const fingerprints = new Set(existingFiles.map((file) => file.fingerprint));
+    const queueFiles = this.createQueueFiles(newFiles);
+    return queueFiles.filter((queueFile) => {
+      if (fingerprints.has(queueFile.fingerprint)) return false;
+      fingerprints.add(queueFile.fingerprint);
+      return true;
+    });
+  };
 
   private appendFiles = (newFiles: File[]) => {
     if (newFiles.length === 0) return;
-    const files = this.createQueueFiles(newFiles);
+    const files = this.uniqueQueueFiles(newFiles, this.state.files);
+    if (files.length === 0) {
+      this.showSnack('Image already in the queue');
+      return;
+    }
     this.openEditor();
     this.setState((state) => ({
-      files: [...state.files, ...files],
+      files: [
+        ...state.files,
+        ...files.filter(
+          (file) =>
+            !state.files.some(
+              ({ fingerprint }) => fingerprint === file.fingerprint,
+            ),
+        ),
+      ],
       selectedFileId: state.selectedFileId || files[0].id,
     }));
   };
 
   private replaceFiles = (newFiles: File[]) => {
     if (newFiles.length === 0) return;
-    const files = this.createQueueFiles(newFiles);
+    const files = this.uniqueQueueFiles(newFiles);
+    if (files.length === 0) return;
     this.openEditor();
     this.setState({ files, selectedFileId: files[0].id });
   };
@@ -186,7 +216,7 @@ export default class App extends Component<Props, State> {
       awaitingShareTarget || (isEditorOpen && (!Compress || !selectedFile));
 
     return (
-      <div class={style.app}>
+      <div class={`${style.app} ${!isEditorOpen ? style.appHome : ''}`}>
         <file-drop multiple onfiledrop={this.onFileDrop} class={style.drop}>
           {showSpinner ? (
             <loading-spinner class={style.appLoader} />
@@ -211,10 +241,7 @@ export default class App extends Component<Props, State> {
             )
           ) : (
             <div class={style.home}>
-              <Intro
-                onFiles={this.onIntroPickFiles}
-                showSnack={this.showSnack}
-              />
+              <BatchletHome onFiles={this.onIntroPickFiles} />
               {files.length > 0 && (
                 <ImageQueue
                   files={files}

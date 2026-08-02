@@ -7,6 +7,7 @@ import 'add-css:./style.css';
 export interface QueueFile {
   id: string;
   file: File;
+  fingerprint: string;
 }
 
 interface Props {
