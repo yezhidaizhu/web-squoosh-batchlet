@@ -1,0 +1,8 @@
+{
+  "name": "web-squoosh-batchlet",
+  "compatibility_date": "2026-08-02",
+  "assets": {
+    "directory": "./build",
+    "not_found_handling": "single-page-application"
+  }
+}
