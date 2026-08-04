@@ -181,10 +181,8 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   </svg>
                 </span>
                 <h1 id="page-title">
-                  <span>Vicoco</span>{' '}
-                  <span class={style.compressorWord}>
-                    Squoosh Batch Image Compressor
-                  </span>
+                  <span>Squoosh Batch Image</span>{' '}
+                  <span class={style.compressorWord}>Compressor</span>
                 </h1>
                 <span class={style.uploadCopy}>
                   Drop images here, or click to choose
@@ -196,8 +194,10 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
               </span>
             </a>
             <p class={style.heroDescription}>
-              Vicoco adds a multi-image queue to Squoosh for batch image
-              compression, codec comparison and conversion in your browser.
+              Compress and convert multiple images with a Squoosh batch
+              workflow, all locally in your browser. Compare quality and file
+              size, apply one set of settings, then download everything as a
+              ZIP.
             </p>
           </section>
 
@@ -271,28 +271,30 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
               alt="Red panda photograph ready for batch image compression"
             />
             <div>
-              <h2 id="batch-heading">Batch your Squoosh workflow</h2>
+              <h2 id="batch-heading">
+                One set of settings for the whole batch
+              </h2>
               <p>
-                Build a local Squoosh batch queue for image compression, codec
-                comparison and export.
+                Tune compression, resize and output settings once, then process
+                every image and download the results as a ZIP.
               </p>
               <dl>
                 <div>
                   <dt>Queue</dt>
-                  <dd>Keep multiple images in one local Squoosh batch.</dd>
+                  <dd>Add multiple images to one local queue.</dd>
                 </div>
                 <div>
                   <dt>Tune</dt>
                   <dd>
-                    Compare codecs, quality, dimensions and output for each
-                    file.
+                    Compare codecs, quality, dimensions and output on the
+                    selected image.
                   </dd>
                 </div>
                 <div>
                   <dt>Export</dt>
                   <dd>
-                    Download compressed or converted JPEG, PNG, WebP, AVIF or
-                    SVG results together.
+                    Apply the current settings to every image and download the
+                    results as a ZIP.
                   </dd>
                 </div>
               </dl>
@@ -395,7 +397,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
               <details>
                 <summary>
                   <span class={style.faqIndex}>01</span>
-                  <span>What is Vicoco?</span>
+                  <span>Can Squoosh compress multiple images at once?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
                       width="17"
@@ -412,16 +414,15 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   </span>
                 </summary>
                 <p>
-                  Vicoco adds a Squoosh batch queue for optimizing, comparing
-                  and converting multiple images in one session.
+                  Yes. Vicoco adds a batch queue to the Squoosh workflow, so you
+                  can add multiple images, choose one set of output settings and
+                  download the results as a ZIP.
                 </p>
               </details>
               <details>
                 <summary>
                   <span class={style.faqIndex}>02</span>
-                  <span>
-                    Can I batch compress and optimize JPEG and PNG images?
-                  </span>
+                  <span>Do the same settings apply to every image?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
                       width="17"
@@ -438,8 +439,8 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   </span>
                 </summary>
                 <p>
-                  Yes. Add multiple JPEG and PNG images to a Squoosh batch queue
-                  for image compression, quality comparison and export.
+                  Yes. The current codec, quality and resize settings are
+                  applied to every queued image during batch export.
                 </p>
               </details>
               <details>
@@ -462,14 +463,14 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   </span>
                 </summary>
                 <p>
-                  Yes. Choose WebP or AVIF output to convert queued images into
-                  modern formats and tune quality before export.
+                  Yes. Choose WebP or AVIF as the output format, tune the
+                  quality and export all queued images together as a ZIP.
                 </p>
               </details>
               <details>
                 <summary>
                   <span class={style.faqIndex}>04</span>
-                  <span>Does Squoosh batch processing run locally?</span>
+                  <span>Are my images uploaded?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
                       width="17"
@@ -486,8 +487,8 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   </span>
                 </summary>
                 <p>
-                  Yes. Squoosh batch processing happens locally in your browser,
-                  so images stay on your device.
+                  No. Image processing runs locally in your browser, so your
+                  files stay on your device.
                 </p>
               </details>
             </div>
@@ -500,7 +501,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
           </span>
           <nav>
             <a
-              href="https://github.com/yezhidaizhu/web-squoosh-batchlet"
+              href="https://github.com/yezhidaizhu/web-squoosh-batchlet#privacy"
               target="_blank"
               rel="noopener noreferrer"
             >

@@ -32,7 +32,7 @@ const structuredData = JSON.stringify({
       url: siteOrigin,
       image: `${siteOrigin}${ogImage}`,
       description:
-        'A Squoosh batch image compressor for compressing, comparing and converting multiple images locally in your browser.',
+        'Batch compress and convert JPEG, PNG, WebP and AVIF images locally with Squoosh. Compare quality and file size, then export the whole batch as a ZIP.',
       applicationCategory: 'MultimediaApplication',
       operatingSystem: 'Any',
       browserRequirements:
@@ -49,18 +49,18 @@ const structuredData = JSON.stringify({
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'What is Vicoco?',
+          name: 'Can Squoosh compress multiple images at once?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Vicoco adds a Squoosh batch queue for optimizing, comparing and converting multiple images in one session.',
+            text: 'Yes. Vicoco adds a batch queue to the Squoosh workflow, so you can add multiple images, choose one set of output settings and download the results as a ZIP.',
           },
         },
         {
           '@type': 'Question',
-          name: 'Can I batch compress and optimize JPEG and PNG images?',
+          name: 'Do the same settings apply to every image?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes. Add multiple JPEG and PNG images to a Squoosh batch queue for image compression, quality comparison and export.',
+            text: 'Yes. The current codec, quality and resize settings are applied to every queued image during batch export.',
           },
         },
         {
@@ -68,15 +68,15 @@ const structuredData = JSON.stringify({
           name: 'Can I batch convert images to WebP or AVIF?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes. Choose WebP or AVIF output to convert queued images into modern formats and tune quality before export.',
+            text: 'Yes. Choose WebP or AVIF as the output format, tune the quality and export all queued images together as a ZIP.',
           },
         },
         {
           '@type': 'Question',
-          name: 'Does Squoosh batch processing run locally?',
+          name: 'Are my images uploaded?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes. Squoosh batch processing happens locally in your browser, so images stay on your device.',
+            text: 'No. Image processing runs locally in your browser, so your files stay on your device.',
           },
         },
       ],
@@ -88,15 +88,18 @@ const Index: FunctionalComponent<Props> = () => (
   <html lang="en">
     <head>
       <meta charSet="utf-8" />
-      <title>Vicoco for Squoosh Batch Processing - Image Compressor</title>
+      <title>Squoosh Batch Image Compressor | Vicoco</title>
       <meta
         name="description"
-        content="Vicoco is a Squoosh batch image compressor for local compression, codec comparison and conversion of multiple JPEG, PNG, WebP and AVIF images."
+        content="Batch compress and convert JPEG, PNG, WebP and AVIF images locally with Squoosh. Compare quality and file size, then export the whole batch as a ZIP."
       />
       <meta name="robots" content="index, follow, max-image-preview:large" />
       <meta property="og:site_name" content="Vicoco" />
       <meta property="og:url" content={siteOrigin} />
-      <meta property="og:title" content="Vicoco for Squoosh Batch Processing" />
+      <meta
+        property="og:title"
+        content="Squoosh Batch Image Compressor | Vicoco"
+      />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={`${siteOrigin}${ogImage}`} />
       <meta
@@ -112,16 +115,16 @@ const Index: FunctionalComponent<Props> = () => (
       />
       <meta
         property="og:description"
-        content="A Squoosh batch image compressor for local compression, codec comparison and conversion of multiple JPEG, PNG, WebP and AVIF images."
+        content="Batch compress and convert JPEG, PNG, WebP and AVIF images locally with Squoosh. Compare quality and file size, then export the whole batch as a ZIP."
       />
       <meta name="twitter:card" content="summary_large_image" />
       <meta
         name="twitter:title"
-        content="Vicoco for Squoosh Batch Processing"
+        content="Squoosh Batch Image Compressor | Vicoco"
       />
       <meta
         name="twitter:description"
-        content="A Squoosh batch image compressor for local compression, codec comparison and conversion of multiple JPEG, PNG, WebP and AVIF images."
+        content="Batch compress and convert JPEG, PNG, WebP and AVIF images locally with Squoosh. Compare quality and file size, then export the whole batch as a ZIP."
       />
       <meta name="twitter:image" content={`${siteOrigin}${ogImage}`} />
       <meta
