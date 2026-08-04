@@ -16,7 +16,6 @@ import baseCss from 'css:./base.css';
 import batchletCss from 'css:../../../shared/BatchletHome/style.css';
 import initialCss from 'initial-css:';
 import { allSrc } from 'client-bundle:client/initial-app';
-import batchletLogo from 'url:static-build/assets/batchlet-logo.svg';
 import appleTouchIcon from 'url:static-build/assets/icon-large.png';
 import ogImage from 'url:static-build/assets/batchlet-editor-preview.webp';
 import { escapeStyleScriptContent, siteOrigin } from 'static-build/utils';
@@ -135,7 +134,7 @@ const Index: FunctionalComponent<Props> = () => (
       />
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
-      <link rel="icon" href={batchletLogo} type="image/svg+xml" />
+      <link rel="icon" href="/favicon.png" type="image/png" sizes="96x96" />
       <link rel="apple-touch-icon" href={appleTouchIcon} />
       <meta name="theme-color" content="#ff3385" />
       <link rel="manifest" href="/manifest.json" />

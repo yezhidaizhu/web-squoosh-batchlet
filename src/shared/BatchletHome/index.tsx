@@ -142,7 +142,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
       <div class={style.wrap}>
         <header class={style.header}>
           <a class={style.brand} href="#top">
-            <img src={logo} width="34" height="34" alt="" />
+            <img src={logo} width="34" height="34" alt="vicoco logo" />
             Vicoco
           </a>
           <nav class={style.nav} aria-label="Primary navigation">
