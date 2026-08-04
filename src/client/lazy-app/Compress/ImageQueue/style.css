@@ -41,6 +41,11 @@
     border: 2px solid #1f1f1f;
     border-left: 0;
     border-radius: 0;
+
+    &:hover,
+    &:focus-visible {
+      background: #d92d69;
+    }
   }
 
   .title,

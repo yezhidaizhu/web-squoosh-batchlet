@@ -163,9 +163,9 @@ export default class ImageQueue extends Component<Props, State> {
   private formatCount = (count: number) => (count > 99 ? '99+' : count);
 
   private formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    if (bytes < 1000) return `${bytes} B`;
+    if (bytes < 1000 * 1000) return `${(bytes / 1000).toFixed(1)} kB`;
+    return `${(bytes / (1000 * 1000)).toFixed(1)} MB`;
   };
 
   private syncThumbnails = () => {

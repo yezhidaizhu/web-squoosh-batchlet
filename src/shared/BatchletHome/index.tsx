@@ -45,7 +45,7 @@ const demos = [
   },
   {
     name: 'SVG icon',
-    size: '13KB',
+    size: '10.7 kB',
     previewUrl: iconDemo,
     sourceUrl: iconSource,
     filename: 'squoosh.svg',
@@ -194,10 +194,9 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
               </span>
             </a>
             <p class={style.heroDescription}>
-              Compress and convert multiple images with a Squoosh batch
-              workflow, all locally in your browser. Compare quality and file
-              size, apply one set of settings, then download everything as a
-              ZIP.
+              Compress and convert multiple images at once with Squoosh,
+              entirely in your browser. Compare quality and file size, apply one
+              set of settings, then download the batch as a ZIP.
             </p>
           </section>
 
@@ -286,7 +285,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                 <div>
                   <dt>Tune</dt>
                   <dd>
-                    Compare codecs, quality, dimensions and output on the
+                    Compare codecs, quality, dimensions and file size on the
                     selected image.
                   </dd>
                 </div>
@@ -307,10 +306,12 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
             aria-labelledby="formats-heading"
           >
             <div class={style.formatCopy}>
-              <h2 id="formats-heading">Choose codecs for every batch</h2>
+              <h2 id="formats-heading">
+                Choose the best format for your batch
+              </h2>
               <p>
-                Squoosh batch processing lets you compare codecs and keep the
-                result only when it earns its file size.
+                Test JPEG, PNG, WebP and AVIF, then choose an output format
+                based on quality and file size.
               </p>
             </div>
             <div class={style.formatGrid}>
@@ -363,10 +364,13 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
 
           <section class={style.compare} aria-labelledby="compare-heading">
             <div>
-              <h2 id="compare-heading">Compare every Squoosh batch</h2>
+              <h2 id="compare-heading">
+                Compare quality and file size before export
+              </h2>
               <p>
-                Slide between original and optimized pixels, then adjust the
-                codec and quality while the file size stays in view.
+                Preview the selected image before and after compression, then
+                adjust the format, quality and dimensions while the output file
+                size stays in view.
               </p>
             </div>
             <figure class={style.compareVisual}>
@@ -397,7 +401,7 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
               <details>
                 <summary>
                   <span class={style.faqIndex}>01</span>
-                  <span>Can Squoosh compress multiple images at once?</span>
+                  <span>How do I batch compress images with Squoosh?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
                       width="17"
@@ -414,9 +418,9 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   </span>
                 </summary>
                 <p>
-                  Yes. Vicoco adds a batch queue to the Squoosh workflow, so you
-                  can add multiple images, choose one set of output settings and
-                  download the results as a ZIP.
+                  Vicoco adds batch processing to Squoosh. Add multiple images,
+                  choose one set of output settings, then process and download
+                  them as a ZIP.
                 </p>
               </details>
               <details>

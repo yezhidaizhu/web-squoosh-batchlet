@@ -49,10 +49,10 @@ const structuredData = JSON.stringify({
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'Can Squoosh compress multiple images at once?',
+          name: 'How do I batch compress images with Squoosh?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes. Vicoco adds a batch queue to the Squoosh workflow, so you can add multiple images, choose one set of output settings and download the results as a ZIP.',
+            text: 'Vicoco adds batch processing to Squoosh. Add multiple images, choose one set of output settings, then process and download them as a ZIP.',
           },
         },
         {

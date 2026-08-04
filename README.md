@@ -1,25 +1,25 @@
 <div align="center">
-  <img src="src/static-build/assets/batchlet-logo.svg" alt="Batchlet" width="88">
-  <h1>Batchlet</h1>
+  <img src="src/static-build/assets/batchlet-logo.svg" alt="Vicoco" width="88">
+  <h1>Squoosh Batch Image Compressor</h1>
   <p>Batch image compression and conversion, powered by Squoosh.</p>
-  <p><a href="https://vicoco.uk"><strong>Open Batchlet</strong></a></p>
+  <p><a href="https://vicoco.uk"><strong>Open Vicoco</strong></a></p>
 </div>
 
-![Batchlet editor](src/static-build/assets/batchlet-editor-preview.webp)
+![Vicoco editor](src/static-build/assets/batchlet-editor-preview.webp)
 
-Batchlet adds a multi-image workflow to [Squoosh](https://squoosh.app). Queue images, compare codecs and quality, apply the same settings to the whole batch, and export the results as a ZIP.
+Vicoco is a batch image compressor and converter built on [Squoosh](https://squoosh.app). Add multiple images, preview compression results, apply the same settings to the whole batch, and download the processed images as a ZIP.
 
 ## Features
 
 - Batch queue for multiple images
-- JPEG, PNG, WebP, AVIF, SVG, and more
+- JPEG, PNG, WebP, AVIF, SVG, and other supported inputs
 - Side-by-side quality and file-size comparison
 - One set of export settings for the entire batch
 - Custom ZIP filename and processing progress
 - Local browser processing: images are not uploaded
 - Installable PWA
 
-## Use Batchlet
+## Use the app
 
 1. Open [vicoco.uk](https://vicoco.uk).
 2. Drop or select multiple images.
@@ -50,6 +50,6 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Credits
 
-Batchlet is built on the open-source [Squoosh](https://github.com/GoogleChromeLabs/squoosh) project.
+Vicoco is built on the open-source [Squoosh](https://github.com/GoogleChromeLabs/squoosh) project.
 
 Licensed under the [Apache License 2.0](LICENSE).

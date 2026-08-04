@@ -45,7 +45,7 @@ const demos = [
   },
   {
     description: 'SVG icon',
-    size: '13KB',
+    size: '10.7 kB',
     filename: 'squoosh.svg',
     url: logo,
     iconUrl: logoIcon,

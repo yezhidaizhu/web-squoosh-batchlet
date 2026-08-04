@@ -12,7 +12,12 @@
  */
 import { h } from 'preact';
 
-import { renderPage, siteOrigin, writeFiles } from './utils';
+import {
+  escapeStyleScriptContent,
+  renderPage,
+  siteOrigin,
+  writeFiles,
+} from './utils';
 import IndexPage from './pages/index';
 import * as iconLargeMaskable from 'img-url:static-build/assets/icon-large-maskable.png';
 import * as iconLarge from 'img-url:static-build/assets/icon-large.png';
@@ -48,28 +53,76 @@ const screenshots = [
   form_factor: formFactor(screenshot),
 }));
 
+const notFoundCss = `
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    color: #202124;
+    background: #fff;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  main { width: min(100%, 560px); }
+  strong { color: #ff3385; font-size: 0.875rem; }
+  h1 { margin: 12px 0; font-size: 3rem; line-height: 1.05; }
+  p { margin: 0 0 28px; color: #5f6368; font-size: 1.05rem; line-height: 1.6; }
+  a { color: #fff; background: #202124; display: inline-block; padding: 12px 18px; text-decoration: none; }
+  a:hover, a:focus-visible { background: #ff3385; }
+  @media (max-width: 480px) { h1 { font-size: 2.25rem; } }
+`;
+
+const notFoundPage = (
+  <html lang="en">
+    <head>
+      <meta charSet="utf-8" />
+      <title>Page Not Found | Vicoco</title>
+      <meta name="robots" content="noindex, nofollow" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="theme-color" content="#ff3385" />
+      <style
+        dangerouslySetInnerHTML={{
+          __html: escapeStyleScriptContent(notFoundCss),
+        }}
+      />
+    </head>
+    <body>
+      <main>
+        <strong>404</strong>
+        <h1>Page not found</h1>
+        <p>The page you requested does not exist.</p>
+        <a href="/">Back to Vicoco</a>
+      </main>
+    </body>
+  </html>
+);
+
 interface Output {
   [outputPath: string]: string;
 }
 
 const toOutput: Output = {
   'index.html': renderPage(<IndexPage />),
+  '404.html': renderPage(notFoundPage),
   'llms.txt': `# Vicoco
 
-> A free, browser-based batch image compression, conversion, and codec comparison tool built on Squoosh.
+> A free, browser-based batch image compressor and converter built on Squoosh.
 
 Vicoco processes images locally in the browser. Images stay on the user's device and are not uploaded to a server.
 
 ## Main resource
 
-- [Vicoco](${siteOrigin}/): Batch compress, optimize, compare, and convert multiple images.
+- [Squoosh Batch Image Compressor](${siteOrigin}/): Compress and convert multiple images with Squoosh.
 
 ## Capabilities
 
 - Add multiple images to a local batch queue.
-- Compare original and optimized images before export.
-- Adjust codec, quality, and dimensions for each image.
-- Export optimized JPEG, PNG, WebP, AVIF, and SVG images.
+- Preview the selected image before and after processing.
+- Use JPEG, PNG, WebP, AVIF, and SVG images as inputs.
+- Apply one set of format, quality, and resize settings to the entire batch.
+- Download the processed images together as a ZIP.
 
 ## Privacy
 
@@ -79,7 +132,7 @@ Vicoco processes images locally in the browser. Images stay on the user's device
 ## Technical details
 
 - Requires a modern browser with JavaScript enabled.
-- Built on the Squoosh image compression workflow.
+- Built on Squoosh codecs and image-processing tools.
 `,
   'robots.txt': `User-agent: *
 Allow: /
