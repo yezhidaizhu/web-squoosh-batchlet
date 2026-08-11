@@ -51,7 +51,8 @@ export default class Results extends Component<Props, State> {
     const after = Math.round(this.props.imageFile!.size / 1024);
     const change = Math.round((after / before) * 1000);
 
-    ga('send', 'event', 'compression', 'download', {
+    gtag('event', 'download', {
+      event_category: 'compression',
       metric1: before,
       metric2: after,
       metric3: change,

@@ -54,9 +54,11 @@ declare module 'service-worker:*' {
   export default url;
 }
 
-declare var ga: {
-  (...args: any[]): void;
-  q: any[];
-};
+interface Window {
+  dataLayer: any[][];
+  gtag: (...args: any[]) => void;
+}
+
+declare var gtag: (...args: any[]) => void;
 
 declare const __PRODUCTION__: boolean;

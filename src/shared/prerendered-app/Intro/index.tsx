@@ -150,12 +150,10 @@ export default class Intro extends Component<Props, State> {
     this.setState({ beforeInstallEvent: event });
 
     // Log the event.
-    const gaEventInfo = {
-      eventCategory: 'pwa-install',
-      eventAction: 'promo-shown',
-      nonInteraction: true,
-    };
-    ga('send', 'event', gaEventInfo);
+    gtag('event', 'promo_shown', {
+      event_category: 'pwa-install',
+      non_interaction: true,
+    });
   };
 
   private onInstallClick = async (event: Event) => {
@@ -172,13 +170,11 @@ export default class Intro extends Component<Props, State> {
     // Wait for the user to accept or dismiss the install prompt
     const { outcome } = await beforeInstallEvent.userChoice;
     // Send the analytics data
-    const gaEventInfo = {
-      eventCategory: 'pwa-install',
-      eventAction: 'promo-clicked',
-      eventLabel: installButtonSource,
-      eventValue: outcome === 'accepted' ? 1 : 0,
-    };
-    ga('send', 'event', gaEventInfo);
+    gtag('event', 'promo_clicked', {
+      event_category: 'pwa-install',
+      event_label: installButtonSource,
+      value: outcome === 'accepted' ? 1 : 0,
+    });
 
     // If the prompt was dismissed, we aren't going to install via the button.
     if (outcome === 'dismissed') {
@@ -195,7 +191,10 @@ export default class Intro extends Component<Props, State> {
 
     // Try to get the install, if it's not set, use 'browser'
     const source = this.installingViaButton ? installButtonSource : 'browser';
-    ga('send', 'event', 'pwa-install', 'installed', source);
+    gtag('event', 'installed', {
+      event_category: 'pwa-install',
+      event_label: source,
+    });
 
     // Clear the install method property
     this.installingViaButton = false;
