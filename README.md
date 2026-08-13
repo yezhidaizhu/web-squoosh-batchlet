@@ -42,7 +42,7 @@ npm run build
 npm run dev
 ```
 
-The development server runs at [http://localhost:3000](http://localhost:3000).
+The development server runs at [http://localhost:3010](http://localhost:3010).
 
 ## Contributing
 

@@ -2,6 +2,7 @@ declare module 'preact' {
   namespace JSX {
     interface HTMLAttributes {
       decoding?: 'sync' | 'async' | 'auto';
+      webkitdirectory?: boolean;
     }
   }
 }

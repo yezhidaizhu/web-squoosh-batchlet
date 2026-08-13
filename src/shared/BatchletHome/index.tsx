@@ -55,13 +55,40 @@ const demos = [
 
 const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
   const input = useRef<HTMLInputElement | null>(null);
+  const folderInput = useRef<HTMLInputElement | null>(null);
+  const uploadActions = useRef<HTMLDivElement | null>(null);
+  const folderMenuButton = useRef<HTMLButtonElement | null>(null);
   const workspace = useRef<HTMLElement | null>(null);
+  const [folderMenuOpen, setFolderMenuOpen] = useState(false);
   const [workspaceReady, setWorkspaceReady] = useState(false);
   const [workspaceVisible, setWorkspaceVisible] = useState(false);
   const [loadingDemo, setLoadingDemo] = useState<string | null>(null);
   const [installPrompt, setInstallPrompt] = useState<
     BeforeInstallPromptEvent | undefined
   >(undefined);
+
+  useEffect(() => {
+    const closeFolderMenu = (event: PointerEvent) => {
+      if (!uploadActions.current?.contains(event.target as Node)) {
+        setFolderMenuOpen(false);
+      }
+    };
+    const closeFolderMenuWithKeyboard = (event: KeyboardEvent) => {
+      if (
+        event.key !== 'Escape' ||
+        folderMenuButton.current?.getAttribute('aria-expanded') !== 'true'
+      )
+        return;
+      setFolderMenuOpen(false);
+      folderMenuButton.current?.focus();
+    };
+    document.addEventListener('pointerdown', closeFolderMenu);
+    document.addEventListener('keydown', closeFolderMenuWithKeyboard);
+    return () => {
+      document.removeEventListener('pointerdown', closeFolderMenu);
+      document.removeEventListener('keydown', closeFolderMenuWithKeyboard);
+    };
+  }, []);
 
   useEffect(() => {
     const onBeforeInstall = (event: BeforeInstallPromptEvent) => {
@@ -98,10 +125,23 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
     input.current?.click();
   };
 
-  const onChooseImages = (event: Event) => {
-    const files = Array.from((event.target as HTMLInputElement).files || []);
+  const chooseImagesFromStage = (event: Event) => {
+    if (uploadActions.current?.contains(event.target as Node)) return;
+    chooseImages(event);
+  };
+
+  const chooseFolder = (event: Event) => {
+    if (!onFiles) return;
+    event.preventDefault();
+    setFolderMenuOpen(false);
+    folderInput.current?.click();
+  };
+
+  const onChooseFiles = (event: Event) => {
+    const target = event.currentTarget as HTMLInputElement;
+    const files = Array.from(target.files || []);
     if (files.length) onFiles?.(files);
-    if (input.current) input.current.value = '';
+    target.value = '';
   };
 
   const openDemo = async (demo: typeof demos[number], event: Event) => {
@@ -137,7 +177,16 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
         type="file"
         multiple
         accept="image/*,.svg"
-        onChange={onChooseImages}
+        onChange={onChooseFiles}
+      />
+      <input
+        class={style.fileInput}
+        ref={folderInput}
+        type="file"
+        multiple
+        accept="image/*,.svg"
+        webkitdirectory
+        onChange={onChooseFiles}
       />
       <div class={style.wrap}>
         <header class={style.header}>
@@ -157,27 +206,24 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
         </header>
         <main>
           <section class={style.hero} id="top" aria-labelledby="page-title">
-            <a
-              class={style.uploadStage}
-              href="/editor"
-              onClick={chooseImages}
-              aria-label="Drop images or choose images to start a Squoosh batch"
+            <div
+              class={`${style.uploadStage} ${
+                folderMenuOpen ? style.folderMenuOpen : ''
+              }`}
+              onClick={chooseImagesFromStage}
             >
               <div class={style.uploadInner}>
                 <span class={style.uploadIcon} aria-hidden="true">
                   <svg
-                    width="34"
-                    height="34"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    width="56"
+                    height="56"
+                    viewBox="8 9 32 30"
+                    fill="currentColor"
                   >
-                    <path d="M12 3v12" />
-                    <path d="m7 8 5-5 5 5" />
-                    <path d="M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+                    <path d="M25.2486 32.74993c0-3.26666 2.4425-6.13416 5.66541-6.65961.95081-.15503 1.90277-.09332 2.83459.13959v-6.79999c0-1.52002-1.22998-2.75-2.75-2.75h-19c-1.51996 0-2.75 1.22998-2.75 2.75v12c0 1.52002 1.23004 2.75 2.75 2.75h13.40002c-.04999-.22003-.08002-.44-.10999-.66998-.03002-.23004-.04003-.49005-.04003-.76001zm-7.71997-9.19c-.29004-.29004-.77002-.29004-1.06 0l-5.72003 5.71997v-9.84998c0-.69.56-1.25 1.25-1.25h19c.69 0 1.25.56 1.25 1.25v6.19l-5.39001-5.39001c-.28998-.28998-.76996-.28998-1.06 0l-5.79999 5.79999z" />
+                    <path d="M38.2486 14.4699c-.41998-.59998-1.04999-1-1.76996-1.13l-18.71002-3.29999c-1.46851-.25903-2.92731.77502-3.19 2.22998l-.51001 2.91003h16.92999c2.34003 0 4.25 1.90997 4.25 4.25v7.40997c.5177.28473 1.05048.65045 1.45001 1.09003l2.01001-11.41003c.13001-.71997-.03998-1.44995-.46002-2.04999z" />
+                    <circle cx="19.999" cy="21.09" r=".75" />
+                    <path d="M35.3946 28.75481c-.92767-.784-2.1792-1.25488-3.396-1.25488-2.89502 0-5.25 2.35541-5.25 5.24994 0 2.86261 2.38904 5.25006 5.25 5.25006 2.89502 0 5.25-2.35547 5.25-5.25 0-1.54297-.66846-2.99316-1.854-3.99512zm-.86573 4.02088c-.29297.29297-.76758.29297-1.06055 0l-.71973-.71973v3.18945c0 .41406-.33594.75-.75.75s-.75-.33594-.75-.75v-3.18945l-.71973.71973c-.29297.29297-.76758.29297-1.06055 0s-.29297-.76758 0-1.06055l2-2c.28717-.28717.77374-.2868 1.06055 0l2 2c.29298.29297.29298.76758.00001 1.06055z" />
                   </svg>
                 </span>
                 <h1 id="page-title">
@@ -185,14 +231,51 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   <span class={style.compressorWord}>Compressor</span>
                 </h1>
                 <span class={style.uploadCopy}>
-                  Drop images here, or click to choose
+                  Drop images or folders here, or click to choose
                 </span>
-                <span class={style.uploadAction}>Choose Images</span>
+                <div class={style.uploadActions} ref={uploadActions}>
+                  <a
+                    class={`${style.uploadAction} ${style.uploadActionPrimary}`}
+                    href="/editor"
+                    onClick={chooseImages}
+                  >
+                    <span>Choose Images</span>
+                  </a>
+                  <button
+                    class={`${style.uploadAction} ${style.uploadActionSecondary}`}
+                    ref={folderMenuButton}
+                    type="button"
+                    aria-label="More upload options"
+                    aria-expanded={folderMenuOpen}
+                    aria-haspopup="true"
+                    aria-controls="folder-upload-menu"
+                    onClick={() => setFolderMenuOpen((open) => !open)}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="m7 9 5 5 5-5" />
+                    </svg>
+                  </button>
+                  {folderMenuOpen && (
+                    <div class={style.uploadMenu} id="folder-upload-menu">
+                      <button type="button" onClick={chooseFolder}>
+                        <span>Choose Folder</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               <span class={style.uploadFormats}>
                 JPEG, PNG, WebP, AVIF, SVG &amp; more
               </span>
-            </a>
+            </div>
             <p class={style.heroDescription}>
               Compress and convert multiple images at once with Squoosh,
               entirely in your browser. Compare quality and file size, apply one

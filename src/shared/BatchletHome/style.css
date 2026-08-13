@@ -137,6 +137,7 @@
   padding: 44px 30px 32px;
   background: #f83d7e;
   color: #fff;
+  cursor: pointer;
   isolation: isolate;
   text-align: center;
   text-decoration: none;
@@ -151,6 +152,14 @@
   border: 1px dashed rgba(255, 255, 255, 0.36);
   content: '';
   opacity: 0;
+  translate: 0 0;
+  transition: translate 260ms ease;
+}
+.uploadStage:hover::before {
+  translate: 12px 12px;
+}
+.uploadStage:hover::after {
+  translate: -12px -12px;
 }
 .uploadStage::before {
   top: 18px;
@@ -164,8 +173,11 @@
   transform-origin: bottom right;
   animation: guide-in 520ms 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
-.uploadStage:hover {
-  background: #ee2d70;
+.uploadStage.folderMenuOpen {
+  overflow: visible;
+}
+.uploadStage.folderMenuOpen .uploadInner {
+  z-index: 2;
 }
 .uploadInner {
   position: relative;
@@ -180,9 +192,12 @@
   height: 72px;
   place-items: center;
   margin-bottom: 22px;
-  background: #fff;
-  color: var(--accent-strong);
+  color: #fff;
   animation: upload-icon-in 440ms 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.uploadIcon svg {
+  width: 72px;
+  height: 72px;
 }
 .uploadIcon::after {
   position: absolute;
@@ -193,7 +208,7 @@
   animation: upload-scan 720ms 590ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .uploadCopy,
-.uploadAction {
+.uploadActions {
   opacity: 0;
   animation: stage-copy-in 440ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
@@ -223,21 +238,63 @@
   font-size: 18px;
   animation-delay: 590ms;
 }
+.uploadActions {
+  position: relative;
+  display: flex;
+  width: auto;
+  justify-content: center;
+  margin-top: 24px;
+  animation-delay: 660ms;
+}
 .uploadAction {
   position: relative;
   display: inline-flex;
   min-height: 42px;
   align-items: center;
+  justify-content: center;
   overflow: hidden;
-  margin-top: 24px;
-  padding: 0 16px;
   border: 1px dashed rgba(255, 255, 255, 0.82);
+  background: transparent;
   color: #fff;
+  font: inherit;
   font-size: 14px;
   font-weight: 850;
-  animation-delay: 660ms;
+  white-space: nowrap;
+  text-decoration: none;
+  touch-action: manipulation;
+  transition: background 180ms ease;
 }
-.uploadAction::after {
+.uploadAction svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+.home a.uploadActionPrimary {
+  padding: 0 16px;
+  color: #fff;
+}
+.uploadActionSecondary {
+  width: 42px;
+  padding: 0;
+  border-left: 0;
+  cursor: pointer;
+}
+.uploadActionPrimary:hover,
+.uploadActionPrimary:focus-visible {
+  background: rgba(255, 255, 255, 0.14);
+}
+.uploadActionSecondary:hover,
+.uploadActionSecondary:focus-visible {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+.uploadAction:focus-visible {
+  z-index: 2;
+  outline: 2px solid #fff;
+  outline-offset: -4px;
+}
+.uploadActionPrimary::after {
   position: absolute;
   top: -35%;
   left: -44%;
@@ -251,8 +308,51 @@
   );
   content: '';
   opacity: 0;
+  pointer-events: none;
   transform: skewX(-22deg) translate3d(-180%, 0, 0);
   animation: action-sheen 1.45s 960ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.uploadActionSecondary svg {
+  transition: transform 180ms ease;
+}
+.uploadActionSecondary[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.uploadMenu {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 4px);
+  right: 42px;
+  left: 0;
+  width: auto;
+  padding: 0;
+  background: #f83d7e;
+  border: 1px dashed rgba(255, 255, 255, 0.82);
+  box-shadow: 0 6px 10px rgba(31, 31, 31, 0.28),
+    0 14px 28px rgba(31, 31, 31, 0.22);
+}
+.uploadMenu button {
+  display: flex;
+  width: 100%;
+  min-height: 41px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1;
+  white-space: nowrap;
+}
+.uploadMenu button:hover,
+.uploadMenu button:focus-visible {
+  background: rgba(255, 255, 255, 0.14);
+  outline: none;
 }
 .uploadFormats {
   position: absolute;
@@ -889,6 +989,15 @@
   }
 }
 @media (max-width: 760px) {
+  .uploadIcon,
+  .uploadIcon svg {
+    width: 56px;
+    height: 56px;
+  }
+  .uploadActionSecondary,
+  .uploadMenu {
+    display: none;
+  }
   .wrap {
     width: min(100% - 28px, 1080px);
   }
@@ -1025,5 +1134,8 @@
   .home *::after {
     animation: none !important;
     transition: none !important;
+  }
+  .uploadActions {
+    opacity: 1;
   }
 }

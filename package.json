@@ -6,10 +6,10 @@
   "scripts": {
     "build": "rollup -c && node lib/move-output.js",
     "debug": "node --inspect-brk node_modules/.bin/rollup -c",
-    "dev": "DEV_PORT=3000 run-p watch serve",
+    "dev": "DEV_PORT=3010 run-p watch serve",
     "preview": "serve --listen=3000 --config ../serve.json build",
     "watch": "rollup -cw",
-    "serve": "serve --listen=3000 --config ../../../serve.json .tmp/build/static",
+    "serve": "serve --listen=3010 --config ../../../serve.json .tmp/build/static",
     "prepare": "husky install"
   },
   "devDependencies": {
