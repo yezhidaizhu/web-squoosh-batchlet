@@ -2,6 +2,7 @@ import { h, Component } from 'preact';
 
 import * as style from './style.css';
 import 'add-css:./style.css';
+import 'shared/custom-els/loading-spinner';
 import { cleanSet, cleanMerge } from '../../util/clean-modify';
 
 import type { SourceImage, OutputType } from '..';
@@ -17,17 +18,24 @@ import Toggle from './Toggle';
 import Select from './Select';
 import { Options as QuantOptionsComponent } from 'features/processors/quantize/client';
 import { Options as ResizeOptionsComponent } from 'features/processors/resize/client';
-import { ImportIcon, SaveIcon, SwapIcon } from 'client/lazy-app/icons';
+import {
+  CopyIcon,
+  ImportIcon,
+  SaveIcon,
+  SwapIcon,
+} from 'client/lazy-app/icons';
 
 interface Props {
   index: 0 | 1;
   mobileView: boolean;
+  canCopyPng: boolean;
   source?: SourceImage;
   encoderState?: EncoderState;
   processorState: ProcessorState;
   onEncoderTypeChange(index: 0 | 1, newType: OutputType): void;
   onEncoderOptionsChange(index: 0 | 1, newOptions: EncoderOptions): void;
   onProcessorOptionsChange(index: 0 | 1, newOptions: ProcessorState): void;
+  onCopyPngClick(index: 0 | 1): Promise<void>;
   onCopyToOtherSideClick(index: 0 | 1): void;
   onSaveSideSettingsClick(index: 0 | 1): void;
   onImportSideSettingsClick(index: 0 | 1): void;
@@ -37,6 +45,7 @@ interface State {
   supportedEncoderMap?: PartialButNotUndefined<typeof encoderMap>;
   leftSideSettings?: string | null;
   rightSideSettings?: string | null;
+  copyingPng: boolean;
 }
 
 type PartialButNotUndefined<T> = {
@@ -66,6 +75,7 @@ export default class Options extends Component<Props, State> {
     supportedEncoderMap: undefined,
     leftSideSettings: localStorage.getItem('leftSideSettings'),
     rightSideSettings: localStorage.getItem('rightSideSettings'),
+    copyingPng: false,
   };
 
   constructor() {
@@ -139,6 +149,18 @@ export default class Options extends Component<Props, State> {
     this.props.onCopyToOtherSideClick(this.props.index);
   };
 
+  private onCopyPngClick = async () => {
+    this.setState({ copyingPng: true });
+    try {
+      await Promise.all([
+        this.props.onCopyPngClick(this.props.index),
+        new Promise((resolve) => setTimeout(resolve, 300)),
+      ]);
+    } finally {
+      this.setState({ copyingPng: false });
+    }
+  };
+
   private onSaveSideSettingClick = () => {
     this.props.onSaveSideSettingsClick(this.props.index);
   };
@@ -148,8 +170,8 @@ export default class Options extends Component<Props, State> {
   };
 
   render(
-    { source, encoderState, processorState }: Props,
-    { supportedEncoderMap }: State,
+    { source, encoderState, processorState, canCopyPng }: Props,
+    { supportedEncoderMap, copyingPng }: State,
   ) {
     const encoder = encoderState && encoderMap[encoderState.type];
     const EncoderOptionComponent =
@@ -281,6 +303,26 @@ export default class Options extends Component<Props, State> {
               }
               onChange={this.onEncoderOptionsChange}
             />
+          )}
+        </Expander>
+
+        <Expander>
+          {encoderState && (
+            <section>
+              <div class={style.actionsRow}>
+                <button
+                  class={style.copyPngButton}
+                  type="button"
+                  aria-label="Copy PNG"
+                  title="Copy the current preview as PNG"
+                  disabled={!canCopyPng || copyingPng}
+                  onClick={this.onCopyPngClick}
+                >
+                  {copyingPng ? <loading-spinner /> : <CopyIcon />}
+                  <span>Copy PNG</span>
+                </button>
+              </div>
+            </section>
           )}
         </Expander>
       </div>

@@ -6,11 +6,13 @@
 
    [#301](https://github.com/GoogleChromeLabs/squoosh/issues/301) · [#1406](https://github.com/GoogleChromeLabs/squoosh/issues/1406)
 
-2. **复制压缩结果**
+2. **复制 PNG 预览**（方案待确认）
 
-   直接把压缩后的图片复制到剪贴板，省去“下载 → 复制 → 删除文件”。适合放在单张下载按钮旁。
+   GitHub 原需求希望把完整压缩文件写入剪贴板，省去“下载 → 复制 → 删除文件”。但 Squoosh 维护者说明，系统图片剪贴板通常复制的是位图，不会保留压缩后的二进制数据和文件体积；Web Clipboard API 也无法可靠复制 JPEG、WebP、AVIF 原文件。
 
-   [#1371](https://github.com/GoogleChromeLabs/squoosh/issues/1371)
+   当前实验方案位于 `codex/copy-png`：把右侧预览明确复制为 PNG，按钮显示 `Copy PNG`。它适合粘贴到聊天、文档和设计工具，但文件可能远大于界面显示的压缩结果。后续需决定保留该次要功能，还是删除。
+
+   [#1371](https://github.com/GoogleChromeLabs/squoosh/issues/1371) · [维护者对剪贴板位图的说明](https://github.com/GoogleChromeLabs/squoosh/issues/1371#issuecomment-1620069092)
 
 3. **粘贴图片** ✅
 

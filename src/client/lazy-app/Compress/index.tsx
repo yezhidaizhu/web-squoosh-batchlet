@@ -31,7 +31,7 @@ import Results from './Results';
 import WorkerBridge from '../worker-bridge';
 import { resize } from 'features/processors/resize/client';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
-import { drawableToImageData } from '../util/canvas';
+import { canvasEncode, drawableToImageData } from '../util/canvas';
 
 export type OutputType = EncoderType | 'identity';
 
@@ -488,6 +488,32 @@ export default class Compress extends Component<Props, State> {
     this.setState({
       sides: cleanSet(this.state.sides, otherIndex, oldSettings),
     });
+  };
+
+  private onCopyPngClick = async (index: 0 | 1) => {
+    const imageData = this.state.sides[index].data;
+
+    if (
+      !imageData ||
+      !navigator.clipboard?.write ||
+      typeof ClipboardItem === 'undefined'
+    ) {
+      this.props.showSnack('PNG copy is not supported');
+      return;
+    }
+
+    try {
+      const png = await canvasEncode(imageData, 'image/png');
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': Promise.resolve(png) }),
+      ]);
+      this.props.showSnack('PNG copied', {
+        timeout: 1500,
+        actions: ['dismiss'],
+      });
+    } catch (err) {
+      this.props.showSnack('Could not copy PNG');
+    }
   };
   /**
    * This function saves encodedSettings and latestSettings of
@@ -977,11 +1003,18 @@ export default class Compress extends Component<Props, State> {
         index={index as 0 | 1}
         source={source}
         mobileView={mobileView}
+        canCopyPng={Boolean(
+          side.data &&
+            side.latestSettings.encoderState &&
+            !loading &&
+            !side.loading,
+        )}
         processorState={side.latestSettings.processorState}
         encoderState={side.latestSettings.encoderState}
         onEncoderTypeChange={this.onEncoderTypeChange}
         onEncoderOptionsChange={this.onEncoderOptionsChange}
         onProcessorOptionsChange={this.onProcessorOptionsChange}
+        onCopyPngClick={this.onCopyPngClick}
         onCopyToOtherSideClick={this.onCopyToOtherClick}
         onSaveSideSettingsClick={this.onSaveSideSettingsClick}
         onImportSideSettingsClick={this.onImportSideSettingsClick}

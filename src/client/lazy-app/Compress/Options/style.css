@@ -11,6 +11,17 @@
   }
 }
 
+.actions-row {
+  min-height: 38px;
+  padding: 4px calc(var(--horizontal-padding) - 7px);
+  background: var(--off-black);
+  border-top: 1px solid #fff4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
 .options-title {
   background-color: var(--main-theme-color);
   color: var(--header-text-color);
@@ -154,5 +165,66 @@
   cursor: not-allowed;
   svg {
     opacity: 0.5;
+  }
+}
+
+.copy-png-button {
+  composes: unbutton from global;
+
+  min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  color: var(--white);
+  background: var(--dark-gray);
+  border: 0;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font: inherit;
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background-color 160ms ease, opacity 160ms ease;
+
+  loading-spinner {
+    --size: 16px;
+    --color: currentColor;
+    --delay: 0ms;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    stroke: currentColor;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: 2px;
+  }
+
+  &:hover:not(:disabled) {
+    background: #292929;
+  }
+
+  &:active:not(:disabled) {
+    background: #242424;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.42;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy-png-button {
+    transition: none;
   }
 }
