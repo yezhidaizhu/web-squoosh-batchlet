@@ -11,12 +11,21 @@ import artworkSource from 'url:shared/prerendered-app/Intro/imgs/demos/demo-artw
 import deviceSource from 'url:shared/prerendered-app/Intro/imgs/demos/demo-device-screen.png';
 import iconSource from 'url:shared/prerendered-app/Intro/imgs/logo.svg';
 import preview from 'url:static-build/assets/batchlet-editor-preview.webp';
+import type { Theme } from 'shared/theme';
 import * as style from './style.css';
 
 interface Props {
-  onFiles?: (files: File[]) => void;
+  onFiles?: (files: File[], source?: 'paste') => void;
   onDemoFiles?: (files: File[]) => void;
+  onNotice?: (message: string) => unknown;
+  theme?: Theme;
+  onThemeChange?: () => void;
 }
+
+const clipboardExtension = (type: string) => {
+  const subtype = type.split('/')[1] || 'png';
+  return subtype === 'svg+xml' ? 'svg' : subtype.split('+')[0];
+};
 
 const demos = [
   {
@@ -53,7 +62,13 @@ const demos = [
   },
 ];
 
-const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
+const BatchletHome: FunctionalComponent<Props> = ({
+  onFiles,
+  onDemoFiles,
+  onNotice,
+  theme = 'light',
+  onThemeChange,
+}) => {
   const input = useRef<HTMLInputElement | null>(null);
   const folderInput = useRef<HTMLInputElement | null>(null);
   const uploadActions = useRef<HTMLDivElement | null>(null);
@@ -130,6 +145,52 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
     chooseImages(event);
   };
 
+  const pasteImages = async (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!navigator.clipboard?.read) {
+      onNotice?.(
+        'Clipboard access is unavailable. Press Cmd/Ctrl + V to paste',
+      );
+      return;
+    }
+
+    let items: ClipboardItem[];
+    try {
+      items = await navigator.clipboard.read();
+    } catch (_) {
+      onNotice?.('Clipboard access was blocked. Press Cmd/Ctrl + V to paste');
+      return;
+    }
+
+    const files: File[] = [];
+    for (const item of items) {
+      const type = item.types.find((itemType) => itemType.startsWith('image/'));
+      if (!type) continue;
+      let blob: Blob;
+      try {
+        blob = await item.getType(type);
+      } catch (_) {
+        continue;
+      }
+      files.push(
+        new File(
+          [blob],
+          `pasted-image-${files.length + 1}.${clipboardExtension(type)}`,
+          { type },
+        ),
+      );
+    }
+
+    if (files.length === 0) {
+      onNotice?.('No image found in the clipboard');
+      return;
+    }
+
+    onFiles?.(files, 'paste');
+  };
+
   const chooseFolder = (event: Event) => {
     if (!onFiles) return;
     event.preventDefault();
@@ -199,6 +260,48 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
               <a href="#formats">Formats</a>
               <a href="#faq">FAQ</a>
             </div>
+            <button
+              class={style.themeToggle}
+              type="button"
+              aria-label={
+                theme === 'dark'
+                  ? 'Switch to light mode'
+                  : 'Switch to dark mode'
+              }
+              aria-pressed={theme === 'dark'}
+              title={
+                theme === 'dark'
+                  ? 'Switch to light mode'
+                  : 'Switch to dark mode'
+              }
+              onClick={onThemeChange}
+            >
+              {theme === 'dark' ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
+                </svg>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M20.35 15.35A9 9 0 0 1 8.65 3.65 9 9 0 1 0 20.35 15.35Z" />
+                </svg>
+              )}
+            </button>
             <button class={style.install} type="button" onClick={install}>
               Install
             </button>
@@ -231,7 +334,16 @@ const BatchletHome: FunctionalComponent<Props> = ({ onFiles, onDemoFiles }) => {
                   <span class={style.compressorWord}>Compressor</span>
                 </h1>
                 <span class={style.uploadCopy}>
-                  Drop images or folders here, or click to choose
+                  Drop images or folders here, or{' '}
+                  <button
+                    class={style.pasteButton}
+                    type="button"
+                    aria-label="Paste images from clipboard"
+                    onClick={pasteImages}
+                  >
+                    Paste
+                  </button>
+                  , or click to choose
                 </span>
                 <div class={style.uploadActions} ref={uploadActions}>
                   <a

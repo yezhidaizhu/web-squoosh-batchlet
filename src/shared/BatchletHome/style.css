@@ -4,6 +4,7 @@
   overflow-y: auto;
   overscroll-behavior: auto;
   contain: none;
+  background-color: #fff;
   scroll-behavior: smooth;
 }
 
@@ -14,8 +15,7 @@
   overflow-y: auto;
   overscroll-behavior: auto;
   contain: none;
-  background: #fff;
-  color: #1f1f1f;
+  background-color: #fff;
   font: 16px/1.6 Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -28,13 +28,16 @@
 }
 
 .home {
-  --text: #1f1f1f;
-  --muted: #5c5960;
-  --accent: #ff3385;
-  --accent-strong: #ff0066;
-  --rule: #eadde4;
+  --text: var(--theme-text);
+  --muted: var(--theme-text-muted);
+  --accent: var(--theme-brand);
+  --accent-strong: var(--theme-brand-text);
+  --rule: var(--theme-divider);
   min-width: 320px;
-  background: #fff;
+  background-color: var(--theme-page);
+  background-image: var(--theme-page-effect);
+  color: var(--theme-text);
+  transition: background-color 180ms ease, color 180ms ease;
 }
 .home *,
 .home *::before,
@@ -109,18 +112,50 @@
 .install {
   min-height: 44px;
   padding: 7px 16px;
-  border: 2px solid var(--text);
+  border: 2px solid var(--theme-primary-action-border);
   border-radius: 0;
-  background: var(--accent);
-  box-shadow: 4px 4px 0 var(--text);
-  color: #fff;
+  background: var(--theme-brand);
+  box-shadow: 4px 4px 0 var(--theme-primary-action-shadow);
+  color: var(--theme-on-brand);
   cursor: pointer;
   font: inherit;
   font-weight: 850;
+  animation: install-shadow-in 300ms 120ms cubic-bezier(0.2, 0.8, 0.2, 1)
+    backwards;
   transition: box-shadow 180ms ease, background 180ms ease;
 }
 .install:hover {
-  box-shadow: 0 0 0 var(--text);
+  box-shadow: 0 0 0 var(--theme-primary-action-shadow);
+}
+.install:active {
+  box-shadow: 0 0 0 var(--theme-primary-action-shadow);
+}
+.themeToggle {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  padding: 0;
+  border: 2px solid var(--theme-border-strong);
+  border-radius: 0;
+  background: var(--theme-surface);
+  color: var(--theme-text);
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+.themeToggle:hover {
+  background: var(--theme-surface-muted);
+}
+.themeToggle:focus-visible,
+.install:focus-visible {
+  outline: 3px solid var(--theme-focus);
+  outline-offset: 3px;
+}
+.themeToggle svg {
+  display: block;
+  width: 21px;
+  height: 21px;
 }
 .fileInput {
   display: none;
@@ -135,8 +170,8 @@
   place-items: center;
   overflow: hidden;
   padding: 44px 30px 32px;
-  background: #f83d7e;
-  color: #fff;
+  background: var(--theme-brand-surface);
+  color: var(--theme-on-brand);
   cursor: pointer;
   isolation: isolate;
   text-align: center;
@@ -192,7 +227,7 @@
   height: 72px;
   place-items: center;
   margin-bottom: 22px;
-  color: #fff;
+  color: var(--theme-on-brand);
   animation: upload-icon-in 440ms 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .uploadIcon svg {
@@ -215,7 +250,7 @@
 .uploadStage h1 {
   max-width: 100%;
   margin: 0;
-  color: #fff;
+  color: var(--theme-on-brand);
   font-size: clamp(38px, 4.2vw, 54px);
   line-height: 1.06;
 }
@@ -238,6 +273,31 @@
   font-size: 18px;
   animation-delay: 590ms;
 }
+.pasteButton {
+  position: relative;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.pasteButton::before {
+  position: absolute;
+  inset: -10px -7px;
+  content: '';
+}
+.pasteButton:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.pasteButton:focus-visible {
+  outline: 2px solid var(--theme-on-brand);
+  outline-offset: 2px;
+}
 .uploadActions {
   position: relative;
   display: flex;
@@ -255,7 +315,7 @@
   overflow: hidden;
   border: 1px dashed rgba(255, 255, 255, 0.82);
   background: transparent;
-  color: #fff;
+  color: var(--theme-on-brand);
   font: inherit;
   font-size: 14px;
   font-weight: 850;
@@ -272,7 +332,7 @@
 }
 .home a.uploadActionPrimary {
   padding: 0 16px;
-  color: #fff;
+  color: var(--theme-on-brand);
 }
 .uploadActionSecondary {
   width: 42px;
@@ -287,11 +347,11 @@
 .uploadActionSecondary:hover,
 .uploadActionSecondary:focus-visible {
   background: rgba(255, 255, 255, 0.14);
-  color: #fff;
+  color: var(--theme-on-brand);
 }
 .uploadAction:focus-visible {
   z-index: 2;
-  outline: 2px solid #fff;
+  outline: 2px solid var(--theme-on-brand);
   outline-offset: -4px;
 }
 .uploadActionPrimary::after {
@@ -326,7 +386,7 @@
   left: 0;
   width: auto;
   padding: 0;
-  background: #f83d7e;
+  background: var(--theme-brand-surface);
   border: 1px dashed rgba(255, 255, 255, 0.82);
   box-shadow: 0 6px 10px rgba(31, 31, 31, 0.28),
     0 14px 28px rgba(31, 31, 31, 0.22);
@@ -341,7 +401,7 @@
   padding: 0 12px;
   border: 0;
   background: transparent;
-  color: #fff;
+  color: var(--theme-on-brand);
   cursor: pointer;
   font: inherit;
   font-size: 14px;
@@ -438,8 +498,8 @@
   grid-column: 1 / -1;
   overflow: hidden;
   aspect-ratio: 4 / 3;
-  background: #e8f6ff;
-  box-shadow: 7px 7px 0 #ffd4e4;
+  background: var(--theme-media);
+  box-shadow: 7px 7px 0 var(--theme-shadow);
   transition: box-shadow 180ms ease, filter 180ms ease;
 }
 .sampleMedia img {
@@ -465,7 +525,7 @@
   content: '';
 }
 .sampleGrid a:hover .sampleMedia {
-  box-shadow: 0 0 0 #ffd4e4;
+  box-shadow: 0 0 0 var(--theme-shadow);
   filter: saturate(1.1) contrast(1.02);
 }
 .sampleMedia.sampleAnimated {
@@ -549,8 +609,8 @@
 }
 .productShot {
   margin: 0;
-  background: #e8f6ff;
-  box-shadow: 10px 10px 0 var(--text);
+  background: var(--theme-media);
+  box-shadow: 10px 10px 0 var(--theme-shadow-strong);
 }
 .productShot img {
   display: block;
@@ -569,7 +629,7 @@
 }
 .workspace.workspaceReady:not(.workspaceVisible) .productShot {
   opacity: 0;
-  box-shadow: 0 0 0 var(--text);
+  box-shadow: 0 0 0 var(--theme-shadow-strong);
   transform: translate3d(32px, 0, 0);
 }
 .feature {
@@ -583,7 +643,7 @@
   width: 100%;
   min-height: 520px;
   object-fit: cover;
-  background: #eaf7ff;
+  background: var(--theme-media);
 }
 .feature > div {
   display: flex;
@@ -604,7 +664,7 @@
   gap: 0;
   margin: 0;
   padding: 0;
-  border-top: 1px solid #c9c9c9;
+  border-top: 1px solid var(--theme-divider);
 }
 .feature dl div {
   display: grid;
@@ -612,7 +672,7 @@
   gap: 16px;
   padding: 16px 0;
   border-top: 0;
-  border-bottom: 1px solid #c9c9c9;
+  border-bottom: 1px solid var(--theme-divider);
 }
 .feature dt {
   color: var(--accent);
@@ -650,8 +710,8 @@
   min-height: 184px;
   align-items: end;
   overflow: hidden;
-  background: #ebf7ff;
-  color: #fff;
+  background: var(--theme-media);
+  color: var(--theme-on-image);
 }
 .formatGrid article::after {
   position: absolute;
@@ -747,12 +807,12 @@
 .compareCaption span {
   min-height: 76px;
   padding: 14px;
-  background: #f3f3f3;
+  background: var(--theme-surface-muted);
   color: var(--muted);
   font-size: 13px;
 }
 .compareCaption span:nth-child(2) {
-  background: #ffe2ee;
+  background: var(--theme-surface-tint);
 }
 .compareCaption b {
   display: block;
@@ -777,8 +837,8 @@
 }
 .faqList details {
   border-left: 5px solid var(--accent);
-  background: #fff;
-  box-shadow: 6px 6px 0 #ffd4e4;
+  background: var(--theme-surface);
+  box-shadow: 6px 6px 0 var(--theme-shadow);
   transition: background 180ms ease, box-shadow 180ms ease;
 }
 .faqList summary {
@@ -811,21 +871,21 @@
   width: 34px;
   height: 34px;
   place-items: center;
-  background: #fff;
+  background: var(--theme-surface);
   color: var(--accent-strong);
   transition: background 180ms ease, color 180ms ease, transform 180ms ease;
 }
 .faqList summary:hover .faqIcon {
   background: var(--accent);
-  color: #fff;
+  color: var(--theme-on-brand);
 }
 .faqList details[open] {
-  background: #fff0f6;
-  box-shadow: 0 0 0 #ffd4e4;
+  background: var(--theme-surface-tint);
+  box-shadow: 0 0 0 var(--theme-shadow);
 }
 .faqList details[open] .faqIcon {
   background: var(--accent);
-  color: #fff;
+  color: var(--theme-on-brand);
   transform: rotate(45deg);
 }
 .faqList details p {
@@ -858,6 +918,14 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+@keyframes install-shadow-in {
+  from {
+    box-shadow: 0 0 0 var(--theme-primary-action-shadow);
+  }
+  to {
+    box-shadow: 4px 4px 0 var(--theme-primary-action-shadow);
   }
 }
 @keyframes guide-in {
@@ -1055,7 +1123,7 @@
     gap: 28px 20px;
   }
   .sampleMedia {
-    box-shadow: 5px 5px 0 #ffd4e4;
+    box-shadow: 5px 5px 0 var(--theme-shadow);
   }
   .workspace,
   .feature,
@@ -1110,7 +1178,7 @@
     grid-template-columns: 1fr;
   }
   .faqList details {
-    box-shadow: 4px 4px 0 #ffd4e4;
+    box-shadow: 4px 4px 0 var(--theme-shadow);
   }
   .faqList summary {
     grid-template-columns: 36px minmax(0, 1fr) 34px;

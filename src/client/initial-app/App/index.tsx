@@ -11,6 +11,7 @@ import 'add-css:./style.css';
 import 'file-drop-element';
 import 'shared/custom-els/snack-bar';
 import BatchletHome from 'shared/BatchletHome';
+import { applyTheme, getInitialTheme, storeTheme, Theme } from 'shared/theme';
 import 'shared/custom-els/loading-spinner';
 import ImageQueue, { QueueFile } from 'client/lazy-app/Compress/ImageQueue';
 import type Compress from 'client/lazy-app/Compress';
@@ -27,6 +28,7 @@ function back() {
 interface Props {}
 
 interface State {
+  theme: Theme;
   awaitingShareTarget: boolean;
   files: QueueFile[];
   selectedFileId?: string;
@@ -59,6 +61,7 @@ interface DropItem {
 
 export default class App extends Component<Props, State> {
   state: State = {
+    theme: getInitialTheme(),
     awaitingShareTarget: new URL(location.href).searchParams.has(
       'share-target',
     ),
@@ -80,6 +83,8 @@ export default class App extends Component<Props, State> {
   constructor() {
     super();
 
+    applyTheme(this.state.theme);
+
     compressPromise
       .then((module) => {
         this.setState({ Compress: module.default });
@@ -94,7 +99,7 @@ export default class App extends Component<Props, State> {
       const file = await getSharedImage();
       // Remove the ?share-target from the URL
       history.replaceState('', '', '/');
-      this.replaceFiles([file]);
+      await this.replaceFiles([file]);
       this.setState({ awaitingShareTarget: false });
     });
 
@@ -116,19 +121,39 @@ export default class App extends Component<Props, State> {
   private fingerprintFile = (file: File) =>
     `${file.name}:${file.size}:${file.lastModified}:${file.type}`;
 
-  private createQueueFiles = (files: File[]): QueueFile[] =>
-    files.map((file) => ({
-      id: `image-${this.nextQueueId++}`,
-      file,
-      fingerprint: this.fingerprintFile(file),
-    }));
+  private fingerprintFileContents = async (file: File) => {
+    const digest = await crypto.subtle.digest(
+      'SHA-256',
+      await file.arrayBuffer(),
+    );
+    return `content:${Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, '0'),
+    ).join('')}`;
+  };
 
-  private uniqueQueueFiles = (
+  private createQueueFiles = async (
+    files: File[],
+    fingerprintContents = false,
+  ): Promise<QueueFile[]> =>
+    Promise.all(
+      files.map(async (file) => ({
+        id: `image-${this.nextQueueId++}`,
+        file,
+        fingerprint: fingerprintContents
+          ? await this.fingerprintFileContents(file)
+          : this.fingerprintFile(file),
+      })),
+    );
+
+  private uniqueQueueFiles = async (
     newFiles: File[],
-    existingFiles: QueueFile[] = [],
+    fingerprintContents = false,
   ) => {
-    const fingerprints = new Set(existingFiles.map((file) => file.fingerprint));
-    const queueFiles = this.createQueueFiles(newFiles);
+    const fingerprints = new Set<string>();
+    const queueFiles = await this.createQueueFiles(
+      newFiles,
+      fingerprintContents,
+    );
     return queueFiles.filter((queueFile) => {
       if (fingerprints.has(queueFile.fingerprint)) return false;
       fingerprints.add(queueFile.fingerprint);
@@ -221,7 +246,10 @@ export default class App extends Component<Props, State> {
     this.appendFiles(images);
   };
 
-  private appendFiles = (newFiles: File[]) => {
+  private appendFiles = async (
+    newFiles: File[],
+    fingerprintContents = false,
+  ) => {
     const supportedFiles = this.supportedImageFiles(newFiles);
     if (supportedFiles.length === 0) {
       this.showSnack('Add image files only');
@@ -230,36 +258,31 @@ export default class App extends Component<Props, State> {
     if (supportedFiles.length !== newFiles.length) {
       this.showSnack('Skipped unsupported files');
     }
-    const files = this.uniqueQueueFiles(supportedFiles, this.state.files);
-    if (files.length === 0) {
-      const existingFile = supportedFiles
-        .map((file) => this.fingerprintFile(file))
-        .map((fingerprint) =>
-          this.state.files.find((file) => file.fingerprint === fingerprint),
-        )
-        .find((file): file is QueueFile => !!file);
-      if (existingFile) {
-        this.openEditor();
-        this.setState({ selectedFileId: existingFile.id });
-      }
-      return;
-    }
+    const files = await this.uniqueQueueFiles(
+      supportedFiles,
+      fingerprintContents,
+    );
     this.openEditor();
-    this.setState((state) => ({
-      files: [
-        ...state.files,
-        ...files.filter(
-          (file) =>
-            !state.files.some(
-              ({ fingerprint }) => fingerprint === file.fingerprint,
-            ),
-        ),
-      ],
-      selectedFileId: files[0].id,
-    }));
+    this.setState((state) => {
+      const additions = files.filter(
+        (file) =>
+          !state.files.some(
+            ({ fingerprint }) => fingerprint === file.fingerprint,
+          ),
+      );
+      const selectedFile =
+        additions[0] ||
+        state.files.find(({ fingerprint }) =>
+          files.some((file) => file.fingerprint === fingerprint),
+        );
+      return {
+        files: [...state.files, ...additions],
+        selectedFileId: selectedFile?.id || state.selectedFileId,
+      };
+    });
   };
 
-  private replaceFiles = (newFiles: File[]) => {
+  private replaceFiles = async (newFiles: File[]) => {
     const supportedFiles = this.supportedImageFiles(newFiles);
     if (supportedFiles.length === 0) {
       this.showSnack('Add image files only');
@@ -268,18 +291,19 @@ export default class App extends Component<Props, State> {
     if (supportedFiles.length !== newFiles.length) {
       this.showSnack('Skipped unsupported files');
     }
-    const files = this.uniqueQueueFiles(supportedFiles);
+    const files = await this.uniqueQueueFiles(supportedFiles);
     if (files.length === 0) return;
     this.openEditor();
     this.setState({ files, selectedFileId: files[0].id });
   };
 
-  private onFileDrop = ({ files }: FileDropEvent) => {
+  private onFileDrop = ({ files, action }: FileDropEvent) => {
     if (!files || files.length === 0) return;
-    this.appendFiles(files);
+    this.appendFiles(files, action === 'paste');
   };
 
-  private onIntroPickFiles = (files: File[]) => this.appendFiles(files);
+  private onIntroPickFiles = (files: File[], source?: 'paste') =>
+    this.appendFiles(files, source === 'paste');
 
   private onSelectFile = (id: string) => this.setState({ selectedFileId: id });
 
@@ -303,6 +327,15 @@ export default class App extends Component<Props, State> {
 
   private onQueueCollapsedChange = (queueCollapsed: boolean) =>
     this.setState({ queueCollapsed });
+
+  private onThemeChange = () => {
+    this.setState((state) => {
+      const theme = state.theme === 'dark' ? 'light' : 'dark';
+      storeTheme(theme);
+      applyTheme(theme);
+      return { theme };
+    });
+  };
 
   private downloadZip = async (files: File[], filename: string) => {
     const entries: { [name: string]: Uint8Array } = {};
@@ -466,6 +499,7 @@ export default class App extends Component<Props, State> {
       files,
       selectedFileId,
       queueCollapsed,
+      theme,
       isEditorOpen,
       batchDialogOpen,
       batchFilename,
@@ -615,6 +649,9 @@ export default class App extends Component<Props, State> {
               <BatchletHome
                 onFiles={this.onIntroPickFiles}
                 onDemoFiles={this.appendFiles}
+                onNotice={this.showSnack}
+                theme={theme}
+                onThemeChange={this.onThemeChange}
               />
               {files.length > 0 && (
                 <ImageQueue

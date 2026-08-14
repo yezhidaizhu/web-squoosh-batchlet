@@ -20,6 +20,7 @@ import appleTouchIcon from 'url:static-build/assets/icon-large.png';
 import ogImage from 'url:static-build/assets/batchlet-editor-preview.webp';
 import { escapeStyleScriptContent, siteOrigin } from 'static-build/utils';
 import BatchletHome from 'shared/BatchletHome';
+import { themeInitScript } from 'shared/theme';
 
 interface Props {}
 
@@ -139,7 +140,12 @@ const Index: FunctionalComponent<Props> = () => (
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <link rel="icon" href="/favicon.png" type="image/png" sizes="96x96" />
       <link rel="apple-touch-icon" href={appleTouchIcon} />
-      <meta name="theme-color" content="#ff3385" />
+      <meta name="theme-color" content="#ffffff" />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: escapeStyleScriptContent(themeInitScript),
+        }}
+      />
       <link rel="manifest" href="/manifest.json" />
       <link rel="canonical" href={siteOrigin} />
       <script

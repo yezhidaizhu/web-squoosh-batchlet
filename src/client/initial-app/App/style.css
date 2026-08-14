@@ -13,6 +13,8 @@
   height: auto;
   overflow: visible;
   contain: none;
+  background: var(--theme-page);
+  color: var(--theme-text);
 }
 
 .drop {
@@ -150,14 +152,14 @@
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(31, 31, 31, 0.48);
+  background: var(--theme-overlay);
 }
 
 .batch-dialog {
   width: min(100%, 440px);
-  color: #1f1f1f;
-  background: #fff;
-  border: 2px solid #1f1f1f;
+  color: var(--theme-text);
+  background: var(--theme-surface);
+  border: 2px solid var(--theme-border-strong);
 }
 
 .batch-dialog-header {
@@ -165,8 +167,8 @@
   justify-content: space-between;
   gap: 16px;
   padding: 12px 16px;
-  color: #fff;
-  background: #f83d7e;
+  color: var(--theme-on-brand);
+  background: var(--theme-brand-surface);
   font-size: 12px;
   font-weight: 850;
   text-transform: uppercase;
@@ -184,7 +186,7 @@
 
 .batch-dialog-body p {
   margin: 12px 0 28px;
-  color: #54515a;
+  color: var(--theme-text-muted);
   font-size: 15px;
   line-height: 1.5;
 }
@@ -192,7 +194,7 @@
 .batch-filename-label {
   display: grid;
   gap: 8px;
-  color: #1f1f1f;
+  color: var(--theme-text);
   font-size: 12px;
   font-weight: 850;
   text-transform: uppercase;
@@ -203,15 +205,15 @@
   align-items: center;
   min-height: 46px;
   box-sizing: border-box;
-  background: #f3f3f3;
-  border: 2px solid #1f1f1f;
+  background: var(--theme-surface-muted);
+  border: 2px solid var(--theme-border-strong);
 }
 
 .batch-filename-input input {
   width: 100%;
   min-width: 0;
   padding: 0 12px;
-  color: #1f1f1f;
+  color: var(--theme-text);
   background: transparent;
   border: 0;
   outline: 0;
@@ -222,12 +224,12 @@
 }
 
 .batch-filename-input:focus-within {
-  border-color: #f83d7e;
+  border-color: var(--theme-focus);
 }
 
 .batch-filename-input > span {
   padding: 0 12px 0 0;
-  color: #6d6872;
+  color: var(--theme-text-muted);
   font-size: 14px;
   font-weight: 700;
   text-transform: none;
@@ -238,7 +240,7 @@
   justify-content: flex-end;
   gap: 10px;
   padding: 16px 28px;
-  border-top: 2px solid #1f1f1f;
+  border-top: 1px solid var(--theme-border);
 }
 
 .batch-dialog-actions button {
@@ -252,27 +254,32 @@
 }
 
 .batch-dialog-cancel {
-  color: #1f1f1f;
-  background: #fff;
-  border: 2px solid #1f1f1f;
+  color: var(--theme-text);
+  background: var(--theme-surface);
+  border: 2px solid var(--theme-border-strong);
 }
 
 .batch-dialog-submit {
-  color: #fff;
-  background: #f83d7e;
-  border: 2px solid #f83d7e;
+  color: var(--theme-on-brand);
+  background: var(--theme-brand-surface);
+  border: 2px solid var(--theme-brand-surface);
 }
 
 .batch-dialog-cancel:hover,
 .batch-dialog-cancel:focus-visible {
-  color: #fff;
-  background: #1f1f1f;
+  color: var(--theme-on-secondary-hover);
+  background: var(--theme-secondary-hover);
 }
 
 .batch-dialog-submit:hover,
 .batch-dialog-submit:focus-visible {
-  background: #d92d69;
-  border-color: #d92d69;
+  background: var(--theme-brand-surface-hover);
+  border-color: var(--theme-brand-surface-hover);
+}
+
+.batch-dialog-actions button:focus-visible {
+  outline: 3px solid var(--theme-focus);
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
