@@ -46,6 +46,8 @@ const scaleToOpts: ScaleToOpts = {
   allowChangeEvent: true,
 };
 
+const INITIAL_FIT_RATIO = 0.9;
+
 export default class Output extends Component<Props, State> {
   state: State = {
     scale: 1,
@@ -58,20 +60,12 @@ export default class Output extends Component<Props, State> {
   pinchZoomLeft?: PinchZoom;
   pinchZoomRight?: PinchZoom;
   scaleInput?: HTMLInputElement;
+  fitFrame?: number;
   retargetedEvents = new WeakSet<Event>();
 
   componentDidMount() {
     const leftDraw = this.leftDrawable();
     const rightDraw = this.rightDrawable();
-
-    // Reset the pinch zoom, which may have an position set from the previous view, after pressing
-    // the back button.
-    this.pinchZoomLeft!.setTransform({
-      allowChangeEvent: true,
-      x: 0,
-      y: 0,
-      scale: 1,
-    });
 
     if (this.canvasLeft && leftDraw) {
       drawDataToCanvas(this.canvasLeft, leftDraw);
@@ -79,6 +73,12 @@ export default class Output extends Component<Props, State> {
     if (this.canvasRight && rightDraw) {
       drawDataToCanvas(this.canvasRight, rightDraw);
     }
+
+    this.scheduleInitialFit();
+  }
+
+  componentWillUnmount() {
+    if (this.fitFrame !== undefined) cancelAnimationFrame(this.fitFrame);
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -99,13 +99,7 @@ export default class Output extends Component<Props, State> {
     const pinchZoom = this.pinchZoomLeft!;
 
     if (sourceFileChanged) {
-      // New image? Reset the pinch-zoom.
-      pinchZoom.setTransform({
-        allowChangeEvent: true,
-        x: 0,
-        y: 0,
-        scale: 1,
-      });
+      this.scheduleInitialFit();
     } else if (
       oldSourceData &&
       newSourceData &&
@@ -147,6 +141,34 @@ export default class Output extends Component<Props, State> {
   private rightDrawable(props: Props = this.props): ImageData | undefined {
     return props.rightCompressed || (props.source && props.source.preprocessed);
   }
+
+  private scheduleInitialFit = () => {
+    if (this.fitFrame !== undefined) cancelAnimationFrame(this.fitFrame);
+    this.fitFrame = requestAnimationFrame(() => {
+      this.fitFrame = undefined;
+      this.fitImageToViewport();
+    });
+  };
+
+  private fitImageToViewport = () => {
+    const image = this.props.source && this.props.source.preprocessed;
+    const viewport = this.pinchZoomLeft;
+    if (!image || !viewport || !viewport.clientWidth || !viewport.clientHeight)
+      return;
+
+    const scale = Math.min(
+      1,
+      (viewport.clientWidth * INITIAL_FIT_RATIO) / image.width,
+      (viewport.clientHeight * INITIAL_FIT_RATIO) / image.height,
+    );
+
+    viewport.setTransform({
+      allowChangeEvent: true,
+      scale,
+      x: (viewport.clientWidth - image.width * scale) / 2,
+      y: (viewport.clientHeight - image.height * scale) / 2,
+    });
+  };
 
   private toggleAliasing = () => {
     this.setState((state) => ({
