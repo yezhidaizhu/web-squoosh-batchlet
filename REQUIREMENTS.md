@@ -20,32 +20,34 @@
 
 ## 待做
 
-1. **复制 PNG 预览**（方案待确认）
-
-   远程实验分支 `origin/codex/copy-png` 已实现 PNG 剪贴板复制，但尚未合并。该功能复制的是重新编码的 PNG 预览，并非 JPEG、WebP 或 AVIF 压缩文件，文件大小可能更大。
-
-   [#1371](https://github.com/GoogleChromeLabs/squoosh/issues/1371) · [维护者说明](https://github.com/GoogleChromeLabs/squoosh/issues/1371#issuecomment-1620069092)
-
-2. **压缩设置预设**
+1. **压缩设置预设**
 
    保存并切换多套格式、质量和尺寸配置。当前仅自动保存上次设置；批量文件名已有内置预设，但不属于压缩设置预设。
 
    [#430](https://github.com/GoogleChromeLabs/squoosh/issues/430)
 
-3. **目标文件大小**
+2. **目标文件大小**
 
    输入目标大小或原图百分比，自动寻找合适质量。
 
    [#1422](https://github.com/GoogleChromeLabs/squoosh/issues/1422)
 
-4. **保留 EXIF**
+3. **保留 EXIF**
 
    选择性保留拍摄时间、版权、方向等元数据。
 
    [#1247](https://github.com/GoogleChromeLabs/squoosh/issues/1247)
 
-5. **裁剪**
+4. **裁剪**
 
    优先级低于批量导出主线。
 
    [#314](https://github.com/GoogleChromeLabs/squoosh/issues/314)
+
+5. **复制 PNG 预览**（搁置，不主动推进）
+
+   无法可靠复制实际的 JPEG、WebP 或 AVIF 压缩文件，只能将当前预览重新编码为 PNG。优点是可粘贴到聊天、文档和设计工具；缺点是文件通常更大，且格式、文件大小与界面中的压缩结果不一致，还受浏览器剪贴板权限和兼容性限制。
+
+   **决策：除非用户明确要求，否则不要实现、合并 `origin/codex/copy-png`，也不要将其列为下一步建议。**
+
+   [#1371](https://github.com/GoogleChromeLabs/squoosh/issues/1371) · [维护者说明](https://github.com/GoogleChromeLabs/squoosh/issues/1371#issuecomment-1620069092)
