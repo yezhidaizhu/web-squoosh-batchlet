@@ -576,14 +576,6 @@
 .workspaceCopy {
   padding-bottom: 20px;
 }
-.workspaceCopy > span {
-  display: block;
-  margin-bottom: 18px;
-  color: var(--accent-strong);
-  font-size: 13px;
-  font-weight: 850;
-  text-transform: uppercase;
-}
 .workspace h2 {
   margin: 0;
   font-size: clamp(34px, 4vw, 54px);
@@ -894,6 +886,78 @@
   padding: 0 50px 26px 76px;
   color: var(--muted);
 }
+.contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.8fr);
+  gap: 72px;
+  align-items: center;
+  padding: 68px 0;
+  border-top: 1px solid var(--rule);
+}
+.contactCopy h2 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.08;
+}
+.contactCopy p {
+  max-width: 420px;
+  margin: 14px 0 0;
+  color: var(--muted);
+}
+.contactLink {
+  display: flex;
+  min-width: 0;
+  min-height: 112px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 24px;
+  border: 2px solid var(--theme-border-strong);
+  background: var(--theme-surface);
+  box-shadow: 6px 6px 0 var(--theme-shadow);
+  color: var(--text);
+  text-decoration: none;
+  transition: background-color 180ms ease, box-shadow 180ms ease,
+    color 180ms ease, transform 180ms ease;
+}
+.contactLink span {
+  min-width: 0;
+}
+.contactLink small,
+.contactLink strong {
+  display: block;
+}
+.contactLink small {
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.contactLink strong {
+  overflow-wrap: anywhere;
+  font-size: 18px;
+}
+.contactLink svg {
+  flex: 0 0 24px;
+  transition: transform 180ms ease;
+}
+.contactLink:hover {
+  background: var(--accent);
+  box-shadow: 0 0 0 var(--theme-shadow);
+  color: var(--theme-on-brand);
+  transform: translate(3px, 3px);
+}
+.contactLink:hover small {
+  color: inherit;
+}
+.contactLink:hover svg {
+  transform: translateX(4px);
+}
+.contactLink:focus-visible {
+  outline: 3px solid var(--theme-focus);
+  outline-offset: 4px;
+}
 .footer {
   display: flex;
   justify-content: space-between;
@@ -1129,7 +1193,8 @@
   .feature,
   .formats,
   .compare,
-  .faq {
+  .faq,
+  .contact {
     grid-template-columns: 1fr;
     gap: 30px;
   }
@@ -1159,6 +1224,9 @@
   .formats,
   .compare,
   .faq {
+    padding: 58px 0;
+  }
+  .contact {
     padding: 58px 0;
   }
   .formatGrid {

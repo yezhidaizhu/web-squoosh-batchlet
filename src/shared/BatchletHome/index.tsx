@@ -259,6 +259,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
             <div class={style.navLinks}>
               <a href="#formats">Formats</a>
               <a href="#faq">FAQ</a>
+              <a href="#contact">Contact</a>
             </div>
             <button
               class={style.themeToggle}
@@ -443,7 +444,6 @@ const BatchletHome: FunctionalComponent<Props> = ({
             aria-label="Squoosh batch image compression workspace"
           >
             <div class={style.workspaceCopy}>
-              <span>Before / after</span>
               <h2>Keep the detail. Lose the weight.</h2>
               <p>Inspect the result before you export a whole batch.</p>
             </div>
@@ -692,12 +692,44 @@ const BatchletHome: FunctionalComponent<Props> = ({
               </details>
             </div>
           </section>
+
+          <section
+            class={style.contact}
+            id="contact"
+            aria-labelledby="contact-heading"
+          >
+            <div class={style.contactCopy}>
+              <h2 id="contact-heading">Get in touch</h2>
+              <p>I read every message and will get back to you by email.</p>
+            </div>
+            <a
+              class={style.contactLink}
+              href="mailto:qimucoco@gmail.com"
+              aria-label="Email qimucoco@gmail.com"
+            >
+              <span>
+                <small>Email</small>
+                <strong>qimucoco@gmail.com</strong>
+              </span>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14" />
+                <path d="m13 6 6 6-6 6" />
+              </svg>
+            </a>
+          </section>
         </main>
         <footer class={style.footer}>
-          <span>
-            Vicoco adds batch processing to the Squoosh workflow. Built on
-            Squoosh.
-          </span>
+          <span>© 2026 Vicoco</span>
           <nav>
             <a
               href="https://github.com/yezhidaizhu/web-squoosh-batchlet#privacy"
@@ -705,13 +737,6 @@ const BatchletHome: FunctionalComponent<Props> = ({
               rel="noopener noreferrer"
             >
               Privacy
-            </a>
-            <a
-              href="https://github.com/yezhidaizhu/web-squoosh-batchlet"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Project source
             </a>
           </nav>
         </footer>
