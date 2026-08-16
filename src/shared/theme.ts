@@ -16,7 +16,7 @@ export const themeInitScript = `(() => {
     theme = localStorage.getItem('${themeStorageKey}');
   } catch (_) {}
   if (theme !== 'light' && theme !== 'dark') {
-    theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    theme = 'light';
   }
   document.documentElement.dataset.theme = theme;
   document.documentElement.style.colorScheme = theme;
@@ -33,7 +33,7 @@ export const getInitialTheme = (): Theme => {
     if (isTheme(storedTheme)) return storedTheme;
   } catch (_) {}
 
-  return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'light';
 };
 
 export const applyTheme = (theme: Theme) => {
