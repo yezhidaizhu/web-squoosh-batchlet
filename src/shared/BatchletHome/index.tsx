@@ -638,7 +638,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
           </section>
 
           <section class={style.faq} id="faq" aria-labelledby="faq-heading">
-            <h2 id="faq-heading">Batch image compression FAQ</h2>
+            <h2 id="faq-heading">FAQs</h2>
             <div class={style.faqList}>
               <details>
                 <summary>

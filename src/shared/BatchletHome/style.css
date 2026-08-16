@@ -847,13 +847,11 @@
 }
 .faq {
   display: grid;
-  grid-template-columns: minmax(230px, 0.7fr) minmax(0, 1.3fr);
-  gap: 72px;
-  align-items: start;
+  gap: 44px;
   padding: 124px 0;
 }
 .faq h2 {
-  max-width: 280px;
+  margin: 0;
   font-size: clamp(32px, 4vw, 48px);
 }
 .faqList {
