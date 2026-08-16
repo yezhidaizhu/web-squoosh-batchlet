@@ -74,6 +74,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
   const uploadActions = useRef<HTMLDivElement | null>(null);
   const folderMenuButton = useRef<HTMLButtonElement | null>(null);
   const [folderMenuOpen, setFolderMenuOpen] = useState(false);
+  const [backToTopVisible, setBackToTopVisible] = useState(false);
   const [loadingDemo, setLoadingDemo] = useState<string | null>(null);
   const [installPrompt, setInstallPrompt] = useState<
     BeforeInstallPromptEvent | undefined
@@ -111,6 +112,35 @@ const BatchletHome: FunctionalComponent<Props> = ({
     return () =>
       window.removeEventListener('beforeinstallprompt', onBeforeInstall);
   }, []);
+
+  useEffect(() => {
+    let frame: number | undefined;
+    const updateVisibility = () => {
+      if (frame !== undefined) return;
+      frame = requestAnimationFrame(() => {
+        frame = undefined;
+        setBackToTopVisible(window.scrollY > window.innerHeight * 1.5);
+      });
+    };
+
+    updateVisibility();
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+    window.addEventListener('resize', updateVisibility);
+    return () => {
+      window.removeEventListener('scroll', updateVisibility);
+      window.removeEventListener('resize', updateVisibility);
+      if (frame !== undefined) cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth',
+    });
+  };
 
   const chooseImages = (event: Event) => {
     if (!onFiles) return;
@@ -758,6 +788,31 @@ const BatchletHome: FunctionalComponent<Props> = ({
           </nav>
         </footer>
       </div>
+      <button
+        class={`${style.backToTop} ${
+          backToTopVisible ? style.backToTopVisible : ''
+        }`}
+        type="button"
+        aria-label="Back to top"
+        aria-hidden={!backToTopVisible}
+        tabIndex={backToTopVisible ? 0 : -1}
+        title="Back to top"
+        onClick={scrollToTop}
+      >
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m6 15 6-6 6 6" />
+        </svg>
+      </button>
     </div>
   );
 };

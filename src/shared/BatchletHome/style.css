@@ -1007,6 +1007,49 @@
 .footer a {
   text-decoration: underline;
 }
+.backToTop {
+  position: fixed;
+  z-index: 20;
+  right: max(
+    20px,
+    env(safe-area-inset-right),
+    calc((100% - 1080px) / 2 - 64px)
+  );
+  bottom: max(20px, env(safe-area-inset-bottom));
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  padding: 0;
+  border: 2px solid var(--theme-border-strong);
+  border-radius: 0;
+  background: var(--theme-brand-surface);
+  color: var(--theme-on-brand);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  visibility: hidden;
+  transition: background-color 180ms ease, color 180ms ease, opacity 180ms ease,
+    transform 180ms ease, visibility 180ms ease;
+}
+.backToTopVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+}
+.backToTop:focus-visible {
+  outline: 3px solid var(--theme-focus);
+  outline-offset: 3px;
+}
+.backToTop svg {
+  display: block;
+  transition: transform 180ms ease;
+}
+.backToTop:hover svg {
+  transform: translateY(-3px);
+}
 @keyframes stage-arrive {
   from {
     opacity: 0;
@@ -1299,6 +1342,11 @@
   }
   .footer nav {
     margin-top: 12px;
+  }
+  .backToTop {
+    bottom: max(14px, env(safe-area-inset-bottom));
+    width: 44px;
+    height: 44px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
