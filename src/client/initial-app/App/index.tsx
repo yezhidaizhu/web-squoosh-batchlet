@@ -17,9 +17,12 @@ import ImageQueue, { QueueFile } from 'client/lazy-app/Compress/ImageQueue';
 import type Compress from 'client/lazy-app/Compress';
 import type { BatchOutput } from 'client/lazy-app/Compress';
 import {
+  batchNamePatternError,
+  batchNamePatternWarning,
   defaultBatchNamePattern,
   fileExtension,
   formatBatchFilename,
+  formatZipFilename,
 } from './batch-naming';
 
 const ROUTE_EDITOR = '/editor';
@@ -382,9 +385,7 @@ export default class App extends Component<Props, State> {
     const url = URL.createObjectURL(archive);
     const download = document.createElement('a');
     download.href = url;
-    download.download = `${
-      filename.replace(/\.zip$/i, '') || 'vicoco-images'
-    }.zip`;
+    download.download = filename;
     download.click();
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
@@ -460,9 +461,10 @@ export default class App extends Component<Props, State> {
       return;
 
     const queueFiles = this.state.files;
-    const filename = this.state.batchFilename.trim() || 'vicoco-images';
+    const filename = formatZipFilename(this.state.batchFilename);
     const namePattern =
       this.state.batchNamePattern.trim() || defaultBatchNamePattern;
+    if (batchNamePatternError(namePattern)) return;
     const controller = new AbortController();
     this.batchAbortController = controller;
     this.setState({
@@ -584,6 +586,12 @@ export default class App extends Component<Props, State> {
       awaitingShareTarget || (isEditorOpen && (!Compress || !selectedFile));
     const { batchProgress, batchStopping } = this.state;
     const batchOutputInfo = this.compress?.getBatchOutputInfo();
+    const namePatternError = batchNamePatternError(batchNamePattern);
+    const namePatternWarning = batchNamePatternWarning(batchNamePattern);
+    const zipFilename = formatZipFilename(batchFilename);
+    const typedZipFilename = `${batchFilename.replace(/\.zip$/i, '')}.zip`;
+    const zipFilenameChanged =
+      !!batchFilename.trim() && zipFilename !== typedZipFilename;
     const previewSource = selectedFile?.file || files[0]?.file;
     const batchNamePreview =
       batchOutputInfo && previewSource
@@ -707,7 +715,13 @@ export default class App extends Component<Props, State> {
                           </div>
                           <label class={style.batchNamePatternLabel}>
                             <span>Pattern</span>
-                            <span class={style.batchFilenameInput}>
+                            <span
+                              class={`${style.batchFilenameInput} ${
+                                namePatternError
+                                  ? style.batchFilenameInputInvalid
+                                  : ''
+                              }`}
+                            >
                               <input
                                 ref={(input) => {
                                   this.batchNamePatternInput =
@@ -718,6 +732,14 @@ export default class App extends Component<Props, State> {
                                 maxLength={64}
                                 onInput={this.onBatchNamePatternInput}
                                 aria-label="Image file name pattern"
+                                aria-invalid={!!namePatternError}
+                                aria-describedby={
+                                  namePatternError
+                                    ? 'batch-name-pattern-error'
+                                    : namePatternWarning
+                                    ? 'batch-name-pattern-warning'
+                                    : undefined
+                                }
                                 autocomplete="off"
                               />
                               {batchOutputInfo && (
@@ -725,6 +747,23 @@ export default class App extends Component<Props, State> {
                               )}
                             </span>
                           </label>
+                          {(namePatternError || namePatternWarning) && (
+                            <span
+                              id={
+                                namePatternError
+                                  ? 'batch-name-pattern-error'
+                                  : 'batch-name-pattern-warning'
+                              }
+                              class={
+                                namePatternError
+                                  ? style.batchFieldError
+                                  : style.batchFieldNotice
+                              }
+                              role={namePatternError ? 'alert' : 'status'}
+                            >
+                              {namePatternError || namePatternWarning}
+                            </span>
+                          )}
                           <div
                             class={style.batchNameTokens}
                             aria-label="File name variables"
@@ -758,11 +797,25 @@ export default class App extends Component<Props, State> {
                               maxLength={80}
                               onInput={this.onBatchFilenameInput}
                               aria-label="ZIP file name"
+                              aria-describedby={
+                                zipFilenameChanged
+                                  ? 'batch-zip-filename-notice'
+                                  : undefined
+                              }
                               autocomplete="off"
                             />
                             <span>.zip</span>
                           </span>
                         </label>
+                        {zipFilenameChanged && (
+                          <span
+                            id="batch-zip-filename-notice"
+                            class={style.batchFieldNotice}
+                            role="status"
+                          >
+                            Will export as {zipFilename}
+                          </span>
+                        )}
                       </div>
                       <div class={style.batchDialogActions}>
                         <button
@@ -772,7 +825,11 @@ export default class App extends Component<Props, State> {
                         >
                           Cancel
                         </button>
-                        <button class={style.batchDialogSubmit} type="submit">
+                        <button
+                          class={style.batchDialogSubmit}
+                          type="submit"
+                          disabled={!!namePatternError}
+                        >
                           Start Export
                         </button>
                       </div>

@@ -10,6 +10,26 @@ export interface BatchNameContext {
 }
 
 const invalidFilenameCharacters = /[\u0000-\u001f<>:"/\\|?*]/g;
+const invalidFilenameCharacter = /[\u0000-\u001f<>:"/\\|?*]/;
+const reservedWindowsFilename =
+  /^(con|prn|aux|nul|clock\$|conin\$|conout\$|com[1-9]|lpt[1-9])(?:\.|$)/i;
+const supportedBatchNameToken = /\{(name|index|width|height)\}/g;
+
+function sanitizeFilenameStem(
+  value: string,
+  fallback: string,
+  maxLength: number,
+): string {
+  let filename = value
+    .replace(invalidFilenameCharacters, '-')
+    .trim()
+    .replace(/[ .]+$/g, '')
+    .slice(0, maxLength);
+
+  if (!filename) filename = fallback;
+  if (reservedWindowsFilename.test(filename)) filename = `_${filename}`;
+  return filename.slice(0, maxLength);
+}
 
 export function fileStem(filename: string): string {
   const separator = Math.max(
@@ -26,6 +46,32 @@ export function fileExtension(filename: string): string {
   return extension > 0 && extension < filename.length - 1
     ? filename.slice(extension + 1)
     : '';
+}
+
+export function batchNamePatternError(pattern: string): string | undefined {
+  if (!pattern.trim()) return;
+  const remainder = pattern.replace(supportedBatchNameToken, '');
+  if (/[{}]/.test(remainder)) {
+    return 'Use only {name}, {index}, {width}, or {height} variables.';
+  }
+}
+
+export function batchNamePatternWarning(pattern: string): string | undefined {
+  if (invalidFilenameCharacter.test(pattern)) {
+    return 'Unsupported filename characters will be replaced with -.';
+  }
+  if (/[ .]+$/.test(pattern)) {
+    return 'Trailing spaces and dots will be removed.';
+  }
+}
+
+export function formatZipFilename(filename: string): string {
+  const stem = sanitizeFilenameStem(
+    filename.replace(/\.zip$/i, ''),
+    'vicoco-images',
+    76,
+  );
+  return `${stem}.zip`;
 }
 
 export function formatBatchFilename(
@@ -53,12 +99,6 @@ export function formatBatchFilename(
     filename = filename.slice(0, -(extension.length + 1));
   }
 
-  filename = filename
-    .replace(invalidFilenameCharacters, '-')
-    .trim()
-    .replace(/[ .]+$/g, '')
-    .slice(0, 160);
-
-  if (!filename) filename = `image-${index}`;
+  filename = sanitizeFilenameStem(filename, `image-${index}`, 160);
   return extension ? `${filename}.${extension}` : filename;
 }
