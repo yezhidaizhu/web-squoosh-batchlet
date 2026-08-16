@@ -24,6 +24,7 @@ import {
 } from '../feature-meta';
 import Output from './Output';
 import Options from './Options';
+import CompressionPresetsDialog from './CompressionPresetsDialog';
 import ResultCache from './result-cache';
 import { cleanMerge, cleanSet } from '../util/clean-modify';
 import './custom-els/MultiPanel';
@@ -32,6 +33,13 @@ import WorkerBridge from '../worker-bridge';
 import { resize } from 'features/processors/resize/client';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import { drawableToImageData } from '../util/canvas';
+import {
+  CompressionPreset,
+  copyCompressionPresetSettings,
+  createCompressionPreset,
+  loadCompressionPresets,
+  saveCompressionPresets,
+} from './compression-presets';
 
 export type OutputType = EncoderType | 'identity';
 
@@ -83,6 +91,8 @@ interface State {
   mobileView: boolean;
   preprocessorState: PreprocessorState;
   encodedPreprocessorState?: PreprocessorState;
+  compressionPresets: CompressionPreset[];
+  compressionPresetDialogSide?: 0 | 1;
 }
 
 interface MainJob {
@@ -327,6 +337,8 @@ export default class Compress extends Component<Props, State> {
           },
     ],
     mobileView: this.widthQuery.matches,
+    compressionPresets: loadCompressionPresets(),
+    compressionPresetDialogSide: undefined,
   };
 
   private readonly encodeCache = new ResultCache();
@@ -523,97 +535,75 @@ export default class Compress extends Component<Props, State> {
       sides: cleanSet(this.state.sides, otherIndex, oldSettings),
     });
   };
-  /**
-   * This function saves encodedSettings and latestSettings of
-   * particular side in browser local storage
-   * @param index : (0|1)
-   * @returns
-   */
-  private onSaveSideSettingsClick = async (index: 0 | 1) => {
-    if (index === 0) {
-      const leftSideSettings = JSON.stringify({
-        encodedSettings: this.state.sides[index].encodedSettings,
-        latestSettings: this.state.sides[index].latestSettings,
-      });
-      localStorage.setItem('leftSideSettings', leftSideSettings);
-      // Firing an event when we save side settings in localstorage
-      window.dispatchEvent(new CustomEvent('leftSideSettings'));
-      await this.props.showSnack('Left side settings saved', {
-        timeout: 1500,
-        actions: ['dismiss'],
-      });
-      return;
-    }
 
-    if (index === 1) {
-      const rightSideSettings = JSON.stringify({
-        encodedSettings: this.state.sides[index].encodedSettings,
-        latestSettings: this.state.sides[index].latestSettings,
-      });
-      localStorage.setItem('rightSideSettings', rightSideSettings);
-      // Firing an event when we save side settings in localstorage
-      window.dispatchEvent(new CustomEvent('rightSideSettings'));
-      await this.props.showSnack('Right side settings saved', {
-        timeout: 1500,
-        actions: ['dismiss'],
-      });
-      return;
-    }
+  private setCompressionPresets = (presets: CompressionPreset[]) => {
+    saveCompressionPresets(presets);
+    this.setState({ compressionPresets: presets });
   };
 
-  /**
-   * This function sets the side state with catched localstorage
-   * value as per side index provided
-   * @param index : (0|1)
-   * @returns
-   */
-  private onImportSideSettingsClick = async (index: 0 | 1) => {
-    const leftSideSettingsString = localStorage.getItem('leftSideSettings');
-    const rightSideSettingsString = localStorage.getItem('rightSideSettings');
+  private onCreateCompressionPreset = (index: 0 | 1, name: string) => {
+    const preset = createCompressionPreset(
+      name,
+      this.state.sides[index].latestSettings,
+    );
+    this.setCompressionPresets([...this.state.compressionPresets, preset]);
+    this.props.showSnack(`Saved ${name}`, {
+      timeout: 1800,
+      actions: ['dismiss'],
+    });
+  };
 
-    if (index === 0 && leftSideSettingsString) {
-      const oldLeftSideSettings = this.state.sides[index];
-      const newLeftSideSettings = {
-        ...this.state.sides[index],
-        ...JSON.parse(leftSideSettingsString),
-      };
-      this.setState({
-        sides: cleanSet(this.state.sides, index, newLeftSideSettings),
-      });
-      const result = await this.props.showSnack('Left side settings imported', {
-        timeout: 3000,
-        actions: ['undo', 'dismiss'],
-      });
-      if (result === 'undo') {
-        this.setState({
-          sides: cleanSet(this.state.sides, index, oldLeftSideSettings),
-        });
-      }
-      return;
-    }
+  private onRenameCompressionPreset = (id: string, name: string) => {
+    this.setCompressionPresets(
+      this.state.compressionPresets.map((preset) =>
+        preset.id === id ? { ...preset, name } : preset,
+      ),
+    );
+  };
 
-    if (index === 1 && rightSideSettingsString) {
-      const oldRightSideSettings = this.state.sides[index];
-      const newRightSideSettings = {
-        ...this.state.sides[index],
-        ...JSON.parse(rightSideSettingsString),
-      };
+  private onDeleteCompressionPreset = async (id: string) => {
+    const presets = this.state.compressionPresets;
+    const preset = presets.find((item) => item.id === id);
+    if (!preset) return;
+    this.setCompressionPresets(presets.filter((item) => item.id !== id));
+
+    const result = await this.props.showSnack(`Deleted ${preset.name}`, {
+      timeout: 5000,
+      actions: ['undo', 'dismiss'],
+    });
+    if (result === 'undo') this.setCompressionPresets(presets);
+  };
+
+  private onOpenCompressionPresets = (index: 0 | 1) => {
+    this.setState({ compressionPresetDialogSide: index });
+  };
+
+  private onCloseCompressionPresets = () => {
+    this.setState({ compressionPresetDialogSide: undefined });
+  };
+
+  private onApplyCompressionPreset = async (index: 0 | 1, id: string) => {
+    const preset = this.state.compressionPresets.find((item) => item.id === id);
+    if (!preset) return;
+    const oldSettings = this.state.sides[index].latestSettings;
+    const settings = copyCompressionPresetSettings(preset.settings);
+    this.setState({
+      compressionPresetDialogSide: undefined,
+      sides: cleanSet(this.state.sides, `${index}.latestSettings`, settings),
+    });
+
+    const result = await this.props.showSnack(`Applied ${preset.name}`, {
+      timeout: 5000,
+      actions: ['undo', 'dismiss'],
+    });
+    if (result === 'undo') {
       this.setState({
-        sides: cleanSet(this.state.sides, index, newRightSideSettings),
+        sides: cleanSet(
+          this.state.sides,
+          `${index}.latestSettings`,
+          oldSettings,
+        ),
       });
-      const result = await this.props.showSnack(
-        'Right side settings imported',
-        {
-          timeout: 3000,
-          actions: ['undo', 'dismiss'],
-        },
-      );
-      if (result === 'undo') {
-        this.setState({
-          sides: cleanSet(this.state.sides, index, oldRightSideSettings),
-        });
-      }
-      return;
     }
   };
 
@@ -1001,7 +991,15 @@ export default class Compress extends Component<Props, State> {
 
   render(
     { onBack }: Props,
-    { loading, sides, source, mobileView, preprocessorState }: State,
+    {
+      loading,
+      sides,
+      source,
+      mobileView,
+      preprocessorState,
+      compressionPresets,
+      compressionPresetDialogSide,
+    }: State,
   ) {
     const [leftSide, rightSide] = sides;
     const [leftImageData, rightImageData] = sides.map((i) => i.data);
@@ -1017,8 +1015,8 @@ export default class Compress extends Component<Props, State> {
         onEncoderOptionsChange={this.onEncoderOptionsChange}
         onProcessorOptionsChange={this.onProcessorOptionsChange}
         onCopyToOtherSideClick={this.onCopyToOtherClick}
-        onSaveSideSettingsClick={this.onSaveSideSettingsClick}
-        onImportSideSettingsClick={this.onImportSideSettingsClick}
+        compressionPresetsOpen={compressionPresetDialogSide === index}
+        onOpenCompressionPresets={this.onOpenCompressionPresets}
       />
     ));
 
@@ -1095,6 +1093,22 @@ export default class Compress extends Component<Props, State> {
               {results[1]}
             </div>,
           ]
+        )}
+        {compressionPresetDialogSide !== undefined && (
+          <CompressionPresetsDialog
+            sideIndex={compressionPresetDialogSide}
+            presets={compressionPresets}
+            currentSettings={sides[compressionPresetDialogSide].latestSettings}
+            onClose={this.onCloseCompressionPresets}
+            onApply={(id) =>
+              this.onApplyCompressionPreset(compressionPresetDialogSide, id)
+            }
+            onCreate={(name) =>
+              this.onCreateCompressionPreset(compressionPresetDialogSide, name)
+            }
+            onRename={this.onRenameCompressionPreset}
+            onDelete={this.onDeleteCompressionPreset}
+          />
         )}
       </div>
     );

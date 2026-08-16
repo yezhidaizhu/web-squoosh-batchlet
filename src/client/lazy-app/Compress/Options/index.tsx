@@ -17,7 +17,7 @@ import Toggle from './Toggle';
 import Select from './Select';
 import { Options as QuantOptionsComponent } from 'features/processors/quantize/client';
 import { Options as ResizeOptionsComponent } from 'features/processors/resize/client';
-import { ImportIcon, SaveIcon, SwapIcon } from 'client/lazy-app/icons';
+import { PresetsIcon, SwapIcon } from 'client/lazy-app/icons';
 
 interface Props {
   index: 0 | 1;
@@ -29,14 +29,12 @@ interface Props {
   onEncoderOptionsChange(index: 0 | 1, newOptions: EncoderOptions): void;
   onProcessorOptionsChange(index: 0 | 1, newOptions: ProcessorState): void;
   onCopyToOtherSideClick(index: 0 | 1): void;
-  onSaveSideSettingsClick(index: 0 | 1): void;
-  onImportSideSettingsClick(index: 0 | 1): void;
+  compressionPresetsOpen: boolean;
+  onOpenCompressionPresets(index: 0 | 1): void;
 }
 
 interface State {
   supportedEncoderMap?: PartialButNotUndefined<typeof encoderMap>;
-  leftSideSettings?: string | null;
-  rightSideSettings?: string | null;
 }
 
 type PartialButNotUndefined<T> = {
@@ -64,8 +62,6 @@ const supportedEncoderMapP: Promise<PartialButNotUndefined<typeof encoderMap>> =
 export default class Options extends Component<Props, State> {
   state: State = {
     supportedEncoderMap: undefined,
-    leftSideSettings: localStorage.getItem('leftSideSettings'),
-    rightSideSettings: localStorage.getItem('rightSideSettings'),
   };
 
   constructor() {
@@ -73,29 +69,6 @@ export default class Options extends Component<Props, State> {
     supportedEncoderMapP.then((supportedEncoderMap) =>
       this.setState({ supportedEncoderMap }),
     );
-  }
-
-  private setLeftSideSettings = () => {
-    this.setState({
-      leftSideSettings: localStorage.getItem('leftSideSettings'),
-    });
-  };
-
-  private setRightSideSettings = () => {
-    this.setState({
-      rightSideSettings: localStorage.getItem('rightSideSettings'),
-    });
-  };
-
-  componentDidMount(): void {
-    // Changing the state when side setting is stored in localstorage
-    window.addEventListener('leftSideSettings', this.setLeftSideSettings);
-    window.addEventListener('rightSideSettings', this.setRightSideSettings);
-  }
-
-  componentWillUnmount(): void {
-    window.removeEventListener('leftSideSettings', this.setLeftSideSettings);
-    window.removeEventListener('removeSideSettings', this.setRightSideSettings);
   }
 
   private onEncoderTypeChange = (event: Event) => {
@@ -139,16 +112,8 @@ export default class Options extends Component<Props, State> {
     this.props.onCopyToOtherSideClick(this.props.index);
   };
 
-  private onSaveSideSettingClick = () => {
-    this.props.onSaveSideSettingsClick(this.props.index);
-  };
-
-  private onImportSideSettingsClick = () => {
-    this.props.onImportSideSettingsClick(this.props.index);
-  };
-
   render(
-    { source, encoderState, processorState }: Props,
+    { source, encoderState, processorState, compressionPresetsOpen }: Props,
     { supportedEncoderMap }: State,
   ) {
     const encoder = encoderState && encoderMap[encoderState.type];
@@ -166,9 +131,11 @@ export default class Options extends Component<Props, State> {
         <Expander>
           {!encoderState ? null : (
             <div>
-              <h3 class={style.optionsTitle}>
+              <div class={style.optionsTitle}>
                 <div class={style.titleAndButtons}>
-                  Edit
+                  <span role="heading" aria-level={3}>
+                    Edit
+                  </span>
                   <button
                     class={style.copyOverButton}
                     title="Copy settings to other side"
@@ -177,37 +144,19 @@ export default class Options extends Component<Props, State> {
                     <SwapIcon />
                   </button>
                   <button
-                    class={style.saveButton}
-                    title="Save side settings"
-                    onClick={this.onSaveSideSettingClick}
-                  >
-                    <SaveIcon />
-                  </button>
-                  <button
-                    class={
-                      style.importButton +
-                      ' ' +
-                      (!this.state.leftSideSettings && this.props.index === 0
-                        ? style.buttonOpacity
-                        : '') +
-                      ' ' +
-                      (!this.state.rightSideSettings && this.props.index === 1
-                        ? style.buttonOpacity
-                        : '')
-                    }
-                    title="Import saved side settings"
-                    onClick={this.onImportSideSettingsClick}
-                    disabled={
-                      // Disabled if this side's settings haven't been saved
-                      (!this.state.leftSideSettings &&
-                        this.props.index === 0) ||
-                      (!this.state.rightSideSettings && this.props.index === 1)
+                    class={style.presetsButton}
+                    title="Compression presets"
+                    aria-label="Compression presets"
+                    aria-haspopup="dialog"
+                    aria-expanded={compressionPresetsOpen}
+                    onClick={() =>
+                      this.props.onOpenCompressionPresets(this.props.index)
                     }
                   >
-                    <ImportIcon />
+                    <PresetsIcon />
                   </button>
                 </div>
-              </h3>
+              </div>
               <label class={style.sectionEnabler}>
                 Resize
                 <Toggle

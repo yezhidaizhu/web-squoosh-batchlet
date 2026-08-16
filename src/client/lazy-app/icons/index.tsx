@@ -125,3 +125,51 @@ export const ImportIcon = () => (
     </g>
   </svg>
 );
+
+export const PresetsIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <line x1="21" x2="14" y1="4" y2="4" />
+    <line x1="10" x2="3" y1="4" y2="4" />
+    <line x1="21" x2="12" y1="12" y2="12" />
+    <line x1="8" x2="3" y1="12" y2="12" />
+    <line x1="21" x2="16" y1="20" y2="20" />
+    <line x1="12" x2="3" y1="20" y2="20" />
+    <line x1="14" x2="14" y1="2" y2="6" />
+    <line x1="8" x2="8" y1="10" y2="14" />
+    <line x1="16" x2="16" y1="18" y2="22" />
+  </svg>
+);
+
+export const EditIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+  </svg>
+);
+
+export const TrashIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5" />
+  </svg>
+);

@@ -94,6 +94,7 @@
 }
 
 .title-and-buttons {
+  position: relative;
   grid-template-columns: 1fr;
   grid-auto-columns: max-content;
   grid-auto-flow: column;
@@ -129,30 +130,22 @@
     fill: var(--header-text-color);
   }
 
-  &:focus {
+  &:focus-visible {
     outline: var(--header-text-color) solid 2px;
     outline-offset: 0.25em;
   }
 }
 
-.save-button,
-.import-button {
+.presets-button {
   composes: title-button;
 
   svg {
+    --size: 17px;
     stroke: var(--header-text-color);
   }
 
-  &:focus {
+  &:focus-visible {
     outline: var(--header-text-color) solid 2px;
     outline-offset: 0.25em;
-  }
-}
-
-.button-opacity {
-  pointer-events: none;
-  cursor: not-allowed;
-  svg {
-    opacity: 0.5;
   }
 }
