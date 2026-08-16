@@ -567,14 +567,12 @@
   font-weight: 500;
 }
 .workspace {
-  display: grid;
-  grid-template-columns: minmax(210px, 0.56fr) minmax(0, 1.44fr);
-  gap: 48px;
-  align-items: end;
+  display: block;
   padding: 108px 0 126px;
 }
 .workspaceCopy {
-  padding-bottom: 20px;
+  max-width: 720px;
+  margin-bottom: 44px;
 }
 .workspace h2 {
   margin: 0;
@@ -596,7 +594,7 @@
   font-size: 17px;
 }
 .workspaceCopy p {
-  max-width: 280px;
+  max-width: 480px;
   margin: 20px 0 0;
 }
 .productShot {
@@ -608,21 +606,6 @@
   display: block;
   width: 100%;
   height: auto;
-}
-.workspaceCopy,
-.productShot {
-  transition: opacity 560ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    transform 560ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 420ms 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.workspace.workspaceReady:not(.workspaceVisible) .workspaceCopy {
-  opacity: 0;
-  transform: translate3d(-28px, 0, 0);
-}
-.workspace.workspaceReady:not(.workspaceVisible) .productShot {
-  opacity: 0;
-  box-shadow: 0 0 0 var(--theme-shadow-strong);
-  transform: translate3d(32px, 0, 0);
 }
 .feature {
   display: grid;
@@ -810,6 +793,56 @@
   display: block;
   margin-bottom: 4px;
   color: var(--text);
+  font-size: 14px;
+}
+.privacy {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+  gap: 72px;
+  align-items: start;
+  padding: 96px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.privacyCopy h2 {
+  max-width: 480px;
+  margin: 0;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.08;
+}
+.privacyCopy p {
+  max-width: 500px;
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 17px;
+}
+.privacyList {
+  margin: 0;
+  padding: 0;
+  border-top: 2px solid var(--theme-border-strong);
+  list-style: none;
+}
+.privacyList li {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 18px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.privacyIndex {
+  padding-top: 2px;
+  color: var(--accent-strong);
+  font-size: 13px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+.privacyList strong {
+  display: block;
+  font-size: 18px;
+}
+.privacyList p {
+  margin: 5px 0 0;
+  color: var(--muted);
   font-size: 14px;
 }
 .faq {
@@ -1193,6 +1226,7 @@
   .feature,
   .formats,
   .compare,
+  .privacy,
   .faq,
   .contact {
     grid-template-columns: 1fr;
@@ -1202,7 +1236,7 @@
     padding: 70px 0 76px;
   }
   .workspaceCopy {
-    padding: 0;
+    margin-bottom: 30px;
   }
   .feature {
     padding: 58px 0;
@@ -1224,6 +1258,9 @@
   .formats,
   .compare,
   .faq {
+    padding: 58px 0;
+  }
+  .privacy {
     padding: 58px 0;
   }
   .contact {

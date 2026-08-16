@@ -50,18 +50,10 @@ const structuredData = JSON.stringify({
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'How do I batch compress images with Squoosh?',
+          name: 'How do I batch compress multiple images at once?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Vicoco adds batch processing to Squoosh. Add multiple images, choose one set of output settings, then process and download them as a ZIP.',
-          },
-        },
-        {
-          '@type': 'Question',
-          name: 'Do the same settings apply to every image?',
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: 'Yes. The current codec, quality and resize settings are applied to every queued image during batch export.',
+            text: 'Add images or a folder, choose an output format, quality and resize settings, then process the queue and download the compressed images as a ZIP.',
           },
         },
         {
@@ -74,7 +66,15 @@ const structuredData = JSON.stringify({
         },
         {
           '@type': 'Question',
-          name: 'Are my images uploaded?',
+          name: 'Which image formats can I compress and convert?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'You can add common formats including JPEG, PNG, WebP, AVIF and SVG, then choose a supported output codec for the batch.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Are my images uploaded to a server?',
           acceptedAnswer: {
             '@type': 'Answer',
             text: 'No. Image processing runs locally in your browser, so your files stay on your device.',

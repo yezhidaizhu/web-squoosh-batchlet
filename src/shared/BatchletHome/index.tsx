@@ -73,10 +73,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
   const folderInput = useRef<HTMLInputElement | null>(null);
   const uploadActions = useRef<HTMLDivElement | null>(null);
   const folderMenuButton = useRef<HTMLButtonElement | null>(null);
-  const workspace = useRef<HTMLElement | null>(null);
   const [folderMenuOpen, setFolderMenuOpen] = useState(false);
-  const [workspaceReady, setWorkspaceReady] = useState(false);
-  const [workspaceVisible, setWorkspaceVisible] = useState(false);
   const [loadingDemo, setLoadingDemo] = useState<string | null>(null);
   const [installPrompt, setInstallPrompt] = useState<
     BeforeInstallPromptEvent | undefined
@@ -113,25 +110,6 @@ const BatchletHome: FunctionalComponent<Props> = ({
     window.addEventListener('beforeinstallprompt', onBeforeInstall);
     return () =>
       window.removeEventListener('beforeinstallprompt', onBeforeInstall);
-  }, []);
-
-  useEffect(() => {
-    if (
-      !workspace.current ||
-      matchMedia('(prefers-reduced-motion: reduce)').matches
-    )
-      return;
-    setWorkspaceReady(true);
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        requestAnimationFrame(() => setWorkspaceVisible(true));
-        observer.disconnect();
-      },
-      { threshold: 0.28 },
-    );
-    observer.observe(workspace.current);
-    return () => observer.disconnect();
   }, []);
 
   const chooseImages = (event: Event) => {
@@ -437,15 +415,16 @@ const BatchletHome: FunctionalComponent<Props> = ({
           </section>
 
           <section
-            ref={workspace}
-            class={`${style.workspace} ${
-              workspaceReady ? style.workspaceReady : ''
-            } ${workspaceVisible ? style.workspaceVisible : ''}`}
+            class={style.workspace}
             aria-label="Squoosh batch image compression workspace"
           >
             <div class={style.workspaceCopy}>
-              <h2>Keep the detail. Lose the weight.</h2>
-              <p>Inspect the result before you export a whole batch.</p>
+              <h2>Preview image compression results before export</h2>
+              <p>
+                Check image quality and file size in your browser before
+                applying the same compression settings to every file in your
+                batch.
+              </p>
             </div>
             <figure class={style.productShot}>
               <img
@@ -466,11 +445,12 @@ const BatchletHome: FunctionalComponent<Props> = ({
             />
             <div>
               <h2 id="batch-heading">
-                One set of settings for the whole batch
+                Batch compress images with one set of settings
               </h2>
               <p>
-                Tune compression, resize and output settings once, then process
-                every image and download the results as a ZIP.
+                Choose the output format, quality and resize dimensions once,
+                then process every queued image and download the compressed
+                files as a ZIP.
               </p>
               <dl>
                 <div>
@@ -502,11 +482,11 @@ const BatchletHome: FunctionalComponent<Props> = ({
           >
             <div class={style.formatCopy}>
               <h2 id="formats-heading">
-                Choose the best format for your batch
+                Batch convert images to JPEG, PNG, WebP or AVIF
               </h2>
               <p>
-                Test JPEG, PNG, WebP and AVIF, then choose an output format
-                based on quality and file size.
+                Compare output formats by image quality, transparency support
+                and file size before converting the entire batch.
               </p>
             </div>
             <div class={style.formatGrid}>
@@ -518,7 +498,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
                 />
                 <div class={style.formatTileCopy}>
                   <h3>JPEG</h3>
-                  <p>Detailed photography with efficient compression.</p>
+                  <p>Compress photographs with adjustable lossy encoding.</p>
                 </div>
               </article>
               <article>
@@ -529,7 +509,9 @@ const BatchletHome: FunctionalComponent<Props> = ({
                 />
                 <div class={style.formatTileCopy}>
                   <h3>PNG</h3>
-                  <p>Lossless graphics and transparent edges.</p>
+                  <p>
+                    Optimize lossless graphics while preserving transparency.
+                  </p>
                 </div>
               </article>
               <article>
@@ -540,7 +522,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
                 />
                 <div class={style.formatTileCopy}>
                   <h3>WebP</h3>
-                  <p>Modern images with smaller page weight.</p>
+                  <p>Convert images to WebP for smaller web-ready files.</p>
                 </div>
               </article>
               <article>
@@ -551,7 +533,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
                 />
                 <div class={style.formatTileCopy}>
                   <h3>AVIF</h3>
-                  <p>High-efficiency output for supported browsers.</p>
+                  <p>Convert images to AVIF for high-efficiency compression.</p>
                 </div>
               </article>
             </div>
@@ -560,12 +542,12 @@ const BatchletHome: FunctionalComponent<Props> = ({
           <section class={style.compare} aria-labelledby="compare-heading">
             <div>
               <h2 id="compare-heading">
-                Compare quality and file size before export
+                Compare image quality and file size side by side
               </h2>
               <p>
-                Preview the selected image before and after compression, then
-                adjust the format, quality and dimensions while the output file
-                size stays in view.
+                Use the before-and-after preview to inspect detail, test codec,
+                quality and resize settings, and check the compressed file size
+                before export.
               </p>
             </div>
             <figure class={style.compareVisual}>
@@ -590,13 +572,48 @@ const BatchletHome: FunctionalComponent<Props> = ({
             </figure>
           </section>
 
+          <section class={style.privacy} aria-labelledby="privacy-heading">
+            <div class={style.privacyCopy}>
+              <h2 id="privacy-heading">
+                Private batch image compression in your browser
+              </h2>
+              <p>
+                Compress and convert images locally without uploading files to a
+                server. Your images stay on your device throughout the batch.
+              </p>
+            </div>
+            <ol class={style.privacyList}>
+              <li>
+                <span class={style.privacyIndex}>01</span>
+                <div>
+                  <strong>Processed locally</strong>
+                  <p>Compression runs inside your browser.</p>
+                </div>
+              </li>
+              <li>
+                <span class={style.privacyIndex}>02</span>
+                <div>
+                  <strong>No server uploads</strong>
+                  <p>Your source images never leave your device.</p>
+                </div>
+              </li>
+              <li>
+                <span class={style.privacyIndex}>03</span>
+                <div>
+                  <strong>No account required</strong>
+                  <p>Start compressing images without signing in.</p>
+                </div>
+              </li>
+            </ol>
+          </section>
+
           <section class={style.faq} id="faq" aria-labelledby="faq-heading">
-            <h2 id="faq-heading">Squoosh batch FAQ</h2>
+            <h2 id="faq-heading">Batch image compression FAQ</h2>
             <div class={style.faqList}>
               <details>
                 <summary>
                   <span class={style.faqIndex}>01</span>
-                  <span>How do I batch compress images with Squoosh?</span>
+                  <span>How do I batch compress multiple images at once?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
                       width="17"
@@ -613,38 +630,14 @@ const BatchletHome: FunctionalComponent<Props> = ({
                   </span>
                 </summary>
                 <p>
-                  Vicoco adds batch processing to Squoosh. Add multiple images,
-                  choose one set of output settings, then process and download
-                  them as a ZIP.
+                  Add images or a folder, choose an output format, quality and
+                  resize settings, then process the queue and download the
+                  compressed images as a ZIP.
                 </p>
               </details>
               <details>
                 <summary>
                   <span class={style.faqIndex}>02</span>
-                  <span>Do the same settings apply to every image?</span>
-                  <span class={style.faqIcon} aria-hidden="true">
-                    <svg
-                      width="17"
-                      height="17"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                    >
-                      <path d="M12 5v14" />
-                      <path d="M5 12h14" />
-                    </svg>
-                  </span>
-                </summary>
-                <p>
-                  Yes. The current codec, quality and resize settings are
-                  applied to every queued image during batch export.
-                </p>
-              </details>
-              <details>
-                <summary>
-                  <span class={style.faqIndex}>03</span>
                   <span>Can I batch convert images to WebP or AVIF?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
@@ -668,8 +661,32 @@ const BatchletHome: FunctionalComponent<Props> = ({
               </details>
               <details>
                 <summary>
+                  <span class={style.faqIndex}>03</span>
+                  <span>Which image formats can I compress and convert?</span>
+                  <span class={style.faqIcon} aria-hidden="true">
+                    <svg
+                      width="17"
+                      height="17"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    >
+                      <path d="M12 5v14" />
+                      <path d="M5 12h14" />
+                    </svg>
+                  </span>
+                </summary>
+                <p>
+                  You can add common formats including JPEG, PNG, WebP, AVIF and
+                  SVG, then choose a supported output codec for the batch.
+                </p>
+              </details>
+              <details>
+                <summary>
                   <span class={style.faqIndex}>04</span>
-                  <span>Are my images uploaded?</span>
+                  <span>Are my images uploaded to a server?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
                       width="17"
