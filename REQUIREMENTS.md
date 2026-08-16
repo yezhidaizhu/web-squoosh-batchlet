@@ -6,21 +6,21 @@
 
    [#301](https://github.com/GoogleChromeLabs/squoosh/issues/301) · [#1406](https://github.com/GoogleChromeLabs/squoosh/issues/1406)
 
-2. **复制压缩结果**
+2. **复制 PNG 预览**（方案待确认）
 
-   直接把压缩后的图片复制到剪贴板，省去“下载 → 复制 → 删除文件”。适合放在单张下载按钮旁。
+   系统图片剪贴板通常复制位图，无法可靠保留 JPEG、WebP、AVIF 的压缩数据和文件大小。实验分支 `codex/copy-png` 会把当前预览重新编码为 PNG，适合粘贴到聊天、文档和设计工具，但文件可能大于界面中的压缩结果。
 
-   [#1371](https://github.com/GoogleChromeLabs/squoosh/issues/1371)
+   [#1371](https://github.com/GoogleChromeLabs/squoosh/issues/1371) · [维护者说明](https://github.com/GoogleChromeLabs/squoosh/issues/1371#issuecomment-1620069092)
 
 3. **粘贴图片** ✅
 
-   支持直接粘贴截图、剪贴板图片或 Base64。项目旧版已有剪贴板代码，但新首页未接入。
+   首页支持直接读取剪贴板中的截图和图片。
 
    [#314](https://github.com/GoogleChromeLabs/squoosh/issues/314) · [#1388](https://github.com/GoogleChromeLabs/squoosh/issues/1388)
 
-4. **命名规则**
+4. **批量命名规则** ✅
 
-   不只是 ZIP 名称，还需要批量前缀、后缀、尺寸变量，例如 `{name}-900w.webp`。
+   支持 `{name}`、`{index}`、`{width}`、`{height}` 变量，可添加前后缀；扩展名自动跟随输出格式，重复名称自动编号。
 
    [#1390](https://github.com/GoogleChromeLabs/squoosh/issues/1390)
 

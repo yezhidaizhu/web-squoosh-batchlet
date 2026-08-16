@@ -122,8 +122,24 @@ export default class ImageQueue extends Component<Props, State> {
   };
 
   private renderIcon(
-    type: 'add' | 'collapse' | 'expand' | 'delete' | 'batch' | 'clear',
+    type:
+      | 'add'
+      | 'collapse'
+      | 'expand'
+      | 'delete'
+      | 'batch'
+      | 'clear'
+      | 'image',
   ) {
+    if (type === 'image') {
+      return (
+        <g>
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="9" cy="9" r="2" />
+          <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
+        </g>
+      );
+    }
     if (type === 'add') {
       return <path d="M12 5v14M5 12h14" />;
     }
@@ -139,11 +155,10 @@ export default class ImageQueue extends Component<Props, State> {
     if (type === 'clear') {
       return (
         <g>
-          <path d="M4 7h16" />
-          <path d="M10 11v6" />
-          <path d="M14 11v6" />
-          <path d="M6 7l1 13h10l1-13" />
-          <path d="M9 7V4h6v3" />
+          <path d="m16 22-1-4" />
+          <path d="M19 14a1 1 0 0 0 1-1v-1a2 2 0 0 0-2-2h-3a1 1 0 0 1-1-1V4a2 2 0 0 0-4 0v5a1 1 0 0 1-1 1H6a2 2 0 0 0-2 2v1a1 1 0 0 0 1 1" />
+          <path d="M19 14H5l-1.973 6.767A1 1 0 0 0 4 22h16a1 1 0 0 0 .973-1.233z" />
+          <path d="m8 22 1-4" />
         </g>
       );
     }
@@ -151,7 +166,14 @@ export default class ImageQueue extends Component<Props, State> {
   }
 
   private icon(
-    type: 'add' | 'collapse' | 'expand' | 'delete' | 'batch' | 'clear',
+    type:
+      | 'add'
+      | 'collapse'
+      | 'expand'
+      | 'delete'
+      | 'batch'
+      | 'clear'
+      | 'image',
   ) {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -262,8 +284,15 @@ export default class ImageQueue extends Component<Props, State> {
               </span>
             )}
           </button>
-          <span class={style.title} aria-hidden={isCollapsed}>
-            IMG {count}
+          <span
+            class={style.title}
+            aria-label={`${files.length} ${
+              files.length === 1 ? 'image' : 'images'
+            }`}
+            aria-hidden={isCollapsed}
+          >
+            {this.icon('image')}
+            <span>{count}</span>
           </span>
           <button
             class={`${style.iconButton} ${style.addButton}`}
@@ -295,7 +324,7 @@ export default class ImageQueue extends Component<Props, State> {
               title="Process every image with the current right-side settings and download a ZIP"
             >
               {this.icon('batch')}
-              <span>Batch</span>
+              <span>Export</span>
             </button>
             <button
               class={style.clearButton}

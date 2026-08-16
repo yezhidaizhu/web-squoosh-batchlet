@@ -42,6 +42,18 @@ export interface SourceImage {
   vectorImage?: HTMLImageElement;
 }
 
+export interface BatchOutput {
+  file: File;
+  width: number;
+  height: number;
+}
+
+export interface BatchOutputInfo {
+  extension: string;
+  width: number;
+  height: number;
+}
+
 interface SideSettings {
   processorState: ProcessorState;
   encoderState?: EncoderState;
@@ -340,14 +352,14 @@ export default class Compress extends Component<Props, State> {
     files: File[],
     onProgress: (index: number, total: number) => void,
     signal: AbortSignal,
-  ): Promise<File[]> {
+  ): Promise<BatchOutput[]> {
     const encoderState = this.state.sides[1].latestSettings.encoderState;
     if (!encoderState) throw Error('Choose an output codec before batching');
 
     const preprocessorState = this.state.preprocessorState;
     const processorState = this.state.sides[1].latestSettings.processorState;
     const bridge = new WorkerBridge();
-    const outputFiles: File[] = [];
+    const outputFiles: BatchOutput[] = [];
 
     for (let index = 0; index < files.length; index += 1) {
       const file = files[index];
@@ -375,12 +387,34 @@ export default class Compress extends Component<Props, State> {
         processorState,
         bridge,
       );
-      outputFiles.push(
-        await compressImage(signal, processed, encoderState, file.name, bridge),
-      );
+      outputFiles.push({
+        file: await compressImage(
+          signal,
+          processed,
+          encoderState,
+          file.name,
+          bridge,
+        ),
+        width: processed.width,
+        height: processed.height,
+      });
     }
 
     return outputFiles;
+  }
+
+  public getBatchOutputInfo(): BatchOutputInfo | undefined {
+    const side = this.state.sides[1];
+    const encoderState = side.latestSettings.encoderState;
+    const image =
+      side.data || side.processed || this.state.source?.preprocessed;
+    if (!encoderState || !image) return;
+
+    return {
+      extension: encoderMap[encoderState.type].meta.extension,
+      width: image.width,
+      height: image.height,
+    };
   }
 
   private onMobileWidthChange = () => {

@@ -15,8 +15,26 @@ import { applyTheme, getInitialTheme, storeTheme, Theme } from 'shared/theme';
 import 'shared/custom-els/loading-spinner';
 import ImageQueue, { QueueFile } from 'client/lazy-app/Compress/ImageQueue';
 import type Compress from 'client/lazy-app/Compress';
+import type { BatchOutput } from 'client/lazy-app/Compress';
+import {
+  defaultBatchNamePattern,
+  fileExtension,
+  formatBatchFilename,
+} from './batch-naming';
 
 const ROUTE_EDITOR = '/editor';
+const batchNamePatternStorageKey = 'vicoco-batch-name-pattern';
+const batchNamePresets = [
+  { label: 'Original', value: '{name}' },
+  { label: 'Dimensions', value: '{name}-{width}x{height}' },
+  { label: 'Sequence', value: '{name}-{index}' },
+];
+const batchNameTokens = [
+  { label: 'Original name', value: '{name}' },
+  { label: 'Sequence number', value: '{index}' },
+  { label: 'Output width', value: '{width}' },
+  { label: 'Output height', value: '{height}' },
+];
 
 const compressPromise = import('client/lazy-app/Compress');
 const swBridgePromise = import('client/lazy-app/sw-bridge');
@@ -36,6 +54,7 @@ interface State {
   isEditorOpen: boolean;
   batchDialogOpen: boolean;
   batchFilename: string;
+  batchNamePattern: string;
   batchProgress?: { current: number; total: number };
   batchStopping?: boolean;
   Compress?: typeof import('client/lazy-app/Compress').default;
@@ -71,11 +90,16 @@ export default class App extends Component<Props, State> {
     queueCollapsed: false,
     batchDialogOpen: false,
     batchFilename: 'vicoco-images',
+    batchNamePattern:
+      localStorage.getItem(batchNamePatternStorageKey) ||
+      defaultBatchNamePattern,
     Compress: undefined,
   };
 
   snackbar?: SnackBarElement;
   private compress?: Compress;
+  private batchNamePatternInput?: HTMLInputElement;
+  private batchDialogBackdropPressed = false;
   private batchAbortController?: AbortController;
   private nextQueueId = 0;
   private directoryDragDepth = 0;
@@ -381,6 +405,50 @@ export default class App extends Component<Props, State> {
     });
   };
 
+  private setBatchNamePattern = (pattern: string, caret?: number) => {
+    localStorage.setItem(batchNamePatternStorageKey, pattern);
+    this.setState({ batchNamePattern: pattern }, () => {
+      if (caret === undefined || !this.batchNamePatternInput) return;
+      this.batchNamePatternInput.focus();
+      this.batchNamePatternInput.setSelectionRange(caret, caret);
+    });
+  };
+
+  private onBatchNamePatternInput = (event: Event) => {
+    this.setBatchNamePattern((event.currentTarget as HTMLInputElement).value);
+  };
+
+  private insertBatchNameToken = (token: string) => {
+    const input = this.batchNamePatternInput;
+    const pattern = this.state.batchNamePattern;
+    const start = input?.selectionStart ?? pattern.length;
+    const end = input?.selectionEnd ?? start;
+    this.setBatchNamePattern(
+      `${pattern.slice(0, start)}${token}${pattern.slice(end)}`,
+      start + token.length,
+    );
+  };
+
+  private nameBatchFiles = (
+    outputs: BatchOutput[],
+    sources: QueueFile[],
+    pattern: string,
+  ) =>
+    outputs.map(({ file, width, height }, index) => {
+      const name = formatBatchFilename(pattern, {
+        sourceName: sources[index]?.file.name || file.name,
+        extension: fileExtension(file.name),
+        width,
+        height,
+        index: index + 1,
+        total: outputs.length,
+      });
+      return new File([file], name, {
+        type: file.type,
+        lastModified: file.lastModified,
+      });
+    });
+
   private onCloseBatchDialog = () => this.setState({ batchDialogOpen: false });
 
   private onStartBatch = async () => {
@@ -393,6 +461,8 @@ export default class App extends Component<Props, State> {
 
     const queueFiles = this.state.files;
     const filename = this.state.batchFilename.trim() || 'vicoco-images';
+    const namePattern =
+      this.state.batchNamePattern.trim() || defaultBatchNamePattern;
     const controller = new AbortController();
     this.batchAbortController = controller;
     this.setState({
@@ -401,7 +471,7 @@ export default class App extends Component<Props, State> {
       batchStopping: false,
     });
     try {
-      const outputFiles = await this.compress.processBatch(
+      const outputs = await this.compress.processBatch(
         queueFiles.map(({ file }) => file),
         (index, total) =>
           this.setState({
@@ -410,6 +480,7 @@ export default class App extends Component<Props, State> {
           }),
         controller.signal,
       );
+      const outputFiles = this.nameBatchFiles(outputs, queueFiles, namePattern);
       await this.downloadZip(outputFiles, filename);
       this.showSnack(`Downloaded ${outputFiles.length} optimized images`);
     } catch (error) {
@@ -503,6 +574,7 @@ export default class App extends Component<Props, State> {
       isEditorOpen,
       batchDialogOpen,
       batchFilename,
+      batchNamePattern,
       Compress,
       awaitingShareTarget,
     }: State,
@@ -511,6 +583,22 @@ export default class App extends Component<Props, State> {
     const showSpinner =
       awaitingShareTarget || (isEditorOpen && (!Compress || !selectedFile));
     const { batchProgress, batchStopping } = this.state;
+    const batchOutputInfo = this.compress?.getBatchOutputInfo();
+    const previewSource = selectedFile?.file || files[0]?.file;
+    const batchNamePreview =
+      batchOutputInfo && previewSource
+        ? formatBatchFilename(batchNamePattern, {
+            sourceName: previewSource.name,
+            extension: batchOutputInfo.extension,
+            width: batchOutputInfo.width,
+            height: batchOutputInfo.height,
+            index: Math.max(
+              1,
+              files.findIndex(({ id }) => id === selectedFileId) + 1,
+            ),
+            total: files.length,
+          })
+        : '';
     const batchProgressPercent = batchProgress
       ? (batchProgress.current / batchProgress.total) * 100
       : 0;
@@ -555,7 +643,20 @@ export default class App extends Component<Props, State> {
                   <div
                     class={style.batchDialogOverlay}
                     role="presentation"
-                    onClick={this.onCloseBatchDialog}
+                    onPointerDown={(event) => {
+                      this.batchDialogBackdropPressed =
+                        event.target === event.currentTarget;
+                    }}
+                    onPointerUp={(event) => {
+                      const shouldClose =
+                        this.batchDialogBackdropPressed &&
+                        event.target === event.currentTarget;
+                      this.batchDialogBackdropPressed = false;
+                      if (shouldClose) this.onCloseBatchDialog();
+                    }}
+                    onPointerCancel={() => {
+                      this.batchDialogBackdropPressed = false;
+                    }}
                   >
                     <form
                       class={style.batchDialog}
@@ -570,20 +671,91 @@ export default class App extends Component<Props, State> {
                     >
                       <div class={style.batchDialogHeader}>
                         <span>Batch export</span>
-                        <span>{files.length} images</span>
+                        <span>
+                          {files.length}{' '}
+                          {files.length === 1 ? 'image' : 'images'}
+                        </span>
                       </div>
                       <div class={style.batchDialogBody}>
-                        <h2 id="batch-dialog-title">Process this batch?</h2>
+                        <h2 id="batch-dialog-title">Name your batch</h2>
                         <p>
-                          Every queued image will use the current right-side
-                          settings, then download together as a ZIP.
+                          Current right-side settings will be applied to every
+                          image.
                         </p>
+                        <fieldset class={style.batchNameRules}>
+                          <legend>Image file names</legend>
+                          <div
+                            class={style.batchNamePresets}
+                            aria-label="Naming presets"
+                          >
+                            {batchNamePresets.map((preset) => (
+                              <button
+                                class={
+                                  batchNamePattern === preset.value
+                                    ? style.batchNamePresetActive
+                                    : ''
+                                }
+                                type="button"
+                                aria-pressed={batchNamePattern === preset.value}
+                                onClick={() =>
+                                  this.setBatchNamePattern(preset.value)
+                                }
+                              >
+                                {preset.label}
+                              </button>
+                            ))}
+                          </div>
+                          <label class={style.batchNamePatternLabel}>
+                            <span>Pattern</span>
+                            <span class={style.batchFilenameInput}>
+                              <input
+                                ref={(input) => {
+                                  this.batchNamePatternInput =
+                                    input || undefined;
+                                }}
+                                type="text"
+                                value={batchNamePattern}
+                                maxLength={64}
+                                onInput={this.onBatchNamePatternInput}
+                                aria-label="Image file name pattern"
+                                autocomplete="off"
+                              />
+                              {batchOutputInfo && (
+                                <span>.{batchOutputInfo.extension}</span>
+                              )}
+                            </span>
+                          </label>
+                          <div
+                            class={style.batchNameTokens}
+                            aria-label="File name variables"
+                          >
+                            {batchNameTokens.map((token) => (
+                              <button
+                                type="button"
+                                title={`Insert ${token.label.toLowerCase()}`}
+                                aria-label={`Insert ${token.label.toLowerCase()}`}
+                                onClick={() =>
+                                  this.insertBatchNameToken(token.value)
+                                }
+                              >
+                                {token.value}
+                              </button>
+                            ))}
+                          </div>
+                          <div class={style.batchNamePreview}>
+                            <span>Preview</span>
+                            <strong>
+                              {batchNamePreview || 'Preparing...'}
+                            </strong>
+                          </div>
+                        </fieldset>
                         <label class={style.batchFilenameLabel}>
                           <span>ZIP file name</span>
                           <span class={style.batchFilenameInput}>
                             <input
                               type="text"
                               value={batchFilename}
+                              maxLength={80}
                               onInput={this.onBatchFilenameInput}
                               aria-label="ZIP file name"
                               autocomplete="off"
@@ -601,7 +773,7 @@ export default class App extends Component<Props, State> {
                           Cancel
                         </button>
                         <button class={style.batchDialogSubmit} type="submit">
-                          Start batch
+                          Start Export
                         </button>
                       </div>
                     </form>
