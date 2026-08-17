@@ -21,18 +21,3 @@ async function main() {
 }
 
 main();
-
-// Analytics
-{
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = (...args) => {
-    window.dataLayer.push(args);
-  };
-  gtag('js', new Date());
-  gtag('config', 'G-YS3QJJ1B9D');
-
-  const script = document.createElement('script');
-  script.async = true;
-  script.src = 'https://www.googletagmanager.com/gtag/js?id=G-YS3QJJ1B9D';
-  document.head.appendChild(script);
-}

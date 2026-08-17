@@ -24,6 +24,13 @@ import { themeInitScript } from 'shared/theme';
 
 interface Props {}
 
+const googleTagInitScript = `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-YS3QJJ1B9D');
+`;
+
 const structuredData = JSON.stringify({
   '@context': 'https://schema.org',
   '@graph': [
@@ -89,6 +96,15 @@ const Index: FunctionalComponent<Props> = () => (
   <html lang="en">
     <head>
       <meta charSet="utf-8" />
+      <script
+        async
+        src="https://www.googletagmanager.com/gtag/js?id=G-YS3QJJ1B9D"
+      />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: escapeStyleScriptContent(googleTagInitScript),
+        }}
+      />
       <title>Squoosh Batch Image Compressor | Vicoco</title>
       <meta
         name="description"
