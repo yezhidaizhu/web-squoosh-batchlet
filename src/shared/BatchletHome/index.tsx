@@ -361,9 +361,8 @@ const BatchletHome: FunctionalComponent<Props> = ({
                   </svg>
                 </span>
                 <h1 id="page-title">
-                  <span class={style.heroKeyword}>Free Image Compressor</span>
+                  <span class={style.heroKeyword}>Image Compressor Online</span>
                 </h1>
-                <p class={style.heroValue}>Smaller files. Same quality.</p>
                 <span class={style.uploadCopy}>
                   Drop images or folders here, or{' '}
                   <button

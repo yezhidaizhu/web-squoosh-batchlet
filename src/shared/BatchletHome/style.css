@@ -324,7 +324,7 @@
 .uploadCopy {
   display: block;
   max-width: 470px;
-  margin-top: 12px;
+  margin-top: 24px;
   color: rgba(255, 255, 255, 0.9);
   font-size: 18px;
   animation-delay: 590ms;
