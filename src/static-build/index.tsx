@@ -108,13 +108,17 @@ const toOutput: Output = {
   '404.html': renderPage(notFoundPage),
   'llms.txt': `# Vicoco
 
-> A free, browser-based batch image compressor and converter built on Squoosh.
+> A free image compressor and converter that runs in your browser.
 
 Vicoco processes images locally in the browser. Images stay on the user's device and are not uploaded to a server.
 
 ## Main resource
 
-- [Squoosh Batch Image Compressor](${siteOrigin}/): Compress and convert multiple images with Squoosh.
+- [Free Image Compressor](${siteOrigin}/): Compress and convert images without uploading them.
+
+## Guides
+
+- [Squoosh Batch Image Compressor](${siteOrigin}/squoosh-batch-image-compressor/): Add multiple images, apply shared settings, and export a ZIP.
 
 ## Capabilities
 
@@ -137,11 +141,15 @@ Vicoco processes images locally in the browser. Images stay on the user's device
   'robots.txt': `User-agent: *
 Allow: /
 Sitemap: ${siteOrigin}/sitemap.xml
+Sitemap: ${siteOrigin}/squoosh-batch-image-compressor/sitemap-index.xml
 `,
   'sitemap.xml': `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${siteOrigin}/</loc>
+  </url>
+  <url>
+    <loc>${siteOrigin}/squoosh-batch-image-compressor/</loc>
   </url>
 </urlset>
 `,
@@ -167,7 +175,7 @@ Sitemap: ${siteOrigin}/sitemap.xml
       },
     ],
     description:
-      'Batch compress, compare and convert images locally in your browser.',
+      'Compress, compare and convert images for free in your browser.',
     lang: 'en',
     categories: ['photo', 'productivity', 'utilities'],
     screenshots,

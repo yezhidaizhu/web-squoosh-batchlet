@@ -40,7 +40,7 @@ const structuredData = JSON.stringify({
       url: siteOrigin,
       image: `${siteOrigin}${ogImage}`,
       description:
-        'Batch compress and convert JPEG, PNG, WebP and AVIF images locally with Squoosh. Compare quality and file size, then export the whole batch as a ZIP.',
+        'Compress images online for free with JPEG, PNG, WebP and AVIF output. Compare quality and file size while every image stays on your device.',
       applicationCategory: 'MultimediaApplication',
       operatingSystem: 'Any',
       browserRequirements:
@@ -57,18 +57,18 @@ const structuredData = JSON.stringify({
       mainEntity: [
         {
           '@type': 'Question',
-          name: 'How do I batch compress multiple images at once?',
+          name: 'How do I compress an image online for free?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Add images or a folder, choose an output format, quality and resize settings, then process the queue and download the compressed images as a ZIP.',
+            text: 'Add an image, choose an output format, quality and resize settings, compare the result, then download the smaller file.',
           },
         },
         {
           '@type': 'Question',
-          name: 'Can I batch convert images to WebP or AVIF?',
+          name: 'Can I compress several images at once?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Yes. Choose WebP or AVIF as the output format, tune the quality and export all queued images together as a ZIP.',
+            text: 'Yes. Add multiple images or a folder, tune one result, then process the queue and download the compressed images as a ZIP.',
           },
         },
         {
@@ -85,6 +85,22 @@ const structuredData = JSON.stringify({
           acceptedAnswer: {
             '@type': 'Answer',
             text: 'No. Image processing runs locally in your browser, so your files stay on your device.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Will compressing an image reduce its quality?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'You control the quality level and can compare the compressed result with the original before downloading it.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I resize images while compressing them?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. Set the target width and height, preview the result, then apply the resize settings to one image or the full queue.',
           },
         },
       ],
@@ -105,17 +121,17 @@ const Index: FunctionalComponent<Props> = () => (
           __html: escapeStyleScriptContent(googleTagInitScript),
         }}
       />
-      <title>Squoosh Batch Image Compressor | Vicoco</title>
+      <title>Free Image Compressor Online | Vicoco</title>
       <meta
         name="description"
-        content="Batch compress and convert JPEG, PNG, WebP and AVIF images locally with Squoosh. Compare quality and file size, then export the whole batch as a ZIP."
+        content="Compress images online for free with JPEG, PNG, WebP and AVIF output. Compare quality and file size while every image stays on your device."
       />
       <meta name="robots" content="index, follow, max-image-preview:large" />
       <meta property="og:site_name" content="Vicoco" />
       <meta property="og:url" content={siteOrigin} />
       <meta
         property="og:title"
-        content="Squoosh Batch Image Compressor | Vicoco"
+        content="Free Image Compressor Online | Vicoco"
       />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={`${siteOrigin}${ogImage}`} />
@@ -128,25 +144,25 @@ const Index: FunctionalComponent<Props> = () => (
       <meta property="og:image:height" content="2192" />
       <meta
         property="og:image:alt"
-        content="Squoosh batch workspace showing a before-and-after image comparison."
+        content="Vicoco image compressor showing a before-and-after comparison."
       />
       <meta
         property="og:description"
-        content="Batch compress and convert JPEG, PNG, WebP and AVIF images locally with Squoosh. Compare quality and file size, then export the whole batch as a ZIP."
+        content="Compress images online for free with JPEG, PNG, WebP and AVIF output. Compare quality and file size while every image stays on your device."
       />
       <meta name="twitter:card" content="summary_large_image" />
       <meta
         name="twitter:title"
-        content="Squoosh Batch Image Compressor | Vicoco"
+        content="Free Image Compressor Online | Vicoco"
       />
       <meta
         name="twitter:description"
-        content="Batch compress and convert JPEG, PNG, WebP and AVIF images locally with Squoosh. Compare quality and file size, then export the whole batch as a ZIP."
+        content="Compress images online for free with JPEG, PNG, WebP and AVIF output. Compare quality and file size while every image stays on your device."
       />
       <meta name="twitter:image" content={`${siteOrigin}${ogImage}`} />
       <meta
         name="twitter:image:alt"
-        content="Squoosh batch workspace showing a before-and-after image comparison."
+        content="Vicoco image compressor showing a before-and-after comparison."
       />
       <meta
         name="viewport"

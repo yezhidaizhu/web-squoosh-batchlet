@@ -15,6 +15,15 @@ declare var self: ServiceWorkerGlobalScope;
 const versionedCache = 'static-' + VERSION;
 const dynamicCache = 'dynamic';
 const expectedCaches = [versionedCache, dynamicCache];
+const appRoutes = new Set(['/', '/editor', '/handoff']);
+const appAssets = new Set(
+  ASSETS.map((asset) => (asset.startsWith('/') ? asset : `/${asset}`)),
+);
+
+const isAppOwnedPath = (pathname: string) =>
+  appRoutes.has(pathname) ||
+  appAssets.has(pathname) ||
+  shouldCacheDynamically(pathname);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -53,6 +62,9 @@ self.addEventListener('fetch', (event) => {
 
   // Don't care about other-origin URLs
   if (url.origin !== location.origin) return;
+
+  // Independently deployed same-origin sites must bypass this app's cache.
+  if (!isAppOwnedPath(url.pathname)) return;
 
   if (url.pathname === '/editor') {
     event.respondWith(Response.redirect('/'));

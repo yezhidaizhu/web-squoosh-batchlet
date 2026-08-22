@@ -119,7 +119,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
       if (frame !== undefined) return;
       frame = requestAnimationFrame(() => {
         frame = undefined;
-        setBackToTopVisible(window.scrollY > window.innerHeight * 1.5);
+        setBackToTopVisible(window.scrollY > 480);
       });
     };
 
@@ -272,12 +272,13 @@ const BatchletHome: FunctionalComponent<Props> = ({
             <button
               class={style.themeToggle}
               type="button"
+              role="switch"
               aria-label={
                 theme === 'dark'
                   ? 'Switch to light mode'
                   : 'Switch to dark mode'
               }
-              aria-pressed={theme === 'dark'}
+              aria-checked={theme === 'dark'}
               title={
                 theme === 'dark'
                   ? 'Switch to light mode'
@@ -285,34 +286,55 @@ const BatchletHome: FunctionalComponent<Props> = ({
               }
               onClick={onThemeChange}
             >
-              {theme === 'dark' ? (
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
-                </svg>
-              ) : (
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M20.35 15.35A9 9 0 0 1 8.65 3.65 9 9 0 1 0 20.35 15.35Z" />
-                </svg>
-              )}
+              <span class={style.themeToggleThumb} aria-hidden="true" />
+              <svg
+                class={style.themeLightIcon}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
+              </svg>
+              <svg
+                class={style.themeDarkIcon}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M20.35 15.35A9 9 0 0 1 8.65 3.65 9 9 0 1 0 20.35 15.35Z" />
+              </svg>
             </button>
-            <button class={style.install} type="button" onClick={install}>
-              Install
+            <button
+              class={style.install}
+              type="button"
+              title="Install Vicoco app"
+              onClick={install}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 4h16v16H4z" />
+                <path d="M4 8h16" />
+                <path d="M12 10v6" />
+                <path d="m9 13 3 3 3-3" />
+              </svg>
+              <span>
+                Install<span class={style.installBrand}> Vicoco</span>
+              </span>
             </button>
           </nav>
         </header>
@@ -339,9 +361,9 @@ const BatchletHome: FunctionalComponent<Props> = ({
                   </svg>
                 </span>
                 <h1 id="page-title">
-                  <span>Squoosh Batch Image</span>{' '}
-                  <span class={style.compressorWord}>Compressor</span>
+                  <span class={style.heroKeyword}>Free Image Compressor</span>
                 </h1>
+                <p class={style.heroValue}>Smaller files. Same quality.</p>
                 <span class={style.uploadCopy}>
                   Drop images or folders here, or{' '}
                   <button
@@ -398,9 +420,9 @@ const BatchletHome: FunctionalComponent<Props> = ({
               </span>
             </div>
             <p class={style.heroDescription}>
-              Compress and convert multiple images at once with Squoosh,
-              entirely in your browser. Compare quality and file size, apply one
-              set of settings, then download the batch as a ZIP.
+              Compress images online for free without uploading them. Add one
+              image or a whole folder, compare quality and file size, then
+              download smaller JPEG, PNG, WebP, or AVIF files.
             </p>
           </section>
 
@@ -446,14 +468,14 @@ const BatchletHome: FunctionalComponent<Props> = ({
 
           <section
             class={style.workspace}
-            aria-label="Squoosh batch image compression workspace"
+            aria-label="Vicoco free image compression workspace"
           >
             <div class={style.workspaceCopy}>
               <h2>Preview image compression results before export</h2>
               <p>
                 Check image quality and file size in your browser before
-                applying the same compression settings to every file in your
-                batch.
+                exporting. When you add several files, the same settings can be
+                applied to all of them.
               </p>
             </div>
             <figure class={style.productShot}>
@@ -462,7 +484,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
                 width="3572"
                 height="2192"
                 loading="lazy"
-                alt="Squoosh batch workspace showing a before-and-after table photograph comparison with WebP settings"
+                alt="Vicoco workspace showing a before-and-after photograph comparison with WebP settings"
               />
             </figure>
           </section>
@@ -474,13 +496,11 @@ const BatchletHome: FunctionalComponent<Props> = ({
               alt="Red panda photograph ready for batch image compression"
             />
             <div>
-              <h2 id="batch-heading">
-                Batch compress images with one set of settings
-              </h2>
+              <h2 id="batch-heading">Compress one image or a whole folder</h2>
               <p>
                 Choose the output format, quality and resize dimensions once,
-                then process every queued image and download the compressed
-                files as a ZIP.
+                then download one optimized image or process every queued file
+                together as a ZIP.
               </p>
               <dl>
                 <div>
@@ -512,11 +532,11 @@ const BatchletHome: FunctionalComponent<Props> = ({
           >
             <div class={style.formatCopy}>
               <h2 id="formats-heading">
-                Batch convert images to JPEG, PNG, WebP or AVIF
+                Convert images to JPEG, PNG, WebP or AVIF
               </h2>
               <p>
                 Compare output formats by image quality, transparency support
-                and file size before converting the entire batch.
+                and file size before downloading the result.
               </p>
             </div>
             <div class={style.formatGrid}>
@@ -586,7 +606,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
                 width="3572"
                 height="2192"
                 loading="lazy"
-                alt="Squoosh batch workspace showing a before-and-after table photograph comparison with WebP settings"
+                alt="Vicoco workspace showing a before-and-after photograph comparison with WebP settings"
               />
               <figcaption class={style.compareCaption}>
                 <span>
@@ -605,11 +625,11 @@ const BatchletHome: FunctionalComponent<Props> = ({
           <section class={style.privacy} aria-labelledby="privacy-heading">
             <div class={style.privacyCopy}>
               <h2 id="privacy-heading">
-                Private batch image compression in your browser
+                Private image compression in your browser
               </h2>
               <p>
                 Compress and convert images locally without uploading files to a
-                server. Your images stay on your device throughout the batch.
+                server. Your images stay on your device from start to finish.
               </p>
             </div>
             <ol class={style.privacyList}>
@@ -643,7 +663,7 @@ const BatchletHome: FunctionalComponent<Props> = ({
               <details>
                 <summary>
                   <span class={style.faqIndex}>01</span>
-                  <span>How do I batch compress multiple images at once?</span>
+                  <span>How do I compress an image online for free?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
                       width="17"
@@ -660,15 +680,14 @@ const BatchletHome: FunctionalComponent<Props> = ({
                   </span>
                 </summary>
                 <p>
-                  Add images or a folder, choose an output format, quality and
-                  resize settings, then process the queue and download the
-                  compressed images as a ZIP.
+                  Add an image, choose an output format, quality and resize
+                  settings, compare the result, then download the smaller file.
                 </p>
               </details>
               <details>
                 <summary>
                   <span class={style.faqIndex}>02</span>
-                  <span>Can I batch convert images to WebP or AVIF?</span>
+                  <span>Can I compress several images at once?</span>
                   <span class={style.faqIcon} aria-hidden="true">
                     <svg
                       width="17"
@@ -685,8 +704,8 @@ const BatchletHome: FunctionalComponent<Props> = ({
                   </span>
                 </summary>
                 <p>
-                  Yes. Choose WebP or AVIF as the output format, tune the
-                  quality and export all queued images together as a ZIP.
+                  Yes. Add multiple images or a folder, tune one result, then
+                  apply those settings to the queue and download a ZIP.
                 </p>
               </details>
               <details>
@@ -737,30 +756,85 @@ const BatchletHome: FunctionalComponent<Props> = ({
                   files stay on your device.
                 </p>
               </details>
+              <details>
+                <summary>
+                  <span class={style.faqIndex}>05</span>
+                  <span>Will compressing an image reduce its quality?</span>
+                  <span class={style.faqIcon} aria-hidden="true">
+                    <svg
+                      width="17"
+                      height="17"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    >
+                      <path d="M12 5v14" />
+                      <path d="M5 12h14" />
+                    </svg>
+                  </span>
+                </summary>
+                <p>
+                  You control the quality level and can compare the compressed
+                  result with the original before downloading it.
+                </p>
+              </details>
+              <details>
+                <summary>
+                  <span class={style.faqIndex}>06</span>
+                  <span>Can I resize images while compressing them?</span>
+                  <span class={style.faqIcon} aria-hidden="true">
+                    <svg
+                      width="17"
+                      height="17"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    >
+                      <path d="M12 5v14" />
+                      <path d="M5 12h14" />
+                    </svg>
+                  </span>
+                </summary>
+                <p>
+                  Yes. Set the target width and height, preview the result, then
+                  apply the resize settings to one image or the full queue.
+                </p>
+              </details>
             </div>
           </section>
-
-          <section
-            class={style.contact}
-            id="contact"
-            aria-labelledby="contact-heading"
-          >
-            <div class={style.contactCopy}>
-              <h2 id="contact-heading">Get in touch</h2>
-              <p>I read every message and will get back to you by email.</p>
-            </div>
-            <a
-              class={style.contactLink}
-              href="mailto:qimucoco@gmail.com"
-              aria-label="Email qimucoco@gmail.com"
-            >
-              <span>
-                <small>Email</small>
-                <strong>qimucoco@gmail.com</strong>
-              </span>
+        </main>
+      </div>
+      <footer
+        class={style.footer}
+        id="contact"
+        aria-labelledby="footer-contact-heading"
+      >
+        <svg
+          class={style.footerWave}
+          viewBox="0 0 1440 88"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path d="M0 54C238 87 430 13 716 46c282 33 477-25 724 8v34H0Z" />
+        </svg>
+        <div class={style.footerInner}>
+          <a class={style.footerBrand} href="#top" aria-label="Vicoco home">
+            <img src={logo} width="58" height="58" alt="" />
+            <span>Vicoco</span>
+          </a>
+          <div class={style.footerContact}>
+            <p class={style.footerHeading} id="footer-contact-heading">
+              Contact
+            </p>
+            <a href="mailto:qimucoco@gmail.com">
+              <span>qimucoco@gmail.com</span>
               <svg
-                width="24"
-                height="24"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -773,21 +847,31 @@ const BatchletHome: FunctionalComponent<Props> = ({
                 <path d="m13 6 6 6-6 6" />
               </svg>
             </a>
-          </section>
-        </main>
-        <footer class={style.footer}>
+          </div>
+          <div class={style.footerLinks}>
+            <p class={style.footerHeading}>Vicoco</p>
+            <nav aria-label="Vicoco links">
+              <a
+                href="https://github.com/yezhidaizhu/web-squoosh-batchlet#privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy
+              </a>
+              <a
+                href="https://github.com/yezhidaizhu/web-squoosh-batchlet"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </a>
+            </nav>
+          </div>
+        </div>
+        <div class={style.footerMeta}>
           <span>© 2026 Vicoco</span>
-          <nav>
-            <a
-              href="https://github.com/yezhidaizhu/web-squoosh-batchlet#privacy"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Privacy
-            </a>
-          </nav>
-        </footer>
-      </div>
+        </div>
+      </footer>
       <button
         class={`${style.backToTop} ${
           backToTopVisible ? style.backToTopVisible : ''

@@ -24,6 +24,7 @@ import {
   formatBatchFilename,
   formatZipFilename,
 } from './batch-naming';
+import { consumeImageHandoff } from '../handoff';
 
 const ROUTE_EDITOR = '/editor';
 const batchNamePatternStorageKey = 'vicoco-batch-name-pattern';
@@ -51,6 +52,7 @@ interface Props {}
 interface State {
   theme: Theme;
   awaitingShareTarget: boolean;
+  awaitingHandoff: boolean;
   files: QueueFile[];
   selectedFileId?: string;
   queueCollapsed: boolean;
@@ -87,6 +89,7 @@ export default class App extends Component<Props, State> {
     awaitingShareTarget: new URL(location.href).searchParams.has(
       'share-target',
     ),
+    awaitingHandoff: new URL(location.href).searchParams.has('handoff'),
     isEditorOpen: false,
     files: [],
     selectedFileId: undefined,
@@ -144,6 +147,28 @@ export default class App extends Component<Props, State> {
   componentWillUnmount() {
     window.removeEventListener('popstate', this.onPopState);
   }
+
+  componentDidMount() {
+    const handoffId = new URL(location.href).searchParams.get('handoff');
+    if (handoffId) this.loadImageHandoff(handoffId);
+  }
+
+  private loadImageHandoff = async (id: string) => {
+    try {
+      const files = await consumeImageHandoff(id);
+      history.replaceState('', '', '/');
+      if (!files?.length) {
+        this.showSnack('The selected images are no longer available');
+        return;
+      }
+      await this.appendFiles(files);
+    } catch (_) {
+      history.replaceState('', '', '/');
+      this.showSnack('Could not open the selected images');
+    } finally {
+      this.setState({ awaitingHandoff: false });
+    }
+  };
 
   private fingerprintFile = (file: File) =>
     `${file.name}:${file.size}:${file.lastModified}:${file.type}`;
@@ -579,11 +604,14 @@ export default class App extends Component<Props, State> {
       batchNamePattern,
       Compress,
       awaitingShareTarget,
+      awaitingHandoff,
     }: State,
   ) {
     const selectedFile = files.find((file) => file.id === selectedFileId);
     const showSpinner =
-      awaitingShareTarget || (isEditorOpen && (!Compress || !selectedFile));
+      awaitingShareTarget ||
+      awaitingHandoff ||
+      (isEditorOpen && (!Compress || !selectedFile));
     const { batchProgress, batchStopping } = this.state;
     const batchOutputInfo = this.compress?.getBatchOutputInfo();
     const namePatternError = batchNamePatternError(batchNamePattern);

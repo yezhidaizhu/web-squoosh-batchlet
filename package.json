@@ -8,6 +8,7 @@
     "debug": "node --inspect-brk node_modules/.bin/rollup -c",
     "dev": "DEV_PORT=3010 run-p watch serve",
     "preview": "serve --listen=3000 --config ../serve.json build",
+    "preview:combined": "node lib/combined-preview.js",
     "watch": "rollup -cw",
     "serve": "serve --listen=3010 --config ../../../serve.json .tmp/build/static",
     "prepare": "husky install"

@@ -1,13 +1,13 @@
 <div align="center">
   <img src="src/static-build/assets/batchlet-logo.svg" alt="Vicoco" width="88">
-  <h1>Squoosh Batch Image Compressor</h1>
-  <p>Batch image compression and conversion, powered by Squoosh.</p>
+  <h1>Vicoco Free Image Compressor</h1>
+  <p>Free, private image compression and conversion in your browser.</p>
   <p><a href="https://vicoco.uk"><strong>Open Vicoco</strong></a></p>
 </div>
 
 ![Vicoco editor](src/static-build/assets/batchlet-editor-preview.webp)
 
-Vicoco is a batch image compressor and converter built on [Squoosh](https://squoosh.app). Add multiple images, preview compression results, apply the same settings to the whole batch, and download the processed images as a ZIP.
+Vicoco is a free image compressor and converter built on [Squoosh](https://squoosh.app). Add one image or a folder, preview compression results, and download smaller files without uploading images to a server.
 
 ## Features
 
