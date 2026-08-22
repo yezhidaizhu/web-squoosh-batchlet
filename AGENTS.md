@@ -2,6 +2,7 @@
 
 <INSTRUCTIONS>
 - Keep responses and changes concise and scoped.
+- Before changing product behavior or making feature claims, read `docs/implemented-features.md` and keep it synchronized with implemented behavior.
 - This project owns the main site at `https://vicoco.uk/` and the authoritative origin-root SEO files.
 - SEO outputs are generated in `src/static-build/index.tsx`. Never hand-edit generated files in `build` or `.tmp`.
 - When adding, renaming, removing, or materially changing an indexable page, review and update its title, meta description, canonical URL, robots meta, Open Graph data, JSON-LD, internal links, `llms.txt`, `robots.txt`, and `sitemap.xml` definitions.
