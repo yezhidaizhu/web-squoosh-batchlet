@@ -47,7 +47,9 @@ JPEG XL 在界面中标记为 beta，WebP v2 标记为 unstable。对外 SEO 页
 | 自定义 ZIP 文件名                                   |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                         |
 | `{name}`、`{index}`、`{width}`、`{height}` 命名变量 |  ✓   | [batch-naming.ts](../src/client/initial-app/App/batch-naming.ts)                 |
 | 保存和复用压缩预设                                  |  ✓   | [compression-presets.ts](../src/client/lazy-app/Compress/compression-presets.ts) |
-| 保存左右面板最近设置                                |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                  |
+| 按侧记忆最近设置并可关闭                            |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                  |
+| 单侧恢复内置默认设置                                |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                  |
+| 跨侧复制设置仅在当前会话生效                        |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                  |
 
 ## 隐私与安装
 

@@ -39,8 +39,8 @@ interface Props {
   onProcessorOptionsChange(index: 0 | 1, newOptions: ProcessorState): void;
   onTargetSizeChange(index: 0 | 1, settings: TargetSizeSettings): void;
   onCopyToOtherSideClick(index: 0 | 1): void;
-  compressionPresetsOpen: boolean;
-  onOpenCompressionPresets(index: 0 | 1): void;
+  settingsOpen: boolean;
+  onOpenSettings(index: 0 | 1): void;
 }
 
 interface State {
@@ -135,7 +135,7 @@ export default class Options extends Component<Props, State> {
       targetSize,
       targetSizeResult,
       loading,
-      compressionPresetsOpen,
+      settingsOpen,
     }: Props,
     { supportedEncoderMap }: State,
   ) {
@@ -179,6 +179,7 @@ export default class Options extends Component<Props, State> {
                       Edit
                     </span>
                     <button
+                      type="button"
                       class={style.copyOverButton}
                       title="Copy settings to other side"
                       onClick={this.onCopyToOtherSideClick}
@@ -186,13 +187,14 @@ export default class Options extends Component<Props, State> {
                       <SwapIcon />
                     </button>
                     <button
-                      class={style.presetsButton}
-                      title="Compression presets"
-                      aria-label="Compression presets"
+                      type="button"
+                      class={style.settingsButton}
+                      title="Settings"
+                      aria-label="Settings"
                       aria-haspopup="dialog"
-                      aria-expanded={compressionPresetsOpen}
+                      aria-expanded={settingsOpen}
                       onClick={() =>
-                        this.props.onOpenCompressionPresets(this.props.index)
+                        this.props.onOpenSettings(this.props.index)
                       }
                     >
                       <PresetsIcon />

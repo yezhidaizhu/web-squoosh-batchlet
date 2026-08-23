@@ -24,7 +24,7 @@ import {
 } from '../feature-meta';
 import Output from './Output';
 import Options from './Options';
-import CompressionPresetsDialog from './CompressionPresetsDialog';
+import SettingsDialog from './CompressionPresetsDialog';
 import ResultCache from './result-cache';
 import { cleanMerge, cleanSet } from '../util/clean-modify';
 import './custom-els/MultiPanel';
@@ -37,6 +37,7 @@ import {
   CompressionPreset,
   copyCompressionPresetSettings,
   createCompressionPreset,
+  isCompressionPresetSettings,
   loadCompressionPresets,
   saveCompressionPresets,
 } from './compression-presets';
@@ -45,7 +46,6 @@ import {
   encodeToTargetSize,
   encoderStateAtQuality,
   encoderSupportsTargetSize,
-  normalizeTargetSizeSettings,
   targetSizeBytes,
   TargetSizeResult,
   TargetSizeSettings,
@@ -104,7 +104,8 @@ interface State {
   preprocessorState: PreprocessorState;
   encodedPreprocessorState?: PreprocessorState;
   compressionPresets: CompressionPreset[];
-  compressionPresetDialogSide?: 0 | 1;
+  settingsDialogSide?: 0 | 1;
+  rememberSideSettings: [boolean, boolean];
 }
 
 interface MainJob {
@@ -333,25 +334,99 @@ const loadingIndicator = '⏳ ';
 const originalDocumentTitle = document.title;
 
 const sideStorageKeys = ['leftSideSettings', 'rightSideSettings'] as const;
+const settingsPreferencesStorageKey = 'vicoco-editor-settings-preferences';
+
+const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+
+function defaultSideSettings(index: 0 | 1): SideSettings {
+  return {
+    processorState: clone(defaultProcessorState),
+    encoderState:
+      index === 0
+        ? undefined
+        : {
+            type: 'mozJPEG',
+            options: clone(encoderMap.mozJPEG.meta.defaultOptions),
+          },
+    targetSize: { ...defaultTargetSizeSettings },
+  };
+}
+
+function loadRememberSideSettings(): [boolean, boolean] {
+  try {
+    const stored = localStorage.getItem(settingsPreferencesStorageKey);
+    if (!stored) return [true, true];
+    const parsed = JSON.parse(stored) as { rememberSideSettings?: unknown };
+    if (
+      Array.isArray(parsed.rememberSideSettings) &&
+      parsed.rememberSideSettings.length === 2 &&
+      parsed.rememberSideSettings.every((value) => typeof value === 'boolean')
+    ) {
+      return parsed.rememberSideSettings as [boolean, boolean];
+    }
+  } catch (_) {}
+  return [true, true];
+}
+
+function saveRememberSideSettings(settings: [boolean, boolean]): void {
+  try {
+    localStorage.setItem(
+      settingsPreferencesStorageKey,
+      JSON.stringify({ rememberSideSettings: settings }),
+    );
+  } catch (_) {}
+}
+
+function saveSideSettings(index: 0 | 1, settings: SideSettings): void {
+  try {
+    localStorage.setItem(
+      sideStorageKeys[index],
+      JSON.stringify({ latestSettings: settings }),
+    );
+  } catch (_) {}
+}
+
+function clearSideSettings(index: 0 | 1): void {
+  try {
+    localStorage.removeItem(sideStorageKeys[index]);
+  } catch (_) {}
+}
+
+function readStoredSideSettings(index: 0 | 1): string | null {
+  try {
+    return localStorage.getItem(sideStorageKeys[index]);
+  } catch (_) {
+    return null;
+  }
+}
+
+function restoreStoredSideSettings(index: 0 | 1, stored: string | null): void {
+  try {
+    if (stored === null) localStorage.removeItem(sideStorageKeys[index]);
+    else localStorage.setItem(sideStorageKeys[index], stored);
+  } catch (_) {}
+}
 
 function loadSide(
-  key: typeof sideStorageKeys[number],
+  index: 0 | 1,
+  rememberSettings: boolean,
   fallback: SideSettings,
 ): Side {
+  if (!rememberSettings) {
+    return { latestSettings: fallback, loading: false };
+  }
   try {
-    const stored = localStorage.getItem(key);
+    const stored = localStorage.getItem(sideStorageKeys[index]);
     if (!stored) return { latestSettings: fallback, loading: false };
-    const parsed = JSON.parse(stored) as { latestSettings?: SideSettings };
-    if (!parsed.latestSettings) {
+    const parsed = JSON.parse(stored) as { latestSettings?: unknown };
+    if (!isCompressionPresetSettings(parsed.latestSettings)) {
       return { latestSettings: fallback, loading: false };
     }
+    const settings = copyCompressionPresetSettings(parsed.latestSettings);
     return {
       latestSettings: {
         ...fallback,
-        ...parsed.latestSettings,
-        targetSize: normalizeTargetSizeSettings(
-          parsed.latestSettings.targetSize,
-        ),
+        ...settings,
       },
       loading: false,
     };
@@ -371,34 +446,26 @@ function updateDocumentTitle(loadingFileInfo: LoadingFileInfo): void {
 
 export default class Compress extends Component<Props, State> {
   widthQuery = window.matchMedia('(max-width: 599px)');
+  private readonly initialRememberSideSettings = loadRememberSideSettings();
 
   state: State = {
     source: undefined,
     loading: false,
     preprocessorState: defaultPreprocessorState,
     sides: [
-      loadSide('leftSideSettings', {
-        processorState: defaultProcessorState,
-        encoderState: undefined,
-        targetSize: { ...defaultTargetSizeSettings },
-      }),
-      loadSide('rightSideSettings', {
-        processorState: defaultProcessorState,
-        encoderState: {
-          type: 'mozJPEG',
-          options: encoderMap.mozJPEG.meta.defaultOptions,
-        },
-        targetSize: { ...defaultTargetSizeSettings },
-      }),
+      loadSide(0, this.initialRememberSideSettings[0], defaultSideSettings(0)),
+      loadSide(1, this.initialRememberSideSettings[1], defaultSideSettings(1)),
     ],
     mobileView: this.widthQuery.matches,
     compressionPresets: loadCompressionPresets(),
-    compressionPresetDialogSide: undefined,
+    settingsDialogSide: undefined,
+    rememberSideSettings: this.initialRememberSideSettings,
   };
 
   private readonly encodeCache = new ResultCache();
   // One for each side
   private readonly workerBridges = [new WorkerBridge(), new WorkerBridge()];
+  private transientCopiedSides: [boolean, boolean] = [false, false];
   /** Abort controller for actions that impact both sites, like source image decoding and preprocessing */
   private mainAbortController = new AbortController();
   // And again one for each side
@@ -488,28 +555,47 @@ export default class Compress extends Component<Props, State> {
     this.setState({ mobileView: this.widthQuery.matches });
   };
 
+  private persistSideSettings = (index: 0 | 1, settings: SideSettings) => {
+    if (
+      this.state.rememberSideSettings[index] &&
+      !this.transientCopiedSides[index]
+    ) {
+      saveSideSettings(index, settings);
+    }
+  };
+
+  private persistManualSideSettings = (
+    index: 0 | 1,
+    settings: SideSettings,
+  ) => {
+    this.transientCopiedSides[index] = false;
+    this.persistSideSettings(index, settings);
+  };
+
   private onEncoderTypeChange = (index: 0 | 1, newType: OutputType): void => {
     const side = this.state.sides[index];
     const targetSize =
       newType !== 'identity' && encoderSupportsTargetSize(newType)
         ? side.latestSettings.targetSize
         : { ...side.latestSettings.targetSize, mode: 'quality' as const };
-    const updatedSide = {
+    const encoderState =
+      newType === 'identity'
+        ? undefined
+        : ({
+            type: newType,
+            options: encoderMap[newType].meta.defaultOptions,
+          } as EncoderState);
+    const updatedSide: Side = {
       ...side,
       targetSizeResult: undefined,
       latestSettings: {
         ...side.latestSettings,
         targetSize,
-        encoderState:
-          newType === 'identity'
-            ? undefined
-            : {
-                type: newType,
-                options: encoderMap[newType].meta.defaultOptions,
-              },
+        encoderState,
       },
     };
     this.setState({ sides: cleanSet(this.state.sides, index, updatedSide) });
+    this.persistManualSideSettings(index, updatedSide.latestSettings);
   };
 
   private onProcessorOptionsChange = (
@@ -525,6 +611,7 @@ export default class Compress extends Component<Props, State> {
         targetSizeResult: undefined,
       }),
     });
+    this.persistManualSideSettings(index, side.latestSettings);
   };
 
   private onEncoderOptionsChange = (
@@ -542,6 +629,7 @@ export default class Compress extends Component<Props, State> {
         targetSizeResult: undefined,
       }),
     });
+    this.persistManualSideSettings(index, side.latestSettings);
   };
 
   private onTargetSizeChange = (
@@ -559,6 +647,7 @@ export default class Compress extends Component<Props, State> {
         targetSizeResult: undefined,
       }),
     });
+    this.persistManualSideSettings(index, side.latestSettings);
   };
 
   componentWillReceiveProps(nextProps: Props): void {
@@ -593,22 +682,15 @@ export default class Compress extends Component<Props, State> {
         filename: this.state.source?.file.name,
       });
     }
-    this.state.sides.forEach((side, index) => {
-      if (side.latestSettings === prevState.sides[index].latestSettings) return;
-      try {
-        localStorage.setItem(
-          sideStorageKeys[index],
-          JSON.stringify({ latestSettings: side.latestSettings }),
-        );
-      } catch (_) {}
-    });
     this.queueUpdateImage();
   }
 
   private onCopyToOtherClick = async (index: 0 | 1) => {
     const otherIndex = index ? 0 : 1;
     const oldSettings = this.state.sides[otherIndex];
+    const oldTransient = this.transientCopiedSides[otherIndex];
     const newSettings = { ...this.state.sides[index] };
+    this.transientCopiedSides[otherIndex] = true;
 
     // Create a new object URL for the new settings. This avoids both sides sharing a URL, which
     // means it can be safely revoked without impacting the other side.
@@ -630,6 +712,7 @@ export default class Compress extends Component<Props, State> {
     this.setState({
       sides: cleanSet(this.state.sides, otherIndex, oldSettings),
     });
+    this.transientCopiedSides[otherIndex] = oldTransient;
   };
 
   private setCompressionPresets = (presets: CompressionPreset[]) => {
@@ -670,18 +753,20 @@ export default class Compress extends Component<Props, State> {
     if (result === 'undo') this.setCompressionPresets(presets);
   };
 
-  private onOpenCompressionPresets = (index: 0 | 1) => {
-    this.setState({ compressionPresetDialogSide: index });
+  private onOpenSettings = (index: 0 | 1) => {
+    this.setState({ settingsDialogSide: index });
   };
 
-  private onCloseCompressionPresets = () => {
-    this.setState({ compressionPresetDialogSide: undefined });
+  private onCloseSettings = () => {
+    this.setState({ settingsDialogSide: undefined });
   };
 
   private onApplyCompressionPreset = async (index: 0 | 1, id: string) => {
     const preset = this.state.compressionPresets.find((item) => item.id === id);
     if (!preset) return;
     const oldSettings = this.state.sides[index].latestSettings;
+    const oldStoredSettings = readStoredSideSettings(index);
+    const oldTransient = this.transientCopiedSides[index];
     const settings = copyCompressionPresetSettings(preset.settings);
     const side = {
       ...this.state.sides[index],
@@ -689,9 +774,10 @@ export default class Compress extends Component<Props, State> {
       targetSizeResult: undefined,
     };
     this.setState({
-      compressionPresetDialogSide: undefined,
+      settingsDialogSide: undefined,
       sides: cleanSet(this.state.sides, index, side),
     });
+    this.persistManualSideSettings(index, settings);
 
     const result = await this.props.showSnack(`Applied ${preset.name}`, {
       timeout: 5000,
@@ -706,7 +792,59 @@ export default class Compress extends Component<Props, State> {
       this.setState({
         sides: cleanSet(this.state.sides, index, restoredSide),
       });
+      this.transientCopiedSides[index] = oldTransient;
+      restoreStoredSideSettings(index, oldStoredSettings);
     }
+  };
+
+  private onRememberSideSettingsChange = (index: 0 | 1, remember: boolean) => {
+    const rememberSideSettings = cleanSet(
+      this.state.rememberSideSettings,
+      index,
+      remember,
+    );
+    this.setState({ rememberSideSettings });
+    saveRememberSideSettings(rememberSideSettings);
+    if (remember) {
+      this.transientCopiedSides[index] = false;
+      saveSideSettings(index, this.state.sides[index].latestSettings);
+    } else {
+      clearSideSettings(index);
+    }
+  };
+
+  private onResetSideSettings = async (index: 0 | 1) => {
+    const oldSettings = this.state.sides[index].latestSettings;
+    const oldStoredSettings = readStoredSideSettings(index);
+    const oldTransient = this.transientCopiedSides[index];
+    const settings = defaultSideSettings(index);
+    const side = {
+      ...this.state.sides[index],
+      latestSettings: settings,
+      targetSizeResult: undefined,
+    };
+    this.setState({
+      settingsDialogSide: undefined,
+      sides: cleanSet(this.state.sides, index, side),
+    });
+    this.persistManualSideSettings(index, settings);
+
+    const result = await this.props.showSnack(
+      `${index === 0 ? 'Left' : 'Right'} settings reset`,
+      { timeout: 5000, actions: ['undo', 'dismiss'] },
+    );
+    if (result !== 'undo') return;
+
+    const restoredSide = {
+      ...this.state.sides[index],
+      latestSettings: oldSettings,
+      targetSizeResult: undefined,
+    };
+    this.setState({
+      sides: cleanSet(this.state.sides, index, restoredSide),
+    });
+    this.transientCopiedSides[index] = oldTransient;
+    restoreStoredSideSettings(index, oldStoredSettings);
   };
 
   private onPreprocessorChange = async (
@@ -1124,48 +1262,60 @@ export default class Compress extends Component<Props, State> {
           }
         }
 
-        this.setState((currentState) => {
-          if (signal.aborted) return {};
-          const currentSide = currentState.sides[sideIndex];
-          const completedTargetSize = targetSizeResult
-            ? { ...jobState.targetSize, mode: 'quality' as const }
-            : jobState.targetSize;
-          const latestSettings =
-            targetSizeResult &&
-            currentSide.latestSettings.encoderState === jobState.encoderState &&
-            currentSide.latestSettings.processorState ===
-              jobState.processorState &&
-            currentSide.latestSettings.targetSize === jobState.targetSize
-              ? {
-                  ...currentSide.latestSettings,
-                  encoderState: encodedEncoderState,
-                  processorState: encodedProcessorState,
-                  targetSize: completedTargetSize,
-                }
-              : currentSide.latestSettings;
+        let completedSettings: SideSettings | undefined;
+        this.setState(
+          (currentState) => {
+            if (signal.aborted) return {};
+            const currentSide = currentState.sides[sideIndex];
+            const completedTargetSize = targetSizeResult
+              ? { ...jobState.targetSize, mode: 'quality' as const }
+              : jobState.targetSize;
+            const latestSettings =
+              targetSizeResult &&
+              currentSide.latestSettings.encoderState ===
+                jobState.encoderState &&
+              currentSide.latestSettings.processorState ===
+                jobState.processorState &&
+              currentSide.latestSettings.targetSize === jobState.targetSize
+                ? {
+                    ...currentSide.latestSettings,
+                    encoderState: encodedEncoderState,
+                    processorState: encodedProcessorState,
+                    targetSize: completedTargetSize,
+                  }
+                : currentSide.latestSettings;
+            if (latestSettings !== currentSide.latestSettings) {
+              completedSettings = latestSettings;
+            }
 
-          if (currentSide.downloadUrl) {
-            URL.revokeObjectURL(currentSide.downloadUrl);
-          }
+            if (currentSide.downloadUrl) {
+              URL.revokeObjectURL(currentSide.downloadUrl);
+            }
 
-          const side: Side = {
-            ...currentSide,
-            latestSettings,
-            data,
-            file,
-            downloadUrl: URL.createObjectURL(file),
-            loading: false,
-            processed,
-            targetSizeResult,
-            encodedSettings: {
-              processorState: encodedProcessorState,
-              encoderState: encodedEncoderState,
-              targetSize: completedTargetSize,
-            },
-          };
-          const sides = cleanSet(currentState.sides, sideIndex, side);
-          return { sides };
-        });
+            const side: Side = {
+              ...currentSide,
+              latestSettings,
+              data,
+              file,
+              downloadUrl: URL.createObjectURL(file),
+              loading: false,
+              processed,
+              targetSizeResult,
+              encodedSettings: {
+                processorState: encodedProcessorState,
+                encoderState: encodedEncoderState,
+                targetSize: completedTargetSize,
+              },
+            };
+            const sides = cleanSet(currentState.sides, sideIndex, side);
+            return { sides };
+          },
+          () => {
+            if (completedSettings) {
+              this.persistSideSettings(sideIndex as 0 | 1, completedSettings);
+            }
+          },
+        );
 
         this.activeSideJobs[sideIndex] = undefined;
       } catch (err) {
@@ -1191,7 +1341,8 @@ export default class Compress extends Component<Props, State> {
       mobileView,
       preprocessorState,
       compressionPresets,
-      compressionPresetDialogSide,
+      settingsDialogSide,
+      rememberSideSettings,
     }: State,
   ) {
     const [leftSide, rightSide] = sides;
@@ -1212,8 +1363,8 @@ export default class Compress extends Component<Props, State> {
         onProcessorOptionsChange={this.onProcessorOptionsChange}
         onTargetSizeChange={this.onTargetSizeChange}
         onCopyToOtherSideClick={this.onCopyToOtherClick}
-        compressionPresetsOpen={compressionPresetDialogSide === index}
-        onOpenCompressionPresets={this.onOpenCompressionPresets}
+        settingsOpen={settingsDialogSide === index}
+        onOpenSettings={this.onOpenSettings}
       />
     ));
 
@@ -1246,7 +1397,11 @@ export default class Compress extends Component<Props, State> {
       rightDisplaySettings.processorState.resize.fitMethod === 'contain';
 
     return (
-      <div class={style.compress}>
+      <div
+        class={`${style.compress} ${
+          settingsDialogSide === undefined ? '' : style.settingsOpen
+        }`}
+      >
         <Output
           source={source}
           mobileView={mobileView}
@@ -1291,20 +1446,25 @@ export default class Compress extends Component<Props, State> {
             </div>,
           ]
         )}
-        {compressionPresetDialogSide !== undefined && (
-          <CompressionPresetsDialog
-            sideIndex={compressionPresetDialogSide}
+        {settingsDialogSide !== undefined && (
+          <SettingsDialog
+            sideIndex={settingsDialogSide}
             presets={compressionPresets}
-            currentSettings={sides[compressionPresetDialogSide].latestSettings}
-            onClose={this.onCloseCompressionPresets}
+            currentSettings={sides[settingsDialogSide].latestSettings}
+            rememberSettings={rememberSideSettings[settingsDialogSide]}
+            onClose={this.onCloseSettings}
             onApply={(id) =>
-              this.onApplyCompressionPreset(compressionPresetDialogSide, id)
+              this.onApplyCompressionPreset(settingsDialogSide, id)
             }
             onCreate={(name) =>
-              this.onCreateCompressionPreset(compressionPresetDialogSide, name)
+              this.onCreateCompressionPreset(settingsDialogSide, name)
             }
             onRename={this.onRenameCompressionPreset}
             onDelete={this.onDeleteCompressionPreset}
+            onRememberSettingsChange={(remember) =>
+              this.onRememberSideSettingsChange(settingsDialogSide, remember)
+            }
+            onReset={() => this.onResetSideSettings(settingsDialogSide)}
           />
         )}
       </div>

@@ -128,6 +128,7 @@ Vicoco processes images locally in the browser. Images stay on the user's device
 - Automatically find the highest JPEG, WebP, or AVIF quality under a per-image target size.
 - Optionally reduce image dimensions when quality alone cannot meet the target size.
 - Apply one set of format, compression goal, and resize settings to the entire batch.
+- Save reusable compression presets, remember settings per side, or reset either side to defaults.
 - Download the processed images together as a ZIP.
 
 ## Privacy

@@ -22,7 +22,9 @@ const cloneSettings = (
 const isObject = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object';
 
-const isSettings = (value: unknown): value is CompressionPresetSettings => {
+export const isCompressionPresetSettings = (
+  value: unknown,
+): value is CompressionPresetSettings => {
   if (!isObject(value) || !isObject(value.processorState)) return false;
   return (
     value.encoderState === undefined ||
@@ -44,7 +46,7 @@ const isPreset = (value: unknown): value is CompressionPreset =>
   isObject(value) &&
   typeof value.id === 'string' &&
   typeof value.name === 'string' &&
-  isSettings(value.settings);
+  isCompressionPresetSettings(value.settings);
 
 const readLegacyPreset = (
   key: 'leftSideSettings' | 'rightSideSettings',
@@ -54,7 +56,7 @@ const readLegacyPreset = (
     const stored = localStorage.getItem(key);
     if (!stored) return;
     const parsed = JSON.parse(stored) as { latestSettings?: unknown };
-    if (!isSettings(parsed.latestSettings)) return;
+    if (!isCompressionPresetSettings(parsed.latestSettings)) return;
     return {
       id: `legacy-${key}`,
       name,

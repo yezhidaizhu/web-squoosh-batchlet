@@ -19,6 +19,11 @@
   }
 }
 
+.settings-open {
+  position: relative;
+  z-index: 201;
+}
+
 .options {
   position: relative;
   color: #fff;

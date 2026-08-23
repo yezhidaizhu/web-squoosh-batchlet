@@ -1,6 +1,6 @@
 import { h, Component } from 'preact';
 
-import { AddIcon, EditIcon, TrashIcon } from 'client/lazy-app/icons';
+import { AddIcon, EditIcon, ResetIcon, TrashIcon } from 'client/lazy-app/icons';
 import { encoderMap } from 'client/lazy-app/feature-meta';
 import type {
   CompressionPreset,
@@ -9,16 +9,20 @@ import type {
 import * as style from './style.css';
 import 'add-css:./style.css';
 import { targetSizeBytes } from '../target-size';
+import Toggle from '../Options/Toggle';
 
 interface Props {
   sideIndex: 0 | 1;
   presets: CompressionPreset[];
   currentSettings: CompressionPresetSettings;
+  rememberSettings: boolean;
   onClose(): void;
   onApply(id: string): void;
   onCreate(name: string): void;
   onRename(id: string, name: string): void;
   onDelete(id: string): void;
+  onRememberSettingsChange(remember: boolean): void;
+  onReset(): void;
 }
 
 interface State {
@@ -60,7 +64,7 @@ const settingsSummary = (settings: CompressionPresetSettings): string => {
   return parts.join(' / ');
 };
 
-export default class CompressionPresetsDialog extends Component<Props, State> {
+export default class SettingsDialog extends Component<Props, State> {
   state: State = { presetName: '', helpOpen: false };
 
   private dialog?: HTMLDivElement;
@@ -192,8 +196,23 @@ export default class CompressionPresetsDialog extends Component<Props, State> {
     this.cancelPresetForm();
   };
 
+  private onRememberSettingsChange = (event: Event) => {
+    this.props.onRememberSettingsChange(
+      (event.currentTarget as HTMLInputElement).checked,
+    );
+  };
+
   render(
-    { sideIndex, presets, currentSettings, onClose, onApply, onDelete }: Props,
+    {
+      sideIndex,
+      presets,
+      currentSettings,
+      rememberSettings,
+      onClose,
+      onApply,
+      onDelete,
+      onReset,
+    }: Props,
     { formMode, presetName, presetError, helpOpen }: State,
   ) {
     return (
@@ -214,34 +233,21 @@ export default class CompressionPresetsDialog extends Component<Props, State> {
           }`}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="compression-presets-title"
-          aria-describedby="compression-presets-summary"
+          aria-labelledby="editor-settings-title"
+          aria-describedby="editor-settings-summary"
           tabIndex={-1}
         >
           <header class={style.header}>
             <div class={style.headerTitle}>
-              <h2 id="compression-presets-title">Compression presets</h2>
-              <span>
-                {presets.length} {presets.length === 1 ? 'preset' : 'presets'}
-              </span>
-              <button
-                class={style.helpToggle}
-                type="button"
-                title="What do presets save?"
-                aria-label="What do presets save?"
-                aria-expanded={helpOpen}
-                aria-controls="compression-presets-help"
-                onClick={() => this.setState({ helpOpen: !helpOpen })}
-              >
-                <span aria-hidden="true">?</span>
-              </button>
+              <h2 id="editor-settings-title">Settings</h2>
+              <span>{sideIndex === 0 ? 'Left side' : 'Right side'}</span>
             </div>
-            <button type="button" aria-label="Close presets" onClick={onClose}>
+            <button type="button" aria-label="Close settings" onClick={onClose}>
               <span aria-hidden="true">&times;</span>
             </button>
           </header>
-          <span id="compression-presets-summary" class={style.visuallyHidden}>
-            Save and reuse compression settings.
+          <span id="editor-settings-summary" class={style.visuallyHidden}>
+            Manage remembered settings and compression presets.
           </span>
 
           {formMode ? (
@@ -280,6 +286,42 @@ export default class CompressionPresetsDialog extends Component<Props, State> {
             </form>
           ) : (
             <div class={style.content}>
+              <label class={style.rememberSetting}>
+                <span class={style.rememberCopy}>
+                  <strong>Remember settings</strong>
+                  <small>
+                    Use this side's current settings the next time you open the
+                    editor.
+                  </small>
+                </span>
+                <Toggle
+                  checked={rememberSettings}
+                  aria-label={`Remember ${
+                    sideIndex === 0 ? 'left' : 'right'
+                  } side settings`}
+                  onChange={this.onRememberSettingsChange}
+                />
+              </label>
+              <div class={style.sectionHeader}>
+                <div>
+                  <h3>Compression presets</h3>
+                  <span>
+                    {presets.length}{' '}
+                    {presets.length === 1 ? 'preset' : 'presets'}
+                  </span>
+                </div>
+                <button
+                  class={style.helpToggle}
+                  type="button"
+                  title="What do presets save?"
+                  aria-label="What do presets save?"
+                  aria-expanded={helpOpen}
+                  aria-controls="compression-presets-help"
+                  onClick={() => this.setState({ helpOpen: !helpOpen })}
+                >
+                  <span aria-hidden="true">?</span>
+                </button>
+              </div>
               {helpOpen && (
                 <div class={style.help} id="compression-presets-help">
                   <p>
@@ -342,6 +384,10 @@ export default class CompressionPresetsDialog extends Component<Props, State> {
 
           {!formMode && (
             <footer class={style.footer}>
+              <button class={style.resetButton} type="button" onClick={onReset}>
+                <ResetIcon />
+                <span>Reset settings</span>
+              </button>
               <button type="button" onClick={this.startCreatePreset}>
                 <AddIcon />
                 <span>Save current settings</span>
