@@ -4,15 +4,17 @@
 
 ## 输入与队列
 
-| 功能                             | 状态 | 实现依据                                                                     |
-| -------------------------------- | :--: | ---------------------------------------------------------------------------- |
-| 单张和多张图片选择               |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                     |
-| 文件夹选择和递归目录拖放         |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                     |
-| 拖放和剪贴板粘贴                 |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                     |
-| 重复图片过滤                     |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                     |
-| SEO 页面 IndexedDB 交接          |  ✓   | [handoff.ts](../src/client/initial-app/handoff.ts)                           |
-| 添加、选择、删除、清空和折叠队列 |  ✓   | [ImageQueue/index.tsx](../src/client/lazy-app/Compress/ImageQueue/index.tsx) |
-| 清空队列后撤销                   |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                     |
+| 功能                                         | 状态 | 实现依据                                                                               |
+| -------------------------------------------- | :--: | -------------------------------------------------------------------------------------- |
+| 单张和多张图片选择                           |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                               |
+| 文件夹选择和递归目录拖放                     |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                               |
+| 拖放和剪贴板粘贴                             |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                               |
+| 重复图片过滤                                 |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                               |
+| SEO 页面 IndexedDB 交接                      |  ✓   | [handoff.ts](../src/client/initial-app/handoff.ts)                                     |
+| SEO 页面白名单输出、调色板和 Resize 交接预设 |  ✓   | [seo-handoff-presets.ts](../src/client/initial-app/seo-handoff-presets.ts)             |
+| SEO 图片信息内联检查列表                     |  ✓   | [ImageCheckerResults.astro](../../vicoco-seo/src/components/ImageCheckerResults.astro) |
+| 添加、选择、删除、清空和折叠队列             |  ✓   | [ImageQueue/index.tsx](../src/client/lazy-app/Compress/ImageQueue/index.tsx)           |
+| 清空队列后撤销                               |  ✓   | [App/index.tsx](../src/client/initial-app/App/index.tsx)                               |
 
 ## 编解码与编辑
 

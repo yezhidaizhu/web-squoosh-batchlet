@@ -50,6 +50,7 @@ import {
   TargetSizeResult,
   TargetSizeSettings,
 } from './target-size';
+import type { SeoHandoffPreset } from 'client/initial-app/seo-handoff-presets';
 
 export type OutputType = EncoderType | 'identity';
 
@@ -91,6 +92,8 @@ interface Side {
 
 interface Props {
   file: File;
+  handoffPreset?: SeoHandoffPreset;
+  onHandoffPresetApplied?: () => void;
   showSnack: SnackBarElement['showSnackbar'];
   onBack: () => void;
 }
@@ -472,15 +475,62 @@ export default class Compress extends Component<Props, State> {
   private sideAbortControllers = [new AbortController(), new AbortController()];
   /** For debouncing calls to updateImage for each side. */
   private updateImageTimeout?: number;
+  private pendingHandoffPreset?: SeoHandoffPreset;
 
   constructor(props: Props) {
     super(props);
+    this.pendingHandoffPreset = props.handoffPreset;
     this.widthQuery.addListener(this.onMobileWidthChange);
     this.sourceFile = props.file;
     this.queueUpdateImage({ immediate: true });
 
     import('../sw-bridge').then(({ mainAppLoaded }) => mainAppLoaded());
   }
+
+  private applyPendingHandoffPreset = () => {
+    const preset = this.pendingHandoffPreset;
+    if (!preset) return;
+    this.pendingHandoffPreset = undefined;
+
+    this.setState(
+      (state) => {
+        if (!preset.output && !preset.enableResize && !preset.enableQuantize) {
+          return {};
+        }
+
+        const currentSettings = state.sides[1].latestSettings;
+        const settings = preset.output
+          ? defaultSideSettings(1)
+          : copyCompressionPresetSettings(currentSettings);
+        if (preset.output) {
+          settings.encoderState = {
+            type: preset.output,
+            options: clone(encoderMap[preset.output].meta.defaultOptions),
+          } as EncoderState;
+          const resize = clone(currentSettings.processorState.resize);
+          resize.enabled = false;
+          settings.processorState.resize = resize;
+        }
+        if (preset.enableResize) settings.processorState.resize.enabled = true;
+        if (preset.enableQuantize) {
+          settings.processorState.quantize = {
+            ...clone(defaultProcessorState.quantize),
+            enabled: true,
+          };
+        }
+
+        this.transientCopiedSides[1] = true;
+        return {
+          sides: cleanSet(state.sides, 1, {
+            ...state.sides[1],
+            latestSettings: settings,
+            targetSizeResult: undefined,
+          }),
+        };
+      },
+      () => this.props.onHandoffPresetApplied?.(),
+    );
+  };
 
   public async processBatch(
     files: File[],
@@ -1093,7 +1143,7 @@ export default class Compress extends Component<Props, State> {
           };
           newState = stateForNewSourceData(newState);
           return newState;
-        });
+        }, this.applyPendingHandoffPreset);
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
         this.setState({ loading: false });

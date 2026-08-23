@@ -25,6 +25,13 @@ import {
   formatZipFilename,
 } from './batch-naming';
 import { consumeImageHandoff } from '../handoff';
+import {
+  ImageHandoffRequest,
+  imageHandoffUrlAfterConsumption,
+  parseImageHandoffUrl,
+  partitionHandoffFiles,
+  SeoHandoffPreset,
+} from '../seo-handoff-presets';
 
 const ROUTE_EDITOR = '/editor';
 const batchNamePatternStorageKey = 'vicoco-batch-name-pattern';
@@ -62,6 +69,7 @@ interface State {
   batchNamePattern: string;
   batchProgress?: { current: number; total: number };
   batchStopping?: boolean;
+  handoffPreset?: SeoHandoffPreset;
   Compress?: typeof import('client/lazy-app/Compress').default;
 }
 
@@ -149,25 +157,58 @@ export default class App extends Component<Props, State> {
   }
 
   componentDidMount() {
-    const handoffId = new URL(location.href).searchParams.get('handoff');
-    if (handoffId) this.loadImageHandoff(handoffId);
+    const handoff = parseImageHandoffUrl(location.href);
+    if (handoff) this.loadImageHandoff(handoff);
   }
 
-  private loadImageHandoff = async (id: string) => {
+  private clearImageHandoffUrl = () => {
+    history.replaceState(
+      '',
+      '',
+      imageHandoffUrlAfterConsumption(location.href),
+    );
+  };
+
+  private loadImageHandoff = async ({ id, preset }: ImageHandoffRequest) => {
     try {
       const files = await consumeImageHandoff(id);
-      history.replaceState('', '', '/');
       if (!files?.length) {
+        this.clearImageHandoffUrl();
         this.showSnack('The selected images are no longer available');
         return;
       }
-      await this.appendFiles(files);
+      const { accepted, rejected } = await partitionHandoffFiles(files, preset);
+      if (rejected.length) {
+        const expected = preset!.input === 'png' ? 'PNG' : 'JPEG';
+        this.showSnack(
+          accepted.length
+            ? `Skipped ${rejected.length} non-${expected} ${
+                rejected.length === 1 ? 'file' : 'files'
+              }`
+            : `This page accepts ${expected} files. Add a ${expected} image to continue`,
+          { timeout: 7000, actions: ['dismiss'] },
+        );
+      }
+      if (!accepted.length) {
+        this.clearImageHandoffUrl();
+        return;
+      }
+      await new Promise<void>((resolve) =>
+        this.setState({ handoffPreset: preset }, resolve),
+      );
+      await this.appendFiles(accepted);
+      if (!preset) this.clearImageHandoffUrl();
     } catch (_) {
-      history.replaceState('', '', '/');
+      this.clearImageHandoffUrl();
       this.showSnack('Could not open the selected images');
     } finally {
       this.setState({ awaitingHandoff: false });
     }
+  };
+
+  private onHandoffPresetApplied = () => {
+    this.clearImageHandoffUrl();
+    this.setState({ handoffPreset: undefined });
   };
 
   private fingerprintFile = (file: File) =>
@@ -605,6 +646,7 @@ export default class App extends Component<Props, State> {
       Compress,
       awaitingShareTarget,
       awaitingHandoff,
+      handoffPreset,
     }: State,
   ) {
     const selectedFile = files.find((file) => file.id === selectedFileId);
@@ -660,6 +702,8 @@ export default class App extends Component<Props, State> {
                     this.compress = compress || undefined;
                   }}
                   file={selectedFile!.file}
+                  handoffPreset={handoffPreset}
+                  onHandoffPresetApplied={this.onHandoffPresetApplied}
                   showSnack={this.showSnack}
                   onBack={back}
                 />
