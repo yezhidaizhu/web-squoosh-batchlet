@@ -18,6 +18,12 @@ import Select from './Select';
 import { Options as QuantOptionsComponent } from 'features/processors/quantize/client';
 import { Options as ResizeOptionsComponent } from 'features/processors/resize/client';
 import { PresetsIcon, SwapIcon } from 'client/lazy-app/icons';
+import TargetSize from './TargetSize';
+import {
+  encoderSupportsTargetSize,
+  TargetSizeResult,
+  TargetSizeSettings,
+} from '../target-size';
 
 interface Props {
   index: 0 | 1;
@@ -25,9 +31,13 @@ interface Props {
   source?: SourceImage;
   encoderState?: EncoderState;
   processorState: ProcessorState;
+  targetSize: TargetSizeSettings;
+  targetSizeResult?: TargetSizeResult;
+  loading: boolean;
   onEncoderTypeChange(index: 0 | 1, newType: OutputType): void;
   onEncoderOptionsChange(index: 0 | 1, newOptions: EncoderOptions): void;
   onProcessorOptionsChange(index: 0 | 1, newOptions: ProcessorState): void;
+  onTargetSizeChange(index: 0 | 1, settings: TargetSizeSettings): void;
   onCopyToOtherSideClick(index: 0 | 1): void;
   compressionPresetsOpen: boolean;
   onOpenCompressionPresets(index: 0 | 1): void;
@@ -112,13 +122,40 @@ export default class Options extends Component<Props, State> {
     this.props.onCopyToOtherSideClick(this.props.index);
   };
 
+  private onTargetSizeChange = (settings: TargetSizeSettings) => {
+    this.props.onTargetSizeChange(this.props.index, settings);
+  };
+
   render(
-    { source, encoderState, processorState, compressionPresetsOpen }: Props,
+    {
+      index,
+      source,
+      encoderState,
+      processorState,
+      targetSize,
+      targetSizeResult,
+      loading,
+      compressionPresetsOpen,
+    }: Props,
     { supportedEncoderMap }: State,
   ) {
     const encoder = encoderState && encoderMap[encoderState.type];
     const EncoderOptionComponent =
       encoder && 'Options' in encoder ? encoder.Options : undefined;
+    const supportsTargetSize =
+      !!encoderState && encoderSupportsTargetSize(encoderState.type);
+    const targetMode = supportsTargetSize && targetSize.mode === 'target';
+    const targetSearching = targetMode && loading;
+    const targetSizeControl = supportsTargetSize ? (
+      <TargetSize
+        index={index}
+        settings={targetSize}
+        result={targetSizeResult}
+        originalBytes={source?.file.size}
+        loading={targetSearching}
+        onChange={this.onTargetSizeChange}
+      />
+    ) : undefined;
 
     return (
       <div
@@ -128,110 +165,116 @@ export default class Options extends Component<Props, State> {
           (encoderState ? '' : style.originalImage)
         }
       >
-        <Expander>
-          {!encoderState ? null : (
-            <div>
-              <div class={style.optionsTitle}>
-                <div class={style.titleAndButtons}>
-                  <span role="heading" aria-level={3}>
-                    Edit
-                  </span>
-                  <button
-                    class={style.copyOverButton}
-                    title="Copy settings to other side"
-                    onClick={this.onCopyToOtherSideClick}
-                  >
-                    <SwapIcon />
-                  </button>
-                  <button
-                    class={style.presetsButton}
-                    title="Compression presets"
-                    aria-label="Compression presets"
-                    aria-haspopup="dialog"
-                    aria-expanded={compressionPresetsOpen}
-                    onClick={() =>
-                      this.props.onOpenCompressionPresets(this.props.index)
-                    }
-                  >
-                    <PresetsIcon />
-                  </button>
+        <fieldset
+          class={style.optionsForm}
+          disabled={targetSearching}
+          aria-busy={targetSearching}
+        >
+          <Expander>
+            {!encoderState ? null : (
+              <div>
+                <div class={style.optionsTitle}>
+                  <div class={style.titleAndButtons}>
+                    <span role="heading" aria-level={3}>
+                      Edit
+                    </span>
+                    <button
+                      class={style.copyOverButton}
+                      title="Copy settings to other side"
+                      onClick={this.onCopyToOtherSideClick}
+                    >
+                      <SwapIcon />
+                    </button>
+                    <button
+                      class={style.presetsButton}
+                      title="Compression presets"
+                      aria-label="Compression presets"
+                      aria-haspopup="dialog"
+                      aria-expanded={compressionPresetsOpen}
+                      onClick={() =>
+                        this.props.onOpenCompressionPresets(this.props.index)
+                      }
+                    >
+                      <PresetsIcon />
+                    </button>
+                  </div>
                 </div>
+                <label class={style.sectionEnabler}>
+                  Resize
+                  <Toggle
+                    name="resize.enable"
+                    checked={!!processorState.resize.enabled}
+                    onChange={this.onProcessorEnabledChange}
+                  />
+                </label>
+                <Expander>
+                  {processorState.resize.enabled ? (
+                    <ResizeOptionsComponent
+                      isVector={Boolean(source && source.vectorImage)}
+                      inputWidth={source ? source.preprocessed.width : 1}
+                      inputHeight={source ? source.preprocessed.height : 1}
+                      options={processorState.resize}
+                      onChange={this.onResizeOptionsChange}
+                    />
+                  ) : null}
+                </Expander>
+
+                <label class={style.sectionEnabler}>
+                  Reduce palette
+                  <Toggle
+                    name="quantize.enable"
+                    checked={!!processorState.quantize.enabled}
+                    onChange={this.onProcessorEnabledChange}
+                  />
+                </label>
+                <Expander>
+                  {processorState.quantize.enabled ? (
+                    <QuantOptionsComponent
+                      options={processorState.quantize}
+                      onChange={this.onQuantizerOptionsChange}
+                    />
+                  ) : null}
+                </Expander>
               </div>
-              <label class={style.sectionEnabler}>
-                Resize
-                <Toggle
-                  name="resize.enable"
-                  checked={!!processorState.resize.enabled}
-                  onChange={this.onProcessorEnabledChange}
-                />
-              </label>
-              <Expander>
-                {processorState.resize.enabled ? (
-                  <ResizeOptionsComponent
-                    isVector={Boolean(source && source.vectorImage)}
-                    inputWidth={source ? source.preprocessed.width : 1}
-                    inputHeight={source ? source.preprocessed.height : 1}
-                    options={processorState.resize}
-                    onChange={this.onResizeOptionsChange}
-                  />
-                ) : null}
-              </Expander>
+            )}
+          </Expander>
 
-              <label class={style.sectionEnabler}>
-                Reduce palette
-                <Toggle
-                  name="quantize.enable"
-                  checked={!!processorState.quantize.enabled}
-                  onChange={this.onProcessorEnabledChange}
-                />
-              </label>
-              <Expander>
-                {processorState.quantize.enabled ? (
-                  <QuantOptionsComponent
-                    options={processorState.quantize}
-                    onChange={this.onQuantizerOptionsChange}
-                  />
-                ) : null}
-              </Expander>
-            </div>
-          )}
-        </Expander>
+          <h3 class={style.optionsTitle}>Compress</h3>
 
-        <h3 class={style.optionsTitle}>Compress</h3>
+          <section class={`${style.optionOneCell} ${style.optionsSection}`}>
+            {supportedEncoderMap ? (
+              <Select
+                value={encoderState ? encoderState.type : 'identity'}
+                onChange={this.onEncoderTypeChange}
+                large
+              >
+                <option value="identity">{`Original Image ${
+                  this.props.source ? `(${this.props.source.file.name})` : ''
+                }`}</option>
+                {Object.entries(supportedEncoderMap).map(([type, encoder]) => (
+                  <option value={type}>{encoder.meta.label}</option>
+                ))}
+              </Select>
+            ) : (
+              <Select large>
+                <option>Loading…</option>
+              </Select>
+            )}
+          </section>
 
-        <section class={`${style.optionOneCell} ${style.optionsSection}`}>
-          {supportedEncoderMap ? (
-            <Select
-              value={encoderState ? encoderState.type : 'identity'}
-              onChange={this.onEncoderTypeChange}
-              large
-            >
-              <option value="identity">{`Original Image ${
-                this.props.source ? `(${this.props.source.file.name})` : ''
-              }`}</option>
-              {Object.entries(supportedEncoderMap).map(([type, encoder]) => (
-                <option value={type}>{encoder.meta.label}</option>
-              ))}
-            </Select>
-          ) : (
-            <Select large>
-              <option>Loading…</option>
-            </Select>
-          )}
-        </section>
-
-        <Expander>
-          {EncoderOptionComponent && (
-            <EncoderOptionComponent
-              options={
-                // Casting options, as encoderOptionsComponentMap[encodeData.type] ensures
-                // the correct type, but typescript isn't smart enough.
-                encoderState!.options as any
-              }
-              onChange={this.onEncoderOptionsChange}
-            />
-          )}
-        </Expander>
+          <Expander>
+            {EncoderOptionComponent && (
+              <EncoderOptionComponent
+                {...({
+                  // The encoder type guarantees the matching options component.
+                  options: encoderState!.options,
+                  onChange: this.onEncoderOptionsChange,
+                  targetSizeControl,
+                } as any)}
+              />
+            )}
+          </Expander>
+        </fieldset>
       </div>
     );
   }

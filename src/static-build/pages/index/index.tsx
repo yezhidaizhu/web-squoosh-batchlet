@@ -40,7 +40,7 @@ const structuredData = JSON.stringify({
       url: siteOrigin,
       image: `${siteOrigin}${ogImage}`,
       description:
-        'Compress images online for free with JPEG, PNG, WebP and AVIF output. Compare quality and file size while every image stays on your device.',
+        'Compress images online for free to a target file size or chosen quality. Export JPEG, PNG, WebP and AVIF while files stay on your device.',
       applicationCategory: 'MultimediaApplication',
       operatingSystem: 'Any',
       browserRequirements:
@@ -60,7 +60,7 @@ const structuredData = JSON.stringify({
           name: 'How do I compress an image online for free?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Add an image, choose an output format, quality and resize settings, compare the result, then download the smaller file.',
+            text: 'Add an image, choose an output format and either set quality manually or enter a target file size, then preview and download the result.',
           },
         },
         {
@@ -103,6 +103,14 @@ const structuredData = JSON.stringify({
             text: 'Yes. Set the target width and height, preview the result, then apply the resize settings to one image or the full queue.',
           },
         },
+        {
+          '@type': 'Question',
+          name: 'Can I compress an image to a specific file size?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes. For JPEG, WebP and AVIF output, enter a maximum size per image. Vicoco finds the highest quality result under that limit and can resize the image when permitted.',
+          },
+        },
       ],
     },
   ],
@@ -121,17 +129,17 @@ const Index: FunctionalComponent<Props> = () => (
           __html: escapeStyleScriptContent(googleTagInitScript),
         }}
       />
-      <title>Free Image Compressor Online | Vicoco</title>
+      <title>Free Image Compressor to Target Size | Vicoco</title>
       <meta
         name="description"
-        content="Compress images online for free with JPEG, PNG, WebP and AVIF output. Compare quality and file size while every image stays on your device."
+        content="Compress images online for free to a target file size or chosen quality. Export JPEG, PNG, WebP and AVIF while files stay on your device."
       />
       <meta name="robots" content="index, follow, max-image-preview:large" />
       <meta property="og:site_name" content="Vicoco" />
       <meta property="og:url" content={siteOrigin} />
       <meta
         property="og:title"
-        content="Free Image Compressor Online | Vicoco"
+        content="Free Image Compressor to Target Size | Vicoco"
       />
       <meta property="og:type" content="website" />
       <meta property="og:image" content={`${siteOrigin}${ogImage}`} />
@@ -148,26 +156,23 @@ const Index: FunctionalComponent<Props> = () => (
       />
       <meta
         property="og:description"
-        content="Compress images online for free with JPEG, PNG, WebP and AVIF output. Compare quality and file size while every image stays on your device."
+        content="Compress images online for free to a target file size or chosen quality. Export JPEG, PNG, WebP and AVIF while files stay on your device."
       />
       <meta name="twitter:card" content="summary_large_image" />
       <meta
         name="twitter:title"
-        content="Free Image Compressor Online | Vicoco"
+        content="Free Image Compressor to Target Size | Vicoco"
       />
       <meta
         name="twitter:description"
-        content="Compress images online for free with JPEG, PNG, WebP and AVIF output. Compare quality and file size while every image stays on your device."
+        content="Compress images online for free to a target file size or chosen quality. Export JPEG, PNG, WebP and AVIF while files stay on your device."
       />
       <meta name="twitter:image" content={`${siteOrigin}${ogImage}`} />
       <meta
         name="twitter:image:alt"
         content="Vicoco image compressor showing a before-and-after comparison."
       />
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-      />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <link rel="icon" href="/favicon.ico" type="image/x-icon" />

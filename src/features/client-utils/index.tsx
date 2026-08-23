@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h, Component, ComponentChild } from 'preact';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
 import Range from 'client/lazy-app/Compress/Options/Range';
 
@@ -8,6 +8,7 @@ interface EncodeOptions {
 
 interface Props {
   options: EncodeOptions;
+  targetSizeControl?: ComponentChild;
   onChange(newOptions: EncodeOptions): void;
 }
 
@@ -34,7 +35,7 @@ export function qualityOption(
       this.props.onChange({ quality: Number(el.value) });
     };
 
-    render({ options }: Props) {
+    render({ options, targetSizeControl }: Props) {
       return (
         <div class={style.optionsSection}>
           <div class={style.optionOneCell}>
@@ -49,6 +50,7 @@ export function qualityOption(
               Quality:
             </Range>
           </div>
+          {targetSizeControl}
         </div>
       );
     }

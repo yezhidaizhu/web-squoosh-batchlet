@@ -11,6 +11,20 @@
   }
 }
 
+.options-form {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.options-form[disabled] label,
+.options-form[disabled] input,
+.options-form[disabled] select,
+.options-form[disabled] button {
+  cursor: progress;
+}
+
 .options-title {
   background-color: var(--main-theme-color);
   color: var(--header-text-color);

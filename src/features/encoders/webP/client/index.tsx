@@ -1,6 +1,6 @@
 import { EncodeOptions } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
-import { h, Component } from 'preact';
+import { h, Component, ComponentChild } from 'preact';
 import {
   inputFieldCheckedAsNumber,
   inputFieldValueAsNumber,
@@ -30,6 +30,7 @@ const enum WebPImageHint {
 
 interface Props {
   options: EncodeOptions;
+  targetSizeControl?: ComponentChild;
   onChange(newOptions: EncodeOptions): void;
 }
 
@@ -225,6 +226,7 @@ export class Options extends Component<Props, State> {
             Quality:
           </Range>
         </div>
+        {this.props.targetSizeControl}
         <label class={style.optionReveal}>
           <Revealer
             checked={showAdvanced}

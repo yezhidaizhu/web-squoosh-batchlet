@@ -8,6 +8,7 @@ import type {
 } from '../compression-presets';
 import * as style from './style.css';
 import 'add-css:./style.css';
+import { targetSizeBytes } from '../target-size';
 
 interface Props {
   sideIndex: 0 | 1;
@@ -34,9 +35,18 @@ const settingsSummary = (settings: CompressionPresetSettings): string => {
 
   if (encoderState) {
     parts.push(encoderMap[encoderState.type].meta.label);
-    const quality = (encoderState.options as { quality?: number }).quality;
-    if (typeof quality === 'number') {
-      parts.push(`Q${Math.round(quality <= 1 ? quality * 100 : quality)}`);
+    if (settings.targetSize.mode === 'target') {
+      const bytes = targetSizeBytes(settings.targetSize);
+      parts.push(
+        bytes >= 1_000_000
+          ? `${(bytes / 1_000_000).toPrecision(3)} MB max`
+          : `${Math.round(bytes / 1_000)} kB max`,
+      );
+    } else {
+      const quality = (encoderState.options as { quality?: number }).quality;
+      if (typeof quality === 'number') {
+        parts.push(`Q${Math.round(quality <= 1 ? quality * 100 : quality)}`);
+      }
     }
   } else {
     parts.push('Original');

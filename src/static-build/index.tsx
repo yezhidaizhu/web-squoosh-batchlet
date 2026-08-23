@@ -125,7 +125,9 @@ Vicoco processes images locally in the browser. Images stay on the user's device
 - Add multiple images to a local batch queue.
 - Preview the selected image before and after processing.
 - Use JPEG, PNG, WebP, AVIF, and SVG images as inputs.
-- Apply one set of format, quality, and resize settings to the entire batch.
+- Automatically find the highest JPEG, WebP, or AVIF quality under a per-image target size.
+- Optionally reduce image dimensions when quality alone cannot meet the target size.
+- Apply one set of format, compression goal, and resize settings to the entire batch.
 - Download the processed images together as a ZIP.
 
 ## Privacy

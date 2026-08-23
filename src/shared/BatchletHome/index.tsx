@@ -420,8 +420,8 @@ const BatchletHome: FunctionalComponent<Props> = ({
             </div>
             <p class={style.heroDescription}>
               Compress images online for free without uploading them. Add one
-              image or a whole folder, compare quality and file size, then
-              download smaller JPEG, PNG, WebP, or AVIF files.
+              image or a whole folder, choose quality or a target file size,
+              then download smaller JPEG, PNG, WebP, or AVIF files.
             </p>
           </section>
 
@@ -472,9 +472,9 @@ const BatchletHome: FunctionalComponent<Props> = ({
             <div class={style.workspaceCopy}>
               <h2>Preview image compression results before export</h2>
               <p>
-                Check image quality and file size in your browser before
-                exporting. When you add several files, the same settings can be
-                applied to all of them.
+                Check image quality and file size in your browser before export.
+                Set a maximum size per JPEG, WebP or AVIF image, then apply the
+                same goal to a complete queue.
               </p>
             </div>
             <figure class={style.productShot}>
@@ -497,8 +497,8 @@ const BatchletHome: FunctionalComponent<Props> = ({
             <div>
               <h2 id="batch-heading">Compress one image or a whole folder</h2>
               <p>
-                Choose the output format, quality and resize dimensions once,
-                then download one optimized image or process every queued file
+                Choose the output format, quality or target file size once, then
+                download one optimized image or process every queued file
                 together as a ZIP.
               </p>
               <dl>
@@ -509,8 +509,8 @@ const BatchletHome: FunctionalComponent<Props> = ({
                 <div>
                   <dt>Tune</dt>
                   <dd>
-                    Compare codecs, quality, dimensions and file size on the
-                    selected image.
+                    Compare codecs, dimensions and file size, or automatically
+                    find the best quality under a size limit.
                   </dd>
                 </div>
                 <div>
@@ -595,8 +595,8 @@ const BatchletHome: FunctionalComponent<Props> = ({
               </h2>
               <p>
                 Use the before-and-after preview to inspect detail, test codec,
-                quality and resize settings, and check the compressed file size
-                before export.
+                quality or target-size settings, and check the compressed file
+                size before export.
               </p>
             </div>
             <figure class={style.compareVisual}>
@@ -679,8 +679,9 @@ const BatchletHome: FunctionalComponent<Props> = ({
                   </span>
                 </summary>
                 <p>
-                  Add an image, choose an output format, quality and resize
-                  settings, compare the result, then download the smaller file.
+                  Add an image, choose an output format and either set quality
+                  manually or enter a target file size, then preview and
+                  download the result.
                 </p>
               </details>
               <details>
@@ -801,6 +802,31 @@ const BatchletHome: FunctionalComponent<Props> = ({
                 <p>
                   Yes. Set the target width and height, preview the result, then
                   apply the resize settings to one image or the full queue.
+                </p>
+              </details>
+              <details>
+                <summary>
+                  <span class={style.faqIndex}>07</span>
+                  <span>Can I compress an image to a specific file size?</span>
+                  <span class={style.faqIcon} aria-hidden="true">
+                    <svg
+                      width="17"
+                      height="17"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    >
+                      <path d="M12 5v14" />
+                      <path d="M5 12h14" />
+                    </svg>
+                  </span>
+                </summary>
+                <p>
+                  Yes. For JPEG, WebP and AVIF output, enter a maximum size per
+                  image. Vicoco finds the highest quality result under that
+                  limit and can resize the image when permitted.
                 </p>
               </details>
             </div>

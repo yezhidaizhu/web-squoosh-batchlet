@@ -1,0 +1,133 @@
+.section {
+  display: grid;
+  gap: 7px;
+  padding: 10px var(--horizontal-padding) 12px;
+}
+
+.size-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 62px 64px;
+  align-items: stretch;
+  gap: 5px;
+
+  & > * {
+    height: 36px;
+  }
+
+  & select {
+    box-sizing: border-box;
+    height: 36px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+.apply-button {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--main-theme-color);
+  color: var(--header-text-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  &[aria-busy='true'] {
+    opacity: 0.8;
+    cursor: progress;
+  }
+}
+
+.spinner {
+  box-sizing: border-box;
+  width: 15px;
+  height: 15px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: target-size-spin 700ms linear infinite;
+}
+
+@keyframes target-size-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
+
+.size-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: var(--black);
+  color: var(--white);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+
+  &:focus-visible {
+    border-color: var(--main-theme-color);
+    outline: 2px solid var(--main-theme-color);
+    outline-offset: 1px;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: #ff8a8a;
+  }
+}
+
+.hint {
+  margin: 0;
+  color: #fffc;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.resize-toggle {
+  margin: 3px 0;
+  padding: 10px 0;
+  border-top: 1px solid #fff4;
+  border-bottom: 1px solid #fff4;
+}
+
+.status {
+  min-height: 1.25em;
+  color: var(--white);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.success {
+  color: #8fe3a5;
+}
+
+.warning {
+  color: #ffd166;
+}
+
+.error {
+  color: #ffb4b4;
+}

@@ -1,6 +1,6 @@
 import { EncodeOptions, AVIFTune, defaultOptions } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
-import { h, Component } from 'preact';
+import { h, Component, ComponentChild } from 'preact';
 import { preventDefault, shallowEqual } from 'client/lazy-app/util';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
 import Checkbox from 'client/lazy-app/Compress/Options/Checkbox';
@@ -19,6 +19,7 @@ export const encode = (
 
 interface Props {
   options: EncodeOptions;
+  targetSizeControl?: ComponentChild;
   onChange(newOptions: EncodeOptions): void;
 }
 
@@ -196,6 +197,7 @@ export class Options extends Component<Props, State> {
             </div>
           )}
         </Expander>
+        {!lossless && this.props.targetSizeControl}
         <label class={style.optionReveal}>
           <Revealer
             checked={showAdvanced}

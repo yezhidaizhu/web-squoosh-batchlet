@@ -16,21 +16,24 @@
 
 ## 编解码与编辑
 
-| 功能                                           | 状态 | 实现依据                                                                          |
-| ---------------------------------------------- | :--: | --------------------------------------------------------------------------------- |
-| 浏览器支持的常用图片输入                       |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                   |
-| AVIF、WebP、JPEG XL、WebP v2、QOI 专用解码回退 |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                   |
-| SVG 输入和栅格化处理                           |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                   |
-| JPEG、PNG、WebP、AVIF 输出                     |  ✓   | [feature-meta/index.ts](../src/client/lazy-app/feature-meta/index.ts)             |
-| GIF、JPEG XL、QOI、WebP v2 输出                |  ✓   | [feature-meta/index.ts](../src/client/lazy-app/feature-meta/index.ts)             |
-| 编码质量与格式专用参数                         |  ✓   | [Options/index.tsx](../src/client/lazy-app/Compress/Options/index.tsx)            |
-| 自定义宽高、比例锁定和尺寸倍率预设             |  ✓   | [resize/client/index.tsx](../src/features/processors/resize/client/index.tsx)     |
-| 多种缩放算法和 SVG 矢量缩放                    |  ✓   | [resize/client/index.tsx](../src/features/processors/resize/client/index.tsx)     |
-| 调色板颜色数量与抖动                           |  ✓   | [quantize/client/index.tsx](../src/features/processors/quantize/client/index.tsx) |
-| 90 度旋转                                      |  ✓   | [Output/index.tsx](../src/client/lazy-app/Compress/Output/index.tsx)              |
-| 双图滑动对比、缩放、平移和背景切换             |  ✓   | [Output/index.tsx](../src/client/lazy-app/Compress/Output/index.tsx)              |
-| 输入输出文件大小、尺寸和变化比例               |  ✓   | [Results/index.tsx](../src/client/lazy-app/Compress/Results/index.tsx)            |
-| 单图下载                                       |  ✓   | [Results/index.tsx](../src/client/lazy-app/Compress/Results/index.tsx)            |
+| 功能                                           | 状态 | 实现依据                                                                             |
+| ---------------------------------------------- | :--: | ------------------------------------------------------------------------------------ |
+| 浏览器支持的常用图片输入                       |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                      |
+| AVIF、WebP、JPEG XL、WebP v2、QOI 专用解码回退 |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                      |
+| SVG 输入和栅格化处理                           |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                      |
+| JPEG、PNG、WebP、AVIF 输出                     |  ✓   | [feature-meta/index.ts](../src/client/lazy-app/feature-meta/index.ts)                |
+| GIF、JPEG XL、QOI、WebP v2 输出                |  ✓   | [feature-meta/index.ts](../src/client/lazy-app/feature-meta/index.ts)                |
+| 编码质量与格式专用参数                         |  ✓   | [Options/index.tsx](../src/client/lazy-app/Compress/Options/index.tsx)               |
+| 自定义宽高、比例锁定和尺寸倍率预设             |  ✓   | [resize/client/index.tsx](../src/features/processors/resize/client/index.tsx)        |
+| 多种缩放算法和 SVG 矢量缩放                    |  ✓   | [resize/client/index.tsx](../src/features/processors/resize/client/index.tsx)        |
+| 调色板颜色数量与抖动                           |  ✓   | [quantize/client/index.tsx](../src/features/processors/quantize/client/index.tsx)    |
+| 90 度旋转                                      |  ✓   | [Output/index.tsx](../src/client/lazy-app/Compress/Output/index.tsx)                 |
+| 双图滑动对比、缩放、平移和背景切换             |  ✓   | [Output/index.tsx](../src/client/lazy-app/Compress/Output/index.tsx)                 |
+| 输入输出文件大小、尺寸和变化比例               |  ✓   | [Results/index.tsx](../src/client/lazy-app/Compress/Results/index.tsx)               |
+| 单图下载                                       |  ✓   | [Results/index.tsx](../src/client/lazy-app/Compress/Results/index.tsx)               |
+| JPEG、WebP、AVIF 单次目标大小自动调参          |  ✓   | [target-size.ts](../src/client/lazy-app/Compress/target-size.ts)                     |
+| 目标大小提交校验与搜索期间设置锁定             |  ✓   | [TargetSize/index.tsx](../src/client/lazy-app/Compress/Options/TargetSize/index.tsx) |
+| 目标大小无法满足时自动缩小并回写 Resize        |  ✓   | [target-size.ts](../src/client/lazy-app/Compress/target-size.ts)                     |
 
 JPEG XL 在界面中标记为 beta，WebP v2 标记为 unstable。对外 SEO 页面默认只应宣传 JPEG、PNG、WebP 和 AVIF。
 
@@ -60,7 +63,6 @@ JPEG XL 在界面中标记为 beta，WebP v2 标记为 unstable。对外 SEO 页
 
 | 功能               | 状态 | 依据                                                                                                                                                                                                 |
 | ------------------ | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 自动压缩到指定 KB  |      | UI 没有目标大小输入或自动质量搜索；WebP 的底层 `target_size` 保持默认 `0`，见 [webP/shared/meta.ts](../src/features/encoders/webP/shared/meta.ts)                                                    |
 | `.jpeg` 扩展名导出 |      | 两个 JPEG 编码器都固定输出 `.jpg`，见 [mozJPEG/shared/meta.ts](../src/features/encoders/mozJPEG/shared/meta.ts) 和 [browserJPEG/shared/meta.ts](../src/features/encoders/browserJPEG/shared/meta.ts) |
 
 功能发生变化时，同步更新本文件和 SEO 仓库的 `docs/product-capabilities.md`。

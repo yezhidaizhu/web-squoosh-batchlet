@@ -1,6 +1,6 @@
 import { EncodeOptions, MozJpegColorSpace } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
-import { h, Component } from 'preact';
+import { h, Component, ComponentChild } from 'preact';
 import {
   inputFieldChecked,
   inputFieldValueAsNumber,
@@ -25,6 +25,7 @@ export function encode(
 
 interface Props {
   options: EncodeOptions;
+  targetSizeControl?: ComponentChild;
   onChange(newOptions: EncodeOptions): void;
 }
 
@@ -101,7 +102,7 @@ export class Options extends Component<Props, State> {
     this.props.onChange(newOptions);
   };
 
-  render({ options }: Props, { showAdvanced }: State) {
+  render({ options, targetSizeControl }: Props, { showAdvanced }: State) {
     // I'm rendering both lossy and lossless forms, as it becomes much easier when
     // gathering the data.
     return (
@@ -117,6 +118,7 @@ export class Options extends Component<Props, State> {
             Quality:
           </Range>
         </div>
+        {targetSizeControl}
         <label class={style.optionReveal}>
           <Revealer
             checked={showAdvanced}

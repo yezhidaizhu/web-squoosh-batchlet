@@ -1,8 +1,10 @@
 import { EncoderState, ProcessorState, encoderMap } from '../feature-meta';
+import { normalizeTargetSizeSettings, TargetSizeSettings } from './target-size';
 
 export interface CompressionPresetSettings {
   processorState: ProcessorState;
   encoderState?: EncoderState;
+  targetSize: TargetSizeSettings;
 }
 
 export interface CompressionPreset {
@@ -31,6 +33,13 @@ const isSettings = (value: unknown): value is CompressionPresetSettings => {
   );
 };
 
+const normalizeSettings = (
+  settings: CompressionPresetSettings,
+): CompressionPresetSettings => ({
+  ...settings,
+  targetSize: normalizeTargetSizeSettings(settings.targetSize),
+});
+
 const isPreset = (value: unknown): value is CompressionPreset =>
   isObject(value) &&
   typeof value.id === 'string' &&
@@ -49,7 +58,7 @@ const readLegacyPreset = (
     return {
       id: `legacy-${key}`,
       name,
-      settings: cloneSettings(parsed.latestSettings),
+      settings: normalizeSettings(cloneSettings(parsed.latestSettings)),
     };
   } catch (_) {
     return;
@@ -61,7 +70,12 @@ export const loadCompressionPresets = (): CompressionPreset[] => {
     const stored = localStorage.getItem(storageKey);
     if (stored) {
       const parsed = JSON.parse(stored) as unknown;
-      return Array.isArray(parsed) ? parsed.filter(isPreset) : [];
+      return Array.isArray(parsed)
+        ? parsed.filter(isPreset).map((preset) => ({
+            ...preset,
+            settings: normalizeSettings(preset.settings),
+          }))
+        : [];
     }
   } catch (_) {}
 
@@ -90,8 +104,10 @@ export const createCompressionPreset = (
   return {
     id: `${Date.now()}-${randomId}`,
     name,
-    settings: cloneSettings(settings),
+    settings: normalizeSettings(cloneSettings(settings)),
   };
 };
 
-export const copyCompressionPresetSettings = cloneSettings;
+export const copyCompressionPresetSettings = (
+  settings: CompressionPresetSettings,
+) => normalizeSettings(cloneSettings(settings));
