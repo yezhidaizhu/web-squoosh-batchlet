@@ -5,6 +5,9 @@ export interface SeoHandoffPreset {
   source: string;
   input?: SeoHandoffInput;
   output?: SeoHandoffOutput;
+  outputExtension?: 'jpeg';
+  targetSizeKb?: number;
+  allowTargetResize?: boolean;
   enableResize?: boolean;
   enableQuantize?: boolean;
 }
@@ -67,6 +70,36 @@ const seoHandoffPresets: Readonly<Record<string, SeoHandoffPreset>> = {
   'ru-szhat-foto': preset('ru-szhat-foto'),
   'zh-tw-image-compressor': preset('zh-tw-image-compressor'),
   'id-kompres-foto': preset('id-kompres-foto'),
+  'image-compressor-to-20kb': preset('image-compressor-to-20kb', {
+    output: 'mozJPEG',
+    targetSizeKb: 20,
+    allowTargetResize: false,
+  }),
+  'image-compressor-to-50kb': preset('image-compressor-to-50kb', {
+    output: 'mozJPEG',
+    targetSizeKb: 50,
+    allowTargetResize: false,
+  }),
+  'image-compressor-to-100kb': preset('image-compressor-to-100kb', {
+    output: 'mozJPEG',
+    targetSizeKb: 100,
+    allowTargetResize: false,
+  }),
+  'image-compressor-to-200kb': preset('image-compressor-to-200kb', {
+    output: 'mozJPEG',
+    targetSizeKb: 200,
+    allowTargetResize: false,
+  }),
+  'image-compressor-to-500kb': preset('image-compressor-to-500kb', {
+    output: 'mozJPEG',
+    targetSizeKb: 500,
+    allowTargetResize: false,
+  }),
+  'jpg-to-jpeg': preset('jpg-to-jpeg', {
+    input: 'jpeg',
+    output: 'mozJPEG',
+    outputExtension: 'jpeg',
+  }),
 };
 
 export const getSeoHandoffPreset = (

@@ -50,6 +50,7 @@ export default class TargetSize extends Component<Props, State> {
       (this.props.loading && !nextProps.loading);
     if (nextProps.settings !== this.props.settings) {
       this.setState({
+        ...(nextProps.settings.mode === 'target' ? { expanded: true } : {}),
         value: String(nextProps.settings.value),
         unit: nextProps.settings.unit,
         allowResize: nextProps.settings.allowResize,

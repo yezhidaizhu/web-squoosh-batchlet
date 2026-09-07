@@ -62,6 +62,18 @@ test('maps every SEO source to the intended preset', () => {
   ]) {
     assert.equal(getSeoHandoffPreset(source)?.output, undefined);
   }
+
+  for (const size of [20, 50, 100, 200, 500]) {
+    const preset = getSeoHandoffPreset(`image-compressor-to-${size}kb`);
+    assert.equal(preset?.output, 'mozJPEG');
+    assert.equal(preset?.targetSizeKb, size);
+    assert.equal(preset?.allowTargetResize, false);
+  }
+
+  const jpegPreset = getSeoHandoffPreset('jpg-to-jpeg');
+  assert.equal(jpegPreset?.input, 'jpeg');
+  assert.equal(jpegPreset?.output, 'mozJPEG');
+  assert.equal(jpegPreset?.outputExtension, 'jpeg');
 });
 
 test('real PNG selects WebP and rejects a real JPEG', async () => {

@@ -211,6 +211,7 @@ async function compressImage(
   encodeData: EncoderState,
   sourceFilename: string,
   workerBridge: WorkerBridge,
+  outputExtension = encoderMap[encodeData.type].meta.extension,
 ): Promise<File> {
   assertSignal(signal);
 
@@ -228,7 +229,7 @@ async function compressImage(
 
   return new File(
     [compressedData],
-    sourceFilename.replace(/.[^.]*$/, `.${encoder.meta.extension}`),
+    sourceFilename.replace(/.[^.]*$/, `.${outputExtension}`),
     { type },
   );
 }
@@ -240,6 +241,7 @@ async function compressImageToTarget(
   targetSize: TargetSizeSettings,
   sourceFilename: string,
   workerBridge: WorkerBridge,
+  outputExtension?: string,
 ) {
   return encodeToTargetSize({
     signal,
@@ -248,7 +250,14 @@ async function compressImageToTarget(
     targetBytes: targetSizeBytes(targetSize),
     allowResize: targetSize.allowResize,
     encode: (input, state) =>
-      compressImage(signal, input, state, sourceFilename, workerBridge),
+      compressImage(
+        signal,
+        input,
+        state,
+        sourceFilename,
+        workerBridge,
+        outputExtension,
+      ),
     resize: async (input, width, height) =>
       await workerBridge.resize(signal, input, {
         width,
@@ -476,6 +485,7 @@ export default class Compress extends Component<Props, State> {
   /** For debouncing calls to updateImage for each side. */
   private updateImageTimeout?: number;
   private pendingHandoffPreset?: SeoHandoffPreset;
+  private outputExtensionOverride?: 'jpeg';
 
   constructor(props: Props) {
     super(props);
@@ -491,10 +501,16 @@ export default class Compress extends Component<Props, State> {
     const preset = this.pendingHandoffPreset;
     if (!preset) return;
     this.pendingHandoffPreset = undefined;
+    this.outputExtensionOverride = preset.outputExtension;
 
     this.setState(
       (state) => {
-        if (!preset.output && !preset.enableResize && !preset.enableQuantize) {
+        if (
+          !preset.output &&
+          !preset.targetSizeKb &&
+          !preset.enableResize &&
+          !preset.enableQuantize
+        ) {
           return {};
         }
 
@@ -512,6 +528,14 @@ export default class Compress extends Component<Props, State> {
           settings.processorState.resize = resize;
         }
         if (preset.enableResize) settings.processorState.resize.enabled = true;
+        if (preset.targetSizeKb) {
+          settings.targetSize = {
+            mode: 'target',
+            value: preset.targetSizeKb,
+            unit: 'kB',
+            allowResize: preset.allowTargetResize === true,
+          };
+        }
         if (preset.enableQuantize) {
           settings.processorState.quantize = {
             ...clone(defaultProcessorState.quantize),
@@ -578,6 +602,7 @@ export default class Compress extends Component<Props, State> {
           encoderState,
           file.name,
           bridge,
+          this.outputExtension(encoderState),
         ),
         width: processed.width,
         height: processed.height,
@@ -595,11 +620,17 @@ export default class Compress extends Component<Props, State> {
     if (!encoderState || !image) return;
 
     return {
-      extension: encoderMap[encoderState.type].meta.extension,
+      extension: this.outputExtension(encoderState),
       width: image.width,
       height: image.height,
     };
   }
+
+  private outputExtension = (encoderState: EncoderState): string =>
+    this.outputExtensionOverride &&
+    (encoderState.type === 'mozJPEG' || encoderState.type === 'browserJPEG')
+      ? this.outputExtensionOverride
+      : encoderMap[encoderState.type].meta.extension;
 
   private onMobileWidthChange = () => {
     this.setState({ mobileView: this.widthQuery.matches });
@@ -1258,6 +1289,7 @@ export default class Compress extends Component<Props, State> {
                 jobState.targetSize,
                 source.file.name,
                 workerBridge,
+                this.outputExtension(jobState.encoderState),
               );
               file = result.file;
               targetSizeResult = {
@@ -1295,6 +1327,7 @@ export default class Compress extends Component<Props, State> {
                 jobState.encoderState,
                 source.file.name,
                 workerBridge,
+                this.outputExtension(jobState.encoderState),
               );
             }
             data = await decodeImage(signal, file, workerBridge);

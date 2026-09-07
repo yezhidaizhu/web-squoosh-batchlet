@@ -24,6 +24,7 @@
 | AVIF、WebP、JPEG XL、WebP v2、QOI 专用解码回退 |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                      |
 | SVG 输入和栅格化处理                           |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                      |
 | JPEG、PNG、WebP、AVIF 输出                     |  ✓   | [feature-meta/index.ts](../src/client/lazy-app/feature-meta/index.ts)                |
+| SEO 交接预设输出 `.jpeg` 单图与批量文件名      |  ✓   | [Compress/index.tsx](../src/client/lazy-app/Compress/index.tsx)                      |
 | GIF、JPEG XL、QOI、WebP v2 输出                |  ✓   | [feature-meta/index.ts](../src/client/lazy-app/feature-meta/index.ts)                |
 | 编码质量与格式专用参数                         |  ✓   | [Options/index.tsx](../src/client/lazy-app/Compress/Options/index.tsx)               |
 | 自定义宽高、比例锁定和尺寸倍率预设             |  ✓   | [resize/client/index.tsx](../src/features/processors/resize/client/index.tsx)        |
@@ -65,8 +66,6 @@ JPEG XL 在界面中标记为 beta，WebP v2 标记为 unstable。对外 SEO 页
 
 ## 未实现
 
-| 功能               | 状态 | 依据                                                                                                                                                                                                 |
-| ------------------ | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.jpeg` 扩展名导出 |      | 两个 JPEG 编码器都固定输出 `.jpg`，见 [mozJPEG/shared/meta.ts](../src/features/encoders/mozJPEG/shared/meta.ts) 和 [browserJPEG/shared/meta.ts](../src/features/encoders/browserJPEG/shared/meta.ts) |
+当前没有与已规划 SEO 页面相关的未实现功能。
 
 功能发生变化时，同步更新本文件和 SEO 仓库的 `docs/product-capabilities.md`。
